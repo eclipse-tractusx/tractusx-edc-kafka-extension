@@ -1,0 +1,26 @@
+@startuml
+box "Consumer cluster" #LightYellow
+    participant "Control Plane" as ConsumerCP
+end box
+
+box "Provider cluster" #LightBlue
+    participant "OAuth Service" as OAuth2
+    participant "Kafka Extension" as ProviderKE
+    participant "Control Plane"  as ProviderCP
+end box
+
+== Provision ==
+ConsumerCP -> ProviderCP : Send TransferRequestMessage
+ProviderCP -> ProviderKE : Send ProvisionRequest
+ProviderKE -> OAuth2 : Create credentials
+ProviderKE <-- OAuth2 : Credentials created
+ProviderKE -> ProviderKE : Save credentials in vault
+ProviderCP <-- ProviderKE : Return ProvisionResponse
+
+== Deprovision ==
+ProviderCP -> ProviderKE : Send DeprovisionRequest
+ProviderKE -> OAuth2 : Delete credentials
+ProviderKE <-- OAuth2 : Credentials deleted
+ProviderKE -> ProviderKE : Delete credentials from vault
+ProviderCP <-- ProviderKE : Return DeprovisionResponse
+@enduml

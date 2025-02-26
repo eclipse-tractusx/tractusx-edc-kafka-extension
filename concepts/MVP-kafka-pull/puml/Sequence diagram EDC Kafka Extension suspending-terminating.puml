@@ -1,0 +1,22 @@
+@startuml
+box "Consumer cluster" #LightYellow
+    participant "Control Plane" as ConsumerCP
+end box
+
+box "Provider cluster" #LightBlue
+    participant "Kafka Service" as Kafka
+    participant "OAuth Service" as OAuth2
+    participant "Kafka Extension" as ProviderKE
+    participant "Control Plane"  as ProviderCP
+    participant "Data Plane"  as ProviderDP
+end box
+
+== Data suspending/terminating ==
+ProviderCP -> ProviderKE : Suspend/terminate message
+ProviderKE -> ProviderDP : Revoke token
+ProviderDP -> OAuth2 : Revoke token
+Kafka -> Kafka : Stop Polling for outdated token
+ProviderDP <-- OAuth2 : Token revoked
+ProviderKE <-- ProviderDP : Token revoked
+ProviderCP <-- ProviderKE : Transfer suspended/terminated
+@enduml

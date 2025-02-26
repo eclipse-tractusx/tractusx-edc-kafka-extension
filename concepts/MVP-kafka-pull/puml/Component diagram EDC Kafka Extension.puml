@@ -1,0 +1,40 @@
+@startuml
+package "Provider ecosystem" #AliceBlue {
+    [Provider Application] as ProviderApp
+}
+
+package "Provider cluster" #AliceBlue {
+    [Control Plane] as ProviderCP
+    [Data Plane] as ProviderDP
+    [Kafka Extension] as ProviderKE
+    [Kafka Service] as Kafka
+    [OAuth Service] as OAuthService
+    [Vault]
+    interface "OAuth Manage API" as OAuth2API
+    OAuth2API - OAuthService
+}
+
+package "Consumer cluster" #LightYellow {
+    [Control Plane] as ConsumerCP
+}
+package "Consumer ecosystem" #LightYellow {
+    [Consumer Application] as ConsumerApp
+}
+
+interface "Producer API" as ProducerAPI
+ProducerAPI - Kafka
+interface "Consumer API" as ConsumeAPI
+ConsumeAPI - Kafka
+
+ProviderApp --> ProducerAPI : Send stream of data to topic
+ConsumerCP <--> ProviderCP : Initiate negotiation, transfer
+ProviderCP <--> ProviderKE : Start/suspend/terminate transfer
+ConsumerCP --> ProviderDP : Renew token
+ProviderDP --> OAuth2API : Renew/obtain/revoke token
+[Vault] <--> ProviderKE : Read/Write secret
+ProviderKE --> OAuth2API : Create/delete credentials
+ProviderKE --> ProviderDP : Obtain/revoke tokens
+Kafka --> OAuth2API : Authentication
+ConsumerApp --> ConsumerCP : Get EDR
+ConsumerApp --> ConsumeAPI : Poll data
+@enduml

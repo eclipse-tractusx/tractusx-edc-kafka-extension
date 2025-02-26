@@ -1,0 +1,22 @@
+@startuml
+actor ConsumerApp as "Consumer"
+
+box "Consumer cluster" #LightYellow
+    participant "Control Plane" as ConsumerCP
+end box
+
+box "Provider cluster" #LightBlue
+    participant "Kafka Service" as Kafka
+    participant "OAuth Service" as OAuth2
+end box
+
+== Data streaming ==
+ConsumerApp -> ConsumerCP : Request for EDR
+ConsumerApp <-- ConsumerCP : Response with EDR
+ConsumerApp -> Kafka : Authentication
+Kafka -> OAuth2 : Authentication
+Kafka <-- OAuth2 : Authentication success
+ConsumerApp <-- Kafka : Authentication success
+ConsumerApp -> Kafka : Poll data
+ConsumerApp <-- Kafka : Polling data while token is valid
+@enduml
