@@ -1,0 +1,27 @@
+@startuml
+box "Consumer cluster" #LightYellow
+    participant "Control Plane" as ConsumerCP
+end box
+
+box "Provider cluster" #LightBlue
+    participant "OAuth Service" as OAuth2
+    participant "Kafka Extension" as ProviderKE
+    participant "Control Plane"  as ProviderCP
+    participant "Data Plane"  as ProviderDP
+end box
+
+== Start Transfer Process (assumes contract has already been negotiated) ==
+ConsumerCP -> ProviderCP : Start transfer process
+ProviderCP -> ProviderCP : Check policy, contract etc.
+ProviderCP -> ProviderKE : Send DataFlowRequest
+ProviderKE -> ProviderKE : Obtain credentials from vault
+ProviderKE -> ProviderDP : Send DataFlowStartMessage
+ProviderDP -> OAuth2 : Generate access token and refresh token
+ProviderDP <-- OAuth2 : Tokens generated
+ProviderDP -> ProviderDP : Generate DataAddress
+ProviderKE <-- ProviderDP : Return DataFlowResponseMessage
+ProviderKE -> ProviderKE : Adjust DataAddress
+ProviderKE --> ProviderCP : Return DataFlowResponse
+ProviderCP -> ConsumerCP : Send TransferStartMessage attaching DataAddress
+ConsumerCP -> ConsumerCP : Create EDR with DataAddress
+@enduml
