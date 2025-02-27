@@ -1,1 +1,1 @@
-com.zf.dos.edc.validator.dataaddress.kafka.KafkaBrokerDataAddressValidatorExtension
+org.eclipse.tractusx.edc.validator.dataaddress.kafka.KafkaBrokerDataAddressValidatorExtension
