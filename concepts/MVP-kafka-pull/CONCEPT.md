@@ -157,5 +157,4 @@ This work is licensed under the [CC-BY-4.0](https://creativecommons.org/licenses
 
 - SPDX-License-Identifier: CC-BY-4.0
 - SPDX-FileCopyrightText: (c) 2025 Cofinity-X GmbH
-- Source
-  URL: [Eclipse Tractus-X](https://github.com/eclipse-tractusx)
+- Source URL: [tractusx-edc-kafka-extension](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension)
