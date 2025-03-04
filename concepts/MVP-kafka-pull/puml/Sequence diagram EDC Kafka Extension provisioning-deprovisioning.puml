@@ -1,4 +1,8 @@
 @startuml
+/'
+SPDX-License-Identifier: CC-BY-4.0
+SPDX-FileCopyrightText: (c) 2025 Cofinity-X GmbH
+'/
 box "Consumer cluster" #LightYellow
     participant "Control Plane" as ConsumerCP
 end box
