@@ -1,0 +1,50 @@
+meta {
+  name: Kafka PULL
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{CONSUMER_MANAGEMENT_URL}}/v3/transferprocesses
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@type": "TransferRequest",
+    "protocol": "dataspace-protocol-http",
+    "assetId": "{{ASSET_ID}}",
+    "contractId": "{{CONTRACT_AGREEMENT_ID}}",
+    "connectorId": "{{PROVIDER_ID}}",
+    "transferType": "Kafka-PULL",
+    "counterPartyAddress": "{{PROVIDER_PROTOCOL_URL}}",
+    "dataDestination": {
+      "type": "KafkaBroker"
+    }
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  var jsonData = res.getBody();
+  test("Kafka PULL" , function () {
+    bru.setVar("CONSUMER_TRANSFER_ID", jsonData["@id"]);
+  });
+}
+
+docs {
+  ```
+  insert contract id from 'get negotiation'
+  
+   ```
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Kafak PoC Bruno collection",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Create policy definition
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{PROVIDER_MANAGEMENT_URL}}/v3/policydefinitions
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+      "odrl": "http://www.w3.org/ns/odrl/2/"
+    },
+    "@id": "no-constraint-policy",
+    "policy": {
+      "@context": "http://www.w3.org/ns/odrl.jsonld",
+      "@type": "Set",
+      "permission": [],
+      "prohibition": [],
+      "obligation": []
+    }
+  }
+}
