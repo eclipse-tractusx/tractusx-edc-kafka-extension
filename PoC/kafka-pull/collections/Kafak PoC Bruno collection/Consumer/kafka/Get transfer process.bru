@@ -1,0 +1,32 @@
+meta {
+  name: Get transfer process
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{CONSUMER_MANAGEMENT_URL}}/v3/transferprocesses/{{CONSUMER_TRANSFER_ID}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  var jsonData = res.getBody();
+  test("Get transfer process" , function () {
+    bru.setVar("PROVIDER_TRANSFER_ID", jsonData["@id"]);
+  });
+}
+
+docs {
+  ```
+  insert id from 'initiate transfer'
+  
+   ```
+}

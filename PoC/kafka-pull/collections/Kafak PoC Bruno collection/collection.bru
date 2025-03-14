@@ -1,0 +1,31 @@
+meta {
+  name: Kafka PoC collection
+}
+
+auth {
+  mode: apikey
+}
+
+auth:apikey {
+  key: X-API-KEY
+  value: {{API_KEY_PASSWORD}}
+  placement: header
+}
+vars:pre-request {
+  API_KEY_PASSWORD: password
+  PROVIDER_PROTOCOL_URL: http://control-plane-alice:8282/protocol
+  CONSUMER_MANAGEMENT_URL: http://localhost:9191/management
+  PROVIDER_MANAGEMENT_URL: http://localhost:8181/management
+  PROVIDER_ID: alice
+  ASSET_ID: kafka-stream-asset
+  KAFKA_URL: kafka-kraft:9093
+  KAFKA_SECRET: secretKey
+  KAFKA_SASL_MECHANISM: SCRAM-SHA-256
+  KAFKA_SECURITY_PROTOCOL: SASL_PLAINTEXT
+  KAFKA_TOPIC: kafka-stream-topic
+  NEGOTIATION_ID: 
+  CONTRACT_AGREEMENT_ID: 
+  CONSUMER_TRANSFER_ID: 
+  PROVIDER_TRANSFER_ID: 
+  OFFER_ID: 
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Resume transfer process
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{PROVIDER_MANAGEMENT_URL}}/v3/transferprocesses/{{PROVIDER_TRANSFER_ID}}/resume
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+docs {
+  ```
+  insert id from 'initiate transfer'
+  
+   ```
+}

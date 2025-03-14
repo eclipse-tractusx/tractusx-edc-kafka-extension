@@ -1,0 +1,32 @@
+meta {
+  name: Suspend transfer process
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{CONSUMER_MANAGEMENT_URL}}/v3/transferprocesses/{{CONSUMER_TRANSFER_ID}}/suspend
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@type": "https://w3id.org/edc/v0.0.1/ns/SuspendTransfer",
+    "reason": "a reason to suspend"
+  }
+}
+
+docs {
+  ```
+  insert id from 'initiate transfer'
+  
+   ```
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Terminate transfer process
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{PROVIDER_MANAGEMENT_URL}}/v3/transferprocesses/{{PROVIDER_TRANSFER_ID}}/terminate
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@type": "https://w3id.org/edc/v0.0.1/ns/TerminateTransfer",
+    "reason": "a reason to terminate"
+  }
+}
+
+docs {
+  ```
+  insert id from 'initiate transfer'
+  
+   ```
+}
