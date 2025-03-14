@@ -41,5 +41,5 @@ It should be admin credential that has permission to create additional credentia
 
 #### Examples:
 
-Please see [bruno collection](collections/Kafak%20PoC.bruno_collection.json).
+Please see [bruno collection](collections/Kafak%20PoC%20Bruno%20collection).
 
