@@ -58,7 +58,10 @@ Consider an automotive shop floor where production machines continuously generat
 | Real-time Operational Monitoring and Analysis | This use case encompasses the continuous real-time monitoring of production data, quality metrics, environmental parameters, and supply chain information. It enables immediate analysis and response to operational events, fostering optimized process control, proactive decision-making, and enhanced transparency across manufacturing and logistics processes. |
 | Predictive Maintenance and Data Integration   | This use case focuses on leveraging streaming data to identify maintenance needs early while integrating external data sources to support informed decision-making. It helps minimize downtime through predictive maintenance and improves adaptability by incorporating external factors such as weather conditions and market trends.                              |
 
+## NOTICE
 
+This work is licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/legalcode).
 
-
-
+* SPDX-License-Identifier: CC-BY-4.0
+* SPDX-FileCopyrightText: 2024 Contributors to the Eclipse Foundation
+* Source URL: <https://github.com/eclipse-tractusx/tractus-x-umbrella>
