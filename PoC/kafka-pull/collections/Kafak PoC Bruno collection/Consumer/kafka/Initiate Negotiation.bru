@@ -1,0 +1,44 @@
+meta {
+  name: Initiate Negotiation
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{CONSUMER_MANAGEMENT_URL}}/v3/contractnegotiations
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+      "odrl": "http://www.w3.org/ns/odrl/2/"
+    },
+    "@type": "ContractRequest",
+    "counterPartyAddress": "{{PROVIDER_PROTOCOL_URL}}",
+    "protocol": "dataspace-protocol-http",
+    "policy": {
+      "@context": "http://www.w3.org/ns/odrl.jsonld",
+      "@id": "{{OFFER_ID}}",
+      "@type": "Offer",
+      "assigner": "{{PROVIDER_ID}}",
+      "target": "test"
+    }
+  }
+}
+
+tests {
+  test("Status code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  var jsonData = res.getBody();
+  test("Initiated Negotiation", function () {
+    bru.setVar("NEGOTIATION_ID", jsonData["@id"]);
+  });
+}
