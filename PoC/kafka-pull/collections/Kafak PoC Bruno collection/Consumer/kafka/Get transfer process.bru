@@ -20,7 +20,7 @@ tests {
   });
   var jsonData = res.getBody();
   test("Get transfer process" , function () {
-    bru.setVar("PROVIDER_TRANSFER_ID", jsonData["@id"]);
+    bru.setVar("PROVIDER_TRANSFER_ID", jsonData["correlationId"]);
   });
 }
 

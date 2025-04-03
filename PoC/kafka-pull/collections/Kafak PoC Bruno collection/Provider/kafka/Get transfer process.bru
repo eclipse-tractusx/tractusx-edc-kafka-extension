@@ -1,11 +1,11 @@
 meta {
-  name: Resume transfer process
+  name: Get transfer process
   type: http
-  seq: 7
+  seq: 4
 }
 
-post {
-  url: {{PROVIDER_MANAGEMENT_URL}}/v3/transferprocesses/{{PROVIDER_TRANSFER_ID}}/resume
+get {
+  url: {{PROVIDER_MANAGEMENT_URL}}/v3/transferprocesses/{{PROVIDER_TRANSFER_ID}}
   body: json
   auth: inherit
 }
