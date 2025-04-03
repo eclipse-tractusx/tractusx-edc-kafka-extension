@@ -39,7 +39,5 @@ secretKey=org.apache.kafka.common.security.scram.ScramLoginModule required usern
   ```
 It should be admin credential that has permission to create additional credentials with permissions to read topic.
 
-#### Examples:
 
-Please see [bruno collection](collections/Kafak%20PoC%20Bruno%20collection).
 

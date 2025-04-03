@@ -1,0 +1,73 @@
+[metadata]
+format.version = "1.1"
+
+[versions]
+tractusx = "0.8.1"
+edc = "0.10.1"
+junit = "5.11.3"
+assertj = "3.26.3"
+mockito = "5.2.0"
+testcontainers = "1.20.3"
+failsafe = "3.3.2"
+shadow = "8.3.5"
+kafka = "3.7.0"
+jackson = "2.15.2"
+
+[libraries]
+# Tractus-X EDC - Runtimes
+tx-edc-controlplane-base = { module = "org.eclipse.tractusx.edc:edc-controlplane-base", version.ref = "tractusx" }
+tx-edc-dataplane-base = { module = "org.eclipse.tractusx.edc:edc-dataplane-base", version.ref = "tractusx" }
+tx-edc-controlplane-postgresql-hashicorp = { module = "org.eclipse.tractusx.edc:edc-controlplane-postgresql-hashicorp-vault", version.ref = "tractusx" }
+tx-edc-dataplane-hashicorp = { module = "org.eclipse.tractusx.edc:edc-dataplane-hashicorp-vault", version.ref = "tractusx" }
+
+# Tractus-X EDC - Misc
+tx-edc-spi-bdrs-client = { module = "org.eclipse.tractusx.edc:bdrs-client-spi", version.ref = "tractusx" }
+
+# Upstream EDC - SPI
+edc-spi-asset = { module = "org.eclipse.edc:asset-spi", version.ref = "edc" }
+edc-spi-catalog = { module = "org.eclipse.edc:catalog-spi", version.ref = "edc" }
+edc-spi-contract = { module = "org.eclipse.edc:contract-spi", version.ref = "edc" }
+edc-spi-core = { module = "org.eclipse.edc:core-spi", version.ref = "edc" }
+edc-spi-http = { module = "org.eclipse.edc:http-spi", version.ref = "edc" }
+edc-spi-identity-did = { module = "org.eclipse.edc:identity-did-spi", version.ref = "edc" }
+edc-spi-identity-trust = { module = "org.eclipse.edc:identity-trust-spi", version.ref = "edc" }
+edc-spi-keys = { module = "org.eclipse.edc:keys-spi", version.ref = "edc" }
+edc-spi-validator = { module = "org.eclipse.edc:validator-spi", version.ref = "edc" }
+edc-spi-token = { module = "org.eclipse.edc:token-spi", version.ref = "edc" }
+edc-spi-transfer = { module = "org.eclipse.edc:transfer-spi", version.ref = "edc" }
+
+# Upstream EDC - Core
+edc-core-connector = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
+edc-core-controlplane = { module = "org.eclipse.edc:control-plane-core", version.ref = "edc" }
+
+# Upstream EDC - AWS
+edc-aws-s3-core = { module = "org.eclipse.edc.aws:aws-s3-core", version.ref = "edc" }
+edc-aws-s3-test = { module = "org.eclipse.edc.aws:aws-s3-test", version.ref = "edc" }
+
+# Upstream EDC - Misc
+edc-util-dataplane = { module = "org.eclipse.edc:data-plane-util", version.ref = "edc" }
+edc-lib-keys = { module = "org.eclipse.edc:keys-lib", version.ref = "edc" }
+edc-lib-query = { module = "org.eclipse.edc:query-lib", version.ref = "edc" }
+edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
+edc-transaction-local = { module = "org.eclipse.edc:transaction-local", version.ref = "edc" }
+edc-iam-mock = { module = "org.eclipse.edc:iam-mock", version.ref = "edc" }
+edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
+edc-junit-base = { module = "org.eclipse.edc:junit-base", version.ref = "edc" }
+
+# Testing
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-vault = { module = "org.testcontainers:vault", version.ref = "testcontainers" }
+
+# Other
+failsafe = { module = "dev.failsafe:failsafe", version.ref = "failsafe" }
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

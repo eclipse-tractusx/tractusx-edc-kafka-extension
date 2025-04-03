@@ -17,10 +17,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-dependencies {
-    implementation(libs.edc.spi.core)
+plugins {
+    application
+    alias(libs.plugins.shadow)
 }
 
-tasks.test {
-    useJUnitPlatform()
+dependencies {
+    implementation(libs.jackson.databind)
+    implementation(libs.kafka.clients)
 }
+
+application {
+    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
+}
+
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    dependsOn("distTar", "distZip")
+    mergeServiceFiles()
+    archiveFileName.set("kafka-consumer.jar")
+}
+
+description = "kafka-consumer"
