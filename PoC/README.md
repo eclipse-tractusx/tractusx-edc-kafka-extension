@@ -21,7 +21,7 @@ docker compose --project-directory poc/runtimes up
 
 #### Data transfer
 
-In [bruno collection](kafka-pull/collections/Kafak%20PoC%20Bruno%20collection)
+In [bruno collection](kafka-pull/collections/Kafka%20PoC%20Bruno%20collection)
 all HTTP requests required to run kafka pull transfers are prepared.
 Using these requests, Alice will act as the provider and Bob will act as the consumer.
 
