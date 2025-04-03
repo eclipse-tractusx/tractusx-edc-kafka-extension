@@ -18,20 +18,16 @@
  */
 package org.eclipse.tractusx.edc.validator.dataaddress.kafka;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.validator.spi.ValidationResult;
 import org.eclipse.edc.validator.spi.Validator;
 import org.eclipse.edc.validator.spi.Violation;
 
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.BOOTSTRAP_SERVERS;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.MECHANISM;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.PROTOCOL;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.SECRET_KEY;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.TOPIC;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
 
 public class KafkaBrokerDataAddressValidator implements Validator<DataAddress> {
     public KafkaBrokerDataAddressValidator() {

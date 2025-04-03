@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Cofinity-X GmbH
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,21 +17,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-plugins {
-    `java-library`
+rootProject.name = "edc-kafka-pull-poc"
+
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
 
-dependencies {
-    implementation(libs.edc.core.spi)
-    implementation(libs.edc.validator.spi)
-    implementation(project(":data-address-kafka"))
-
-    testImplementation(libs.edc.junit.base)
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.assertj.core)
-
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
 }
 
-tasks.test {
-    useJUnitPlatform()
-}
+include(":validator-data-address-kafka")
+include(":data-address-kafka")
+include(":kafka-broker-extension")

@@ -16,9 +16,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
- 
+
 dependencies {
-    implementation("org.eclipse.edc:core-spi:0.11.0-20250110-SNAPSHOT")
+    implementation(libs.edc.core.spi)
 }
 
 tasks.test {
