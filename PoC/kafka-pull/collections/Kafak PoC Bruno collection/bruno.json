@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "Kafak PoC Bruno collection",
+  "name": "Kafka PoC Bruno collection",
   "type": "collection",
   "ignore": [
     "node_modules",
