@@ -47,8 +47,7 @@ Please see [bruno collection](collections/Kafak%20PoC%20Bruno%20collection).
 
 ### build the connector JAR
 
-````powershell
-cd PoC\kafka-pull
+````shell
 ./gradlew :kafka-broker-extension:build
 ````
 
