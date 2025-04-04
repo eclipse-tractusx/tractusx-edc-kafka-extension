@@ -17,10 +17,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-dependencies {
-    implementation(libs.edc.spi.core)
+plugins {
+    `java-library`
 }
 
-tasks.test {
-    useJUnitPlatform()
+val javaVersion: String by project
+
+allprojects {
+    apply(plugin = "java")
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        }
+
+        tasks.withType(JavaCompile::class.java) {
+            // making sure the code does not use any APIs from a more recent version.
+            // Ref: https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation
+            options.release.set(javaVersion.toInt())
+        }
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }

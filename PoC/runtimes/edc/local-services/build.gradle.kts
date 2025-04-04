@@ -17,10 +17,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-dependencies {
-    implementation(libs.edc.spi.core)
+plugins {
+  `java-library`
 }
 
-tasks.test {
-    useJUnitPlatform()
+dependencies {
+  implementation(libs.edc.spi.core)
+  implementation(libs.edc.spi.token)
+  implementation(libs.edc.spi.identity.did)
+  implementation(libs.edc.spi.identity.trust)
+  implementation(libs.edc.spi.keys)
+
+  implementation(libs.edc.lib.keys)
+
+  implementation(libs.tx.edc.spi.bdrs.client)
 }
