@@ -2,7 +2,7 @@
 set -ex
 
 # Export environment variables from kafka.env
-export $(grep -v '^#' /config/temp_kafka.env | xargs)
+export "$(grep -v '^#' /config/temp_kafka.env | xargs)"
 
 export KAFKA_OPTS="-Djava.security.auth.login.config=/config/temp_kafka_broker_jaas.conf"
 
@@ -55,7 +55,7 @@ pkill -f kafka
 echo "Starting Kafka in KRaft mode with SASL/SCRAM authentication..."
 
 # Export environment variables from kafka.env
-export $(grep -v '^#' /config/kafka.env | xargs)
+export "$(grep -v '^#' /config/kafka.env | xargs)"
 
 # Set the JAAS configuration file for both broker and controller
 export KAFKA_OPTS="-Djava.security.auth.login.config=/config/kafka_broker_jaas.conf"
