@@ -28,19 +28,17 @@ import java.util.Collections;
 import java.util.Properties;
 
 public class KafkaConsumerApp {
-    private static final String TRANSFER_PROCESS_ID = "196e3b01-7a77-434a-91f2-f64305688ecd";
     public static void main(String[] args) {
 
         var edrProvider = new EdrProvider();
-        EDRData edrData = edrProvider.getEdr(TRANSFER_PROCESS_ID);
-        if(edrData == null)
+        EDRData edrData = edrProvider.getEdr();
+        if (edrData == null)
             return;
         KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrData);
 
-        consumer.subscribe(Collections.singletonList(edrData.getTopic()));
-        System.out.println("Consumer started with SASL/SCRAM authentication. Waiting for messages...");
-
-        try {
+        try (consumer) {
+            consumer.subscribe(Collections.singletonList(edrData.getTopic()));
+            System.out.println("Consumer started with SASL/SCRAM authentication. Waiting for messages...");
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
 
@@ -52,8 +50,6 @@ public class KafkaConsumerApp {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            consumer.close();
         }
     }
 
@@ -76,7 +72,6 @@ public class KafkaConsumerApp {
         props.put("sasl.mechanism", "SCRAM-SHA-256"); // or "SCRAM-SHA-512" based on your Kafka setup
 
 
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        return consumer;
+        return new KafkaConsumer<>(props);
     }
 }

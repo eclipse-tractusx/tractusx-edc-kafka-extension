@@ -25,6 +25,11 @@ plugins {
 dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.kafka.clients)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 }
 
 application {

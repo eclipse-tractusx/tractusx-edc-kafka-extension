@@ -69,6 +69,7 @@ services:
       - ./kafka/kafka-producer/build/libs/kafka-producer.jar:/app/application.jar
 
   kafka-consumer:
+    restart: on-failure
     build: ./kafka/kafka-consumer
     depends_on:
       kafka-kraft:
