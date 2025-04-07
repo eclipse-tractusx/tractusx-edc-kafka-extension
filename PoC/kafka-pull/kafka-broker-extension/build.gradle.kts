@@ -17,58 +17,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-plugins {
-    `java-library`
-    id("application")
-    alias(libs.plugins.shadow)
-}
-
 dependencies {
-    implementation(libs.edc.transfer.spi)
-    implementation(libs.edc.validator.spi)
-    implementation(libs.kafka.clients)
-    implementation(libs.edc.util.lib)
+   implementation(libs.edc.spi.transfer)
+   implementation(libs.edc.spi.validator)
+   implementation(libs.kafka.clients)
+   implementation(libs.edc.lib.util)
+   implementation(project(":data-address-kafka"))
+   implementation(project(":validator-data-address-kafka"))
 
-    implementation(project(":data-address-kafka"))
-    implementation(project(":validator-data-address-kafka"))
-
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.assertj.core)
-    testImplementation(libs.edc.junit)
-    testImplementation(libs.mockito.core)
-
-    // Required for jar build
-    implementation(libs.edc.control.plane.api.client)
-    implementation(libs.edc.control.plane.core)
-    implementation(libs.edc.data.plane.selector.core)
-    implementation(libs.edc.api.observability)
-    implementation(libs.edc.configuration.filesystem)
-    implementation(libs.edc.iam.mock)
-    implementation(libs.edc.management.api)
-    implementation(libs.edc.dsp)
-    implementation(libs.edc.http)
-    implementation(libs.edc.edr.store.core)
-    implementation(libs.edc.data.plane.selector.api)
-    implementation(libs.edc.transfer.data.plane.signaling)
-    implementation(libs.edc.transfer.pull.http.dynamic.receiver)
-    implementation(libs.edc.data.plane.spi)
-    implementation(libs.edc.data.plane.core)
-    implementation(libs.edc.data.plane.http)
-    implementation(libs.edc.data.plane.kafka)
+   testImplementation(libs.junit.jupiter)
+   testImplementation(libs.junit.jupiter.api)
+   testImplementation(libs.junit.jupiter.engine)
+   testImplementation(libs.junit.jupiter.params)
+   testImplementation(libs.assertj)
+   testImplementation(libs.edc.junit)
+   testImplementation(libs.mockito.core)
 }
 
 tasks.test {
-    useJUnitPlatform()
-}
-
-application {
-    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
-}
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    mergeServiceFiles()
-    archiveFileName.set("connector.jar")
+   useJUnitPlatform()
 }

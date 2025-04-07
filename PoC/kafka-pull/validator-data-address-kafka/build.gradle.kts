@@ -22,14 +22,13 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.edc.core.spi)
-    implementation(libs.edc.validator.spi)
+    implementation(libs.edc.spi.core)
+    implementation(libs.edc.spi.validator)
     implementation(project(":data-address-kafka"))
 
     testImplementation(libs.edc.junit.base)
     testImplementation(libs.junit.jupiter)
-    testImplementation(libs.assertj.core)
-
+    testImplementation(libs.assertj)
 }
 
 tasks.test {
