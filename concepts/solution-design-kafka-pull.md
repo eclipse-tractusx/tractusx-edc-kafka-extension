@@ -231,6 +231,30 @@ policies.
 See the [Tractus-X EDC Signaling Extension](https://github.com/eclipse-tractusx/tractusx-edc/blob/main/docs/development/dataplane-signaling/tx-signaling.extensions.md)
 for more details.
 
+## Interoperability
+
+The Kafka Extension does not change anything related to IATP, DSP and policy definitions. This ensures full
+conformity to the
+Standard [CX-0018 Dataspace Connectivity v.3.1.0](https://catenax-ev.github.io/docs/standards/CX-0018-DataspaceConnectivity)
+for chapters 2.1, 2.3, 2.4 and 2.5.
+
+Since the Kafka PULL extension will introduce the new transfer type `Kafka-PULL` the standard has to be extended by this
+new type once the extension exits POC state and is introduced as a proper Tractus-X EDC extension.
+
+An example for the extended standard could be:
+
+> 2.2.3 Kafka-PULL
+> 
+> A Consumer MUST send a `dspace:TransferRequestMessage` with `dct:format:dspace:Kafka-PULL`.
+> 
+> A Provider MUST send a `dspace:TransferStartMessage` with sufficient information in the `dspace:dataAddress` property so that a client connection to the `dspace:endpoint` may succeed when initialized with the properties `scopes`, `groupPrefix` and `topic`.
+> 
+> A Provider Connector MUST ensure that the requested backend system has sufficient context from the negotiation to evaluate the legitimacy of the request.
+> 
+> A Consumer may then use the provided data to execute requests against the endpoint.
+> 
+> Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the `dspace:dataAddress`.
+
 ## NOTICE
 
 This work is licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/legalcode).
