@@ -1,5 +1,28 @@
 # Kafka pull solution design
 
+## TODO
+
+- install instructions
+- current state of POC
+- Kafka SASL setup
+- define ContentDataAddress Type and TransferProcess Transfer Type (or keep current naming)
+- ensure that Kafka will not be proxied via dataplane
+- Dataplane Signaling?
+    - Maybe not in the first draft, might me a SHOULD/COULD in the future
+    - https://eclipse-edc.github.io/documentation/for-contributors/data-plane/data-plane-signaling/
+    - https://github.com/eclipse-edc/Connector/tree/e3e6d5aab88f42d0d92e097276febee2aacfeff9/docs/developer/data-plane-signaling
+- OAuth Token refresh
+    - https://github.com/eclipse-tractusx/tractusx-edc/blob/main/docs/development/dataplane-signaling/tx-signaling.extensions.md
+- Policy Monitor
+    - https://eclipse-edc.github.io/documentation/for-contributors/control-plane/policy-monitor/
+- Dataplane IAM Model for Token creation.
+    - Can this be connected with Kafka?
+- Deployment Topology.
+    - How are the components deployed?
+    - Which services are exposed?
+- Data flow: Which system consumes/produces data when, where, and how
+- Extensibility topics. Does it make sense to leave extensions for other message queue systems open/keep them in mind?
+
 ## Requirements
 
 | ID      | Requirement                                                                                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Deliverables                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -231,6 +254,13 @@ An example for the extended standard could be:
 > A Consumer may then use the provided data to execute requests against the endpoint.
 > 
 > Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the `dspace:dataAddress`.
+
+## Enhancements Over the Existing POC
+
+The revised design improves upon the initial proof-of-concept by incorporating:
+
+- **Dynamic Credential Management:** Replacing hard-coded credentials with OAuth-driven dynamic client registration and token management.
+- **Robust Security and Token Lifecycle:** Implementing short-lived tokens with secure vault storage and supporting multiple token refresh strategies, thereby reducing exposure risks.
 
 ## NOTICE
 
