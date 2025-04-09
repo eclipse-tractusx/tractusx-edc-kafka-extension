@@ -195,7 +195,7 @@ which provides a step-by-step message flow.
 
 The design supports various token refresh strategies:
 
-- Automatic Refresh via Consumer DataPlane:
+- Automatic Refresh via Consumer Data Plane:
   Proactively refresh tokens before they expire.
 - Automatic Refresh via the EDR API (/edrs):
   The Provider Control Plane can handle token refresh operations when needed.
