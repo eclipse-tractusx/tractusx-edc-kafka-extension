@@ -26,12 +26,12 @@ The Tractus-X EDC currently lacks a dedicated, real-time data streaming mechanis
 communication between data providers and consumers. This Proof of Concept (POC) integrates Apache Kafka as a
 decentralized component on the provider side, operating behind the Eclipse Dataspace Connector (EDC) to evaluate a
 publish/subscribe-based streaming solution that facilitates real-time machine and production data exchange on the
-automotive shop floor, thereby evaluating the necessary protocol extensions, integration challenges, and risks before
+automotive shopfloor, thereby evaluating the necessary protocol extensions, integration challenges, and risks before
 full-scale adoption.
 
 ## Example
 
-Consider an automotive shop floor where production machines continuously generate data on operational status,
+Consider an automotive shopfloor where production machines continuously generate data on operational status,
 performance metrics, and production counts. Each company retains control over its own data sink and connects it to the
 Tractus-X network via the Eclipse Dataspace Connector, preserving data sovereignty. Within this framework, a
 decentralized Kafka Broker and Kafka Provider at the provider’s site manage the real-time publication of data, published
