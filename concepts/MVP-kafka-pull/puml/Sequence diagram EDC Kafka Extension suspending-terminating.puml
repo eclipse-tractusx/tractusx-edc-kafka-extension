@@ -8,11 +8,11 @@ box "Consumer cluster" #LightYellow
 end box
 
 box "Provider cluster" #LightBlue
-    participant "Kafka Service" as Kafka
-    participant "OAuth Service" as OAuth2
-    participant "Kafka Extension" as ProviderKE
     participant "Control Plane"  as ProviderCP
+    participant "Kafka Extension" as ProviderKE
     participant "Data Plane"  as ProviderDP
+    participant "OAuth Service" as OAuth2
+    participant "Kafka Service" as Kafka
 end box
 
 == Data suspending/terminating ==

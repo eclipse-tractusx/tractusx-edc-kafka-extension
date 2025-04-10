@@ -8,9 +8,9 @@ box "Consumer cluster" #LightYellow
 end box
 
 box "Provider cluster" #LightBlue
-    participant "OAuth Service" as OAuth2
-    participant "Kafka Extension" as ProviderKE
     participant "Control Plane"  as ProviderCP
+    participant "Kafka Extension" as ProviderKE
+    participant "OAuth Service" as OAuth2
 end box
 
 == Provision ==

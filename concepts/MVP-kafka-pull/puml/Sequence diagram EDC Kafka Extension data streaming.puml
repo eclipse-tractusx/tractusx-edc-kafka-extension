@@ -21,6 +21,8 @@ ConsumerApp -> Kafka : Authentication
 Kafka -> OAuth2 : Authentication
 Kafka <-- OAuth2 : Authentication success
 ConsumerApp <-- Kafka : Authentication success
-ConsumerApp -> Kafka : Poll data
-ConsumerApp <-- Kafka : Polling data while token is valid
+loop while token is valid
+    ConsumerApp -> Kafka : Poll data
+    ConsumerApp <-- Kafka : Polling data
+end loop
 @enduml
