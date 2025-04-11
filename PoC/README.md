@@ -7,7 +7,7 @@ To build the project use:
 ```bash
 ./gradlew build
 ```
- 
+
 ### Run in Docker
 
 #### Start docker compose
@@ -25,9 +25,21 @@ In [bruno collection](kafka-pull/collections/Kafka%20PoC%20Bruno%20collection)
 all HTTP requests required to run kafka pull transfers are prepared.
 Using these requests, Alice will act as the provider and Bob will act as the consumer.
 
-After initiating the Kafka pull transfer, the `transfer id` must be copied into the `TRANSFER_PROCESS_ID` property in
-[KafkaConsumerApp.java](runtimes/kafka/kafka-consumer/src/main/java/org/eclipse/tractusx/edc/kafka/consumer/KafkaConsumerApp.java). 
-Then, build the application and run it in Docker.
+Run these requests on provider side:
+
+- Create asset
+- Create Contract definition
+- Create policy
+
+Then run these requests on consumer side:
+
+- Get dataset
+- Initiate Negotiation
+- Get Negotiation
+- Kafka PULL
+- Get transfer process
+
+After initiating the Kafka pull transfer, the Kafka Consumer App wil automatically pick up the EDR and connect to the Kafka Broker.
 
 ### DataAddress Schema
 
