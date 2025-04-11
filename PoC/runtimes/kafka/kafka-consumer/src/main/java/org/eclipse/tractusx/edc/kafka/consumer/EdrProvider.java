@@ -28,28 +28,36 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Map;
 
 public class EdrProvider {
-    public EDRData getEdr(String transferProcessId) {
 
-        String url = "http://control-plane-bob:9191/management/v2/edrs/" + transferProcessId + "/dataaddress";
+    public static final String MANAGEMENT_URL = "http://control-plane-bob:9191/management/v2";
+    private final HttpClient client;
+
+    public EdrProvider() {
+        client = HttpClient.newHttpClient();
+    }
+
+    public EDRData getEdr() {
+        String transferProcessId = getTransferProcessId();
+
+        String dataAddressUrl = MANAGEMENT_URL + "/edrs/" + transferProcessId + "/dataaddress";
         EDRData edrData = null;
 
-        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(dataAddressUrl))
                 .header("X-API-KEY", "password")
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
 
-        HttpResponse<String> response = null;
+        HttpResponse<String> response;
         try {
-            System.out.println("Sent request to " + url);
+            System.out.println("Sent request to " + dataAddressUrl);
             response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -69,9 +77,72 @@ public class EdrProvider {
             System.out.println(edrData);
         } else {
             System.out.printf("GET request failed. Status code: %d%n", response.statusCode());
-            System.out.printf("EDR is not accessible");
+            System.out.println("EDR is not accessible");
         }
 
         return edrData;
+    }
+
+    private String getTransferProcessId() {
+        final String edr_request_url = MANAGEMENT_URL + "/edrs/request";
+
+        QuerySpec querySpec = new QuerySpec();
+        querySpec.setContext(Map.of("@vocab", "https://w3id.org/edc/v0.0.1/ns/"));
+        querySpec.setType("QuerySpec");
+        querySpec.setOffset(0);
+        querySpec.setLimit(1);
+        querySpec.setFilterExpression(List.of(new QuerySpec.FilterExpression("assetId", "=", "kafka-stream-asset")));
+
+        String body;
+        try {
+            body = new ObjectMapper().writeValueAsString(querySpec);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Could not parse QuerySpec to String", e);
+        }
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(edr_request_url))
+                .header("X-API-KEY", "password")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+        HttpResponse<String> response;
+        try {
+            System.out.println("Sent request to " + edr_request_url);
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        EDREntry edrEntry = null;
+        if (response.statusCode() == 200) {
+            System.out.println("Response in status code 200");
+            String responseBody = response.body();
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            try {
+                EDREntry[] edrEntries = objectMapper.readValue(responseBody, EDREntry[].class);
+                if (edrEntries.length > 0) {
+                    edrEntry = edrEntries[0];
+                } else {
+                    System.out.println("No EDR entries found");
+                }
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println("Received EDREntry:");
+            System.out.println(edrEntry);
+        } else {
+            System.out.printf("POST request failed. Status code: %d, Body: %s%n", response.statusCode(), body);
+            System.out.println("EDR is not accessible");
+        }
+        String transferProcessId;
+        if (edrEntry != null) {
+            transferProcessId = edrEntry.getTransferProcessId();
+        } else {
+            throw new RuntimeException("no transfer process id found");
+        }
+        return transferProcessId;
     }
 }

@@ -12,6 +12,7 @@ failsafe = "3.3.2"
 shadow = "8.3.5"
 kafka = "3.7.0"
 jackson = "2.15.2"
+lombok = "1.18.38"
 
 [libraries]
 # Tractus-X EDC - Runtimes
@@ -68,6 +69,7 @@ testcontainers-vault = { module = "org.testcontainers:vault", version.ref = "tes
 failsafe = { module = "dev.failsafe:failsafe", version.ref = "failsafe" }
 kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
