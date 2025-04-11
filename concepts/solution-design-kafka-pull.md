@@ -62,10 +62,45 @@ reducing downtime.
 
 ## Use Cases
 
-| Use Case                                      | Description                                                                                                                                                                                                                                                                                                                                                          |
-|-----------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Real-time Operational Monitoring and Analysis | This use case encompasses the continuous real-time monitoring of production data, quality metrics, environmental parameters, and supply chain information. It enables immediate analysis and response to operational events, fostering optimized process control, proactive decision-making, and enhanced transparency across manufacturing and logistics processes. |
-| Predictive Maintenance and Data Integration   | This use case focuses on leveraging streaming data to identify maintenance needs early while integrating external data sources to support informed decision-making. It helps minimize downtime through predictive maintenance and improves adaptability by incorporating external factors such as weather conditions and market trends.                              |
+````mermaid
+flowchart TD
+    Kafka["Catena-X Use Cases for Kafka"]
+
+    Kafka --> QM["Quality Management"]
+    Kafka --> DCM["Demand & Capacity Management (DCM)"]
+    Kafka --> DT["Digital Twin / Asset Admin Shell (AAS)"]
+    Kafka --> TR["Traceability"]
+    Kafka --> CE["Circular Economy / DPP"]
+    Kafka --> SUS["Sustainability (generic)"]
+
+    %% Sub-Use Cases
+    QM --> QM1["Predictive Maintenance & Data Integration"]
+    DT --> DT1["Real-time Operational Monitoring"]
+    DT --> DT2["Shopfloor Efficiency Monitoring"]
+
+    %% Dark-friendly styling
+    style QM fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
+    style DCM fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
+    style DT fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
+
+    style TR fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
+    style CE fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
+    style SUS fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
+
+    style QM1 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
+    style DT1 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
+    style DT2 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
+````
+
+| Catena-X Use Case                                      | Description                                                                 | Scope | Sub-Use Cases                                                                                                                                       | Value of Using Kafka                                                                                      |
+|----------------------------------------------|-----------------------------------------------------------------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+| Quality Management                           | Focuses on monitoring, analyzing, and continuously improving product and process quality across all stages of the manufacturing value chain. Enables the detection of anomalies and non-conformities in real-time to reduce scrap, rework, and customer complaints. | SHOULD | - Predictive Maintenance and Data Integration: Uses streaming data to identify maintenance needs early by combining internal and external sources, reducing downtime and improving planning. | Kafka enables real-time analysis of sensor data and machine logs, allowing early detection of quality issues and predictive insights for maintenance planning. |
+| Demand & Capacity Management (DCM)           | Deals with the synchronization of production capabilities with dynamic customer demand. Supports planning flexibility by reacting to short-term fluctuations and optimizing supply chain coordination. | SHOULD | - | Kafka allows real-time streaming of planning data, capacity updates, and order changes, supporting rapid decision-making and system-wide visibility. |
+| Digital Twin / Asset Admin Shell (AAS)       | Enables a digital representation of physical assets (machines, tools, components) using real-time operational data to enhance visibility, analysis, and control throughout the lifecycle. | SHOULD | - Real-time Operational Monitoring and Analysis: Continuously monitors production data, environmental factors, and supply chain parameters to enable immediate insights and action. <br> - Shopfloor Efficiency Monitoring: Enables real-time visibility into production performance across distributed sites to support operational control, benchmarking, and rapid escalation. | Kafka is ideal for streaming telemetry data from assets, supporting real-time monitoring, condition-based actions, and integration into digital twins. |
+| Traceability                                 | Ensures the ability to track components, assemblies, and products across the entire supply chain. Vital for root cause analysis, recalls, and compliance documentation. | COULD | - | Kafka can support event-driven tracking of part movements and status changes, enabling near real-time traceability and transparency. |
+| Circular Economy / Digital Product Pass (DPP)| Enables sustainable product use by tracking lifecycle data including reuse, refurbishment, and recycling. The DPP serves as a digital information carrier across the product lifecycle. | COULD | - | Kafka can stream lifecycle events like repair status, return cycles, or recycling information, contributing to circular economy goals. |
+| Sustainability (generic)                     | Supports continuous environmental performance monitoring, focusing on reducing CO2 emissions, optimizing energy usage, and supporting compliance with sustainability regulations. | COULD | - | Kafka enables streaming of environmental sensor data (e.g. energy, water, CO2), useful for real-time dashboards and adaptive control. |
+
 
 ## Architectural Overview
 
