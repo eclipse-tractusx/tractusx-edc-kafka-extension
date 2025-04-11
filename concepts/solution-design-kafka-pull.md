@@ -1,5 +1,26 @@
 # Kafka pull solution design
 
+<!-- TOC -->
+* [Kafka pull solution design](#kafka-pull-solution-design)
+  * [Requirements](#requirements)
+  * [Problem Statement](#problem-statement)
+  * [Example](#example)
+  * [Use Cases](#use-cases)
+  * [Architectural Overview](#architectural-overview)
+    * [Key Components](#key-components)
+  * [Workflow and Process Phases](#workflow-and-process-phases)
+    * [A. Provisioning/Deprovisioning Phase](#a-provisioningdeprovisioning-phase)
+    * [B. Initiating the Transfer](#b-initiating-the-transfer)
+    * [C. Data Streaming Phase](#c-data-streaming-phase)
+    * [D. Suspending/Terminating the Transfer](#d-suspendingterminating-the-transfer)
+  * [Security and Token Management](#security-and-token-management)
+    * [Token Creation and Expiration](#token-creation-and-expiration)
+    * [Token Refresh Strategies](#token-refresh-strategies)
+  * [Interoperability](#interoperability)
+  * [Enhancements Over the Existing POC](#enhancements-over-the-existing-poc)
+  * [NOTICE](#notice)
+<!-- TOC -->
+
 ## Requirements
 
 | ID      | Requirement                                                                                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Deliverables                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -231,6 +252,22 @@ An example for the extended standard could be:
 > A Consumer may then use the provided data to execute requests against the endpoint.
 > 
 > Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the `dspace:dataAddress`.
+
+To be in line with the EDC development best-practices,
+the [Contrubutors Manual](https://eclipse-edc.github.io/documentation/for-contributors/) has to be understood.
+
+Importan chapters are:
+
+- [Modules, Runtimes, and Components](https://eclipse-edc.github.io/documentation/for-adopters/modules-runtimes-components/)
+- [Control Plane](https://eclipse-edc.github.io/documentation/for-adopters/control-plane/)
+- [Extensions](https://eclipse-edc.github.io/documentation/for-adopters/extensions/)
+- [Testing](https://eclipse-edc.github.io/documentation/for-adopters/testing/)
+- [Best practices and recommendations](https://eclipse-edc.github.io/documentation/for-contributors/best-practices/)
+- [Logging](https://eclipse-edc.github.io/documentation/for-contributors/logging/)
+- [Writing tests](https://eclipse-edc.github.io/documentation/for-contributors/testing/)
+- [Programming Primitives](https://eclipse-edc.github.io/documentation/for-contributors/runtime/programming-primitives/)
+- [Contribution Guidelines](https://eclipse-edc.github.io/documentation/for-contributors/guidelines/)
+- [Data Plane Signaling interface](https://eclipse-edc.github.io/documentation/for-contributors/data-plane/data-plane-signaling/)
 
 ## Enhancements Over the Existing POC
 
