@@ -42,7 +42,7 @@ public class EdcSetup {
 
     private final HttpClient client;
 
-    public EdcSetup(HttpClient client) {
+    public EdcSetup(final HttpClient client) {
         this.client = client;
     }
 
@@ -52,39 +52,42 @@ public class EdcSetup {
     void setupEdcOffer() {
         log.info("Setting up EDC offer...");
         try {
-            createAsset();
+            createAsset(FORECAST_ASSET_ID,  KAFKA_PRODUCTION_FORECAST_TOPIC);
+            createAsset(TRACKING_ASSET_ID,  KAFKA_PRODUCTION_TRACKING_TOPIC);
+            // Default AssetID, Default Topic
+            createAsset(ASSET_ID, KAFKA_STREAM_TOPIC);
             createPolicyDefinition();
             createContractDefinition();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("I/O error setting up EDC offer: {}", e.getMessage(), e);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             log.error("Process interrupted while setting up EDC offer: {}", e.getMessage(), e);
             Thread.currentThread().interrupt();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error("Unexpected error setting up EDC offer: {}", e.getMessage(), e);
         }
     }
 
-    private void createAsset() throws IOException, InterruptedException {
-        String assetJson = EdcConfig.getAssetJson();
-        HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
+    private void createAsset(final String assetId, final String topic) throws IOException, InterruptedException {
+        final String assetJson = EdcConfig.getAssetJson(assetId, topic);
+        final HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
         log.info("Asset creation response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createPolicyDefinition() throws IOException, InterruptedException {
-        String policyJson = EdcConfig.getPolicyDefinitionJson();
-        HttpResponse<String> response = sendJsonRequest(POLICY_DEFINITIONS_PATH, policyJson);
+        final String policyJson = EdcConfig.getPolicyDefinitionJson();
+        final HttpResponse<String> response = sendJsonRequest(POLICY_DEFINITIONS_PATH, policyJson);
         log.info("Policy definition response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createContractDefinition() throws IOException, InterruptedException {
-        String contractJson = EdcConfig.getContractDefinitionJson();
-        HttpResponse<String> response = sendJsonRequest(CONTRACT_DEFINITIONS_PATH, contractJson);
+        final String contractJson = EdcConfig.getContractDefinitionJson();
+        final HttpResponse<String> response = sendJsonRequest(CONTRACT_DEFINITIONS_PATH, contractJson);
         log.info("Contract definition response: {} - {}", response.statusCode(), response.body());
     }
 
-    private HttpResponse<String> sendJsonRequest(String path, String jsonBody) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
+    private HttpResponse<String> sendJsonRequest(final String path, final String jsonBody) throws IOException, InterruptedException {
+        final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(EDC_MANAGEMENT_URL + path))
                 .header("Content-Type", CONTENT_TYPE_JSON)
                 .header("X-API-KEY", EDC_API_AUTH_KEY)
@@ -101,7 +104,7 @@ public class EdcSetup {
         private static final String POLICY_ID = "no-constraint-policy";
         private static final String CONTRACT_DEFINITION_ID = "contract-definition";
 
-        static String getAssetJson() {
+        static String getAssetJson(final String assetId, final String topic) {
             return """
                     {
                       "@context": {
@@ -125,7 +128,7 @@ public class EdcSetup {
                         "clientSecretKey": "%s"
                       }
                     }
-                    """.formatted(ASSET_ID, KAFKA_BOOTSTRAP_SERVERS, KAFKA_STREAM_TOPIC, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
         }
 
         static String getPolicyDefinitionJson() {

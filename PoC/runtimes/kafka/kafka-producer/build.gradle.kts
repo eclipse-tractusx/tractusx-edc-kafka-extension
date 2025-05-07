@@ -28,8 +28,12 @@ dependencies {
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
-    implementation(libs.slf4j.api)
-    runtimeOnly(libs.logback.classic)
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)

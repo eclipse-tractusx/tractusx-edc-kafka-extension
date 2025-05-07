@@ -1,0 +1,352 @@
+[
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000001-0000-0000-C000-000000000001",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "0ce67143-f72e-4cda-a869-286a988db407",
+      "expectedResponseBy": "2023-06-19T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "687ec05d-043d-49e7-add5-1fd570b383a1",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000002-0000-0000-C000-000000000002",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "64ee5c17-4e6d-4e28-b5fa-0c2d774068b1",
+      "expectedResponseBy": "2023-06-19T21:24:12+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "ff6bd792-7a51-46af-8db5-6844deed49bb",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:24:12+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000003-0000-0000-C000-000000000003",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "e15f9b60-0db9-4a34-8561-36e1b7e231a8",
+      "expectedResponseBy": "2023-06-19T21:24:24+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "6d5c34a4-7d3d-4fbd-ad40-bfe6d6c72afd",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:24:24+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000004-0000-0000-C000-000000000004",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "4d6771f2-7b82-4df4-872e-3e3a694b07f7",
+      "expectedResponseBy": "2023-06-19T21:24:36+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "8a7bfb59-80a2-4c2e-8632-4f4ece069bb9",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:24:36+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000005-0000-0000-C000-000000000005",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "669fbeb1-5180-445e-b01e-918b1e96248a",
+      "expectedResponseBy": "2023-06-19T21:24:48+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "53e4193b-1a79-4512-9303-b20b8d07e2ad",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:24:48+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000006-0000-0000-C000-000000000006",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "67f9d768-18e7-4ce4-a474-ca90460c6ce0",
+      "expectedResponseBy": "2023-06-19T21:25:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "a728fd34-8602-4cf3-bf56-22561bbd8b6e",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:25:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000007-0000-0000-C000-000000000007",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "2bc9ccdf-6fee-4ce0-bd8c-7687e4c6de17",
+      "expectedResponseBy": "2023-06-19T21:25:12+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "29032d89-a785-44e8-bc55-85acda634fa1",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:25:12+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000008-0000-0000-C000-000000000008",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "5d85de2d-2e79-4be1-8365-d7721fba7af0",
+      "expectedResponseBy": "2023-06-19T21:25:24+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "414c0d2a-2d4b-4dec-83d3-1ad1fa5eb6b3",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:25:24+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "00000009-0000-0000-C000-000000000009",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "2766e8f4-46e7-424d-a330-406191a6c68b",
+      "expectedResponseBy": "2023-06-19T21:25:36+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "2b2f8e51-f9d7-4fe8-8c9e-42e7c614fdd2",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:25:36+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "precisionOfForecast": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "offset": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "orderId": "0000000A-0000-0000-C000-00000000000A",
+      "customerId": "BPNL7588787849VQ",
+      "deviationOfSchedule": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "productionForecastForAll": false,
+      "version": "2.0.0",
+      "notificationInterval": {
+        "value": 12,
+        "timeUnit": "unit:secondUnitOfTime"
+      },
+      "communicationMode": "synchronous"
+    },
+    "header": {
+      "senderBpn": "BPNL7588787849VQ",
+      "relatedMessageId": "c81e9025-25ac-4e09-8d25-26703528c972",
+      "expectedResponseBy": "2023-06-19T21:25:48+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "918a91d7-13b3-4edb-b3ac-f8fbf9f06d6d",
+      "receiverBpn": "BPNL6666787765VQ",
+      "sentDateTime": "2023-06-19T21:25:48+07:00",
+      "version": "2.0.0"
+    }
+  }
+]

@@ -26,7 +26,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -36,6 +36,8 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaConsumerApp {
+    public static final String FORECAST_ASSET_ID = System.getenv().getOrDefault("FORECAST_ASSET_ID", "kafka-forecast-asset");
+    public static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
     static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
     static final String PROVIDER_ID = System.getenv().getOrDefault("PROVIDER_ID", "BPNL00000003AZQP");
     static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
@@ -44,36 +46,39 @@ public class KafkaConsumerApp {
 
     public static void main(final String[] args) {
         try {
-            EDRData edrData = fetchEdrData();
-            if (edrData == null) {
+            final List<EDRData> edrDataList = fetchAllEdrData();
+            if (edrDataList.isEmpty()) {
                 log.error("Failed to retrieve EDR data. Exiting application.");
                 return;
             }
 
-            runKafkaConsumer(edrData);
-        } catch (Exception e) {
+            runKafkaConsumer(edrDataList);
+        } catch (final Exception e) {
             log.error("Fatal error in KafkaConsumerApp", e);
         }
     }
 
-    private static EDRData fetchEdrData() throws IOException, InterruptedException {
-        log.info("Fetching EDR data...");
-        DataTransferClient edrProvider = new DataTransferClient();
-        return edrProvider.executeDataTransferWorkflow(ASSET_ID);
+    private static List<EDRData> fetchAllEdrData() throws IOException, InterruptedException {
+        final DataTransferClient client = new DataTransferClient();
+        return List.of(
+                client.executeDataTransferWorkflow(FORECAST_ASSET_ID),
+                client.executeDataTransferWorkflow(TRACKING_ASSET_ID)
+        );
     }
 
-    private static void runKafkaConsumer(final EDRData edrData) {
-        try (KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrData)) {
-            String topic = edrData.getTopic();
-            if (topic == null || topic.isBlank()) {
-                throw new IllegalArgumentException("Topic cannot be null or empty");
-            }
-            consumer.subscribe(Collections.singletonList(topic));
-            log.info("Consumer started with {} authentication. Waiting for messages...", edrData.getKafkaSaslMechanism());
+    private static void runKafkaConsumer(final List<EDRData> edrDataList) {
+        try (final KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrDataList.getFirst())) {
+            final List<String> topics = edrDataList.stream()
+                    .map(EDRData::getTopic)
+                    .filter(t -> t != null && !t.isBlank())
+                    .toList();
+
+            consumer.subscribe(topics);
+            log.info("Consumer started with {} authentication. Waiting for messages...", edrDataList.getFirst().getKafkaSaslMechanism());
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
-                for (ConsumerRecord<String, String> record : records) {
-                    log.info("Received record(key={}, value={}) meta(partition={}, offset={})", record.key(), record.value(), record.partition(), record.offset());
+                final ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+                for (final ConsumerRecord<String, String> consumerRecord : records) {
+                    log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
                 }
             }
         }
@@ -82,7 +87,7 @@ public class KafkaConsumerApp {
     private static KafkaConsumer<String, String> initializeKafkaConsumer(final EDRData edrData) {
         Objects.requireNonNull(edrData, "EDR data cannot be null");
 
-        Properties props = new Properties();
+        final Properties props = new Properties();
         props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getKafkaBootstrapServers());
         props.put(GROUP_ID_CONFIG, edrData.getGroupPrefix());
         props.put(ENABLE_AUTO_COMMIT_CONFIG, "true"); // Automatically commit offsets
