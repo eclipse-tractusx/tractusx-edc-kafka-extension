@@ -24,11 +24,7 @@ services:
       - ./edc/controlplane-local/config-alice-docker.properties:/app/configuration.properties
       - ./edc/controlplane-local/vault.properties:/app/vault.properties
     ports:
-      - "8080:8080"
       - "8181:8181"
-      - "8282:8282"
-      - "8383:8383"
-      - "5005:5005"
 
   control-plane-bob:
     build: ./edc/controlplane-local
@@ -36,29 +32,88 @@ services:
       - ./edc/controlplane-local/config-bob-docker.properties:/app/configuration.properties
       - ./edc/controlplane-local/vault.properties:/app/vault.properties
     ports:
-      - "9999:9999"
       - "9191:9191"
-      - "9292:9292"
-      - "9393:9393"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev --import-realm
+    container_name: keycloak
+    hostname: keycloak
+    environment:
+      # Admin user to configure Keycloak on first start
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      # In-memory DB for testing; switch to postgres/mysql in production
+      KC_DB: dev-mem
+      # Allow localhost hostname (adjust in production)
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: 'false'
+      # Enable health check endpoint
+      KC_HEALTH_ENABLED: true
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    volumes:
+      # Mount your realm definition for import
+      - ./oauth/realm.json:/opt/keycloak/data/import/realm.json:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<> /dev/tcp/127.0.0.1/9000; echo -e 'GET /health/ready HTTP/1.1\\r\\nhost: http://localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; if [ $? -eq 0 ]; then echo 'Healthcheck Successful'; exit 0; else echo 'Healthcheck Failed'; exit 1; fi;" ]
+      #      test: [ "CMD", "sh", "-c", "nc -z localhost 9000" ]
+      start_period: 5s
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   kafka-kraft:
-    build: ./kafka/kafka-service
+    image: confluentinc/cp-kafka:7.9.0
     hostname: kafka-kraft
+    container_name: kafka-kraft
+    depends_on:
+      keycloak:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -z localhost 9092" ]
       interval: 10s
       retries: 5
       timeout: 5s
-    volumes:
-      - ./kafka/kafka-service/temp:/config
-      - ./kafka/kafka-service/kafka.env:/config/kafka.env
-      - ./kafka/kafka-service/kafka_broker_jaas.conf:/config/kafka_broker_jaas.conf
-      - ./kafka/kafka-service/admin.properties:/config/admin.properties
-      - ./kafka/kafka-service/server.properties:/config/server.properties
-      - ./kafka/kafka-service/start-kafka.sh:/usr/bin/start-kafka.sh
     ports:
-      - "9092:9092"
-      - "9093:9093"
+      - "29092:29092"   # Internal PLAINTEXT (inter-broker)
+      - "9092:9092"     # SASL/OAUTHBEARER listener
+      - "29093:29093"   # KRaft controller port
+    environment:
+      ## ─── KRaft (no ZooKeeper) ───────────────────────────────────────────────
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_NODE_ID: "1"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-kraft:29093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      ## ─── Listeners & Protocols ────────────────────────────────────────────
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,OIDC:SASL_PLAINTEXT"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,OIDC://0.0.0.0:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-kraft:29092,OIDC://kafka-kraft:9092" # switch to OIDC://localhost:9092 for local testing
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      ## ─── Topic Replication ─────────────────────────────────────────────────
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      ## ─── Storage ───────────────────────────────────────────────────────────
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+      ## ─── SASL/OAUTHBEARER ──────────────────────────────────────────────────
+      KAFKA_SASL_ENABLED_MECHANISMS: "OAUTHBEARER"
+      KAFKA_SASL_OAUTHBEARER_JWKS_ENDPOINT_URL: "http://keycloak:8080/realms/kafka/protocol/openid-connect/certs"
+      KAFKA_SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL: "http://keycloak:8080/realms/kafka/protocol/openid-connect/token"
+      KAFKA_SASL_OAUTHBEARER_CLIENT_ID: "myclient"
+      KAFKA_SASL_OAUTHBEARER_CLIENT_SECRET: "mysecret"
+      KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "account" # TODO how to change this?
+      #      KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "kafka"
+      ## ─── JAAS Config ───────────────────────────────────────────────────────
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf"
+      KAFKA_LISTENER_NAME_OIDC_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: "org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallbackHandler"
+      ## ─── Cluster Initialization ────────────────────────────────────────────
+      # Generate your own with:
+      #   docker run --rm confluentinc/cp-kafka:7.9.0 kafka-storage random-uuid
+      CLUSTER_ID: "hNz3ciwPTzig3iL9jqyQ9w"
+    volumes:
+      - ./kafka/kafka-server/kafka_server_jaas.conf:/etc/kafka/secrets/kafka_server_jaas.conf:ro
 
   kafka-producer:
     build: ./kafka/kafka-producer

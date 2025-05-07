@@ -15,7 +15,7 @@ To build the project use:
 To start the `docker compose`, simply run configuration for IntelliJ `kafka-poc-docker` or
 the following command from the project root:
 
-```
+```shell
 docker compose --project-directory poc/runtimes up
 ```
 

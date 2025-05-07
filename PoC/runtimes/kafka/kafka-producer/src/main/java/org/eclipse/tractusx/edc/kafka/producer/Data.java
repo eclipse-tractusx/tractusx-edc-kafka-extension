@@ -19,6 +19,11 @@
 
 package org.eclipse.tractusx.edc.kafka.producer;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 class Data {
     private String id;
     private long x;
@@ -29,38 +34,6 @@ class Data {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.z = z;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public long getX() {
-        return x;
-    }
-
-    public void setX(long x) {
-        this.x = x;
-    }
-
-    public long getY() {
-        return y;
-    }
-
-    public void setY(long y) {
-        this.y = y;
-    }
-
-    public long getZ() {
-        return z;
-    }
-
-    public void setZ(long z) {
         this.z = z;
     }
 }

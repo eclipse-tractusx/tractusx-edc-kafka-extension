@@ -18,6 +18,7 @@
  */
 
 package org.eclipse.tractusx.edc.kafka.producer;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -28,14 +29,18 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class KafkaProducerApp {
-    private static final String BOOTSTRAP_SERVERS = "kafka-kraft:9093";
+    public static final String OAUTH_CLIENT_ID = "myclient";
+    public static final String OAUTH_CLIENT_SECRET = "mysecret";
+//        public static final String OAUTH_TOKEN_URL = "http://localhost:8080/realms/kafka/protocol/openid-connect/token";
+//    private static final String BOOTSTRAP_SERVERS = "localhost:9092";
+    public static final String OAUTH_TOKEN_URL = "http://keycloak:8080/realms/kafka/protocol/openid-connect/token";
+    private static final String BOOTSTRAP_SERVERS = "kafka-kraft:9092";
     private static final String TOPIC = "kafka-stream-topic";
 
     public static void main(String[] args) {
-        KafkaProducer<String, String> producer = initializeKafkaProducer();
-        ObjectMapper mapper = new ObjectMapper();
-
-        try {
+        try (KafkaProducer<String, String> producer = initializeKafkaProducer()) {
+            System.out.println("Starting producer...");
+            ObjectMapper mapper = new ObjectMapper();
             while (true) {
                 Data data = getData();
                 String jsonString = mapper.writeValueAsString(data);
@@ -58,8 +63,6 @@ public class KafkaProducerApp {
             e.printStackTrace();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
-        } finally {
-            producer.close();
         }
     }
 
@@ -73,23 +76,37 @@ public class KafkaProducerApp {
         props.put("buffer.memory", 33554432); // 32MB
         props.put("delivery.timeout.ms", 3000);
         props.put("request.timeout.ms", 2000);
-        props.put("security.protocol", "SASL_PLAINTEXT"); // Use "SASL_SSL" if using SSL
-        props.put("sasl.mechanism", "SCRAM-SHA-256"); // or
-        props.put("sasl.jaas.config", "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"admin\" password=\"admin-secret\";");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
-        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-        return producer;
+        // Security settings for SASL/OAUTHBEARER
+        props.put("security.protocol", "SASL_PLAINTEXT");
+        props.put("sasl.mechanism", "OAUTHBEARER");
+
+        // OAuth properties (must use these exact config names)
+        props.put("sasl.oauthbearer.token.endpoint.url", OAUTH_TOKEN_URL);
+        props.put("sasl.oauthbearer.client.id", OAUTH_CLIENT_ID);
+        props.put("sasl.oauthbearer.client.secret", OAUTH_CLIENT_SECRET);
+
+        props.put("sasl.login.callback.handler.class", "org.apache.kafka.common.security.oauthbearer.secured.OAuthBearerLoginCallbackHandler");
+
+        // JAAS configuration for OAuth2
+        props.put(
+                "sasl.jaas.config",
+                "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
+                        "clientId=\"" + OAUTH_CLIENT_ID + "\" " +
+                        "clientSecret=\"" + OAUTH_CLIENT_SECRET + "\";"
+        );
+
+        return new KafkaProducer<>(props);
     }
 
     private static Data getData() {
-        Data data = new Data(
+        return new Data(
                 UUID.randomUUID().toString(),
                 Math.round((Math.random() * 100)),
                 Math.round(Math.random() * 100),
                 Math.round(Math.random() * 100)
         );
-        return data;
     }
 }
