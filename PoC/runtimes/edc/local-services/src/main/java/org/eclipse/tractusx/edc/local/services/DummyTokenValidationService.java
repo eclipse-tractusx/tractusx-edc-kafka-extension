@@ -11,7 +11,7 @@ import java.util.List;
 public class DummyTokenValidationService implements TokenValidationService {
 
   @Override
-  public Result<ClaimToken> validate(TokenRepresentation tokenRepresentation, PublicKeyResolver publicKeyResolver, List<TokenValidationRule> list) {
+  public Result<ClaimToken> validate(final TokenRepresentation tokenRepresentation, final PublicKeyResolver publicKeyResolver, final List<TokenValidationRule> list) {
     var claimToken = ClaimToken.Builder.newInstance()
       .claim("valid", "true")
       .build();

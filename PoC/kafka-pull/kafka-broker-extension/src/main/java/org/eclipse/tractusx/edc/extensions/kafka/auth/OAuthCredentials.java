@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,16 +16,19 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.eclipse.tractusx.edc.extensions.kafka;
 
-import org.eclipse.edc.spi.types.domain.DataAddress;
+package org.eclipse.tractusx.edc.extensions.kafka.auth;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
+import java.util.Optional;
 
 /**
- * Handles creating KafkaAdminService.
+ * Simple immutable holder for the four OAuth2 parameters.
+ *
+ * @param tokenUrl       The endpoint URL to fetch OAuth2 tokens using client credentials flow.
+ * @param revocationUrl  The optional endpoint URL used to revoke tokens. This may be empty if token revocation is not supported.
+ * @param clientId       The identifier of the client application attempting to authenticate.
+ * @param clientSecret   The secret associated with the client identifier for authentication.
  */
-public interface KafkaAdminServiceProvider {
-    KafkaAdminService provide(DataAddress dataAddress, String secret) throws ExecutionException, InterruptedException, TimeoutException;
+public record OAuthCredentials(String tokenUrl, Optional<String> revocationUrl, String clientId, String clientSecret) {
+
 }

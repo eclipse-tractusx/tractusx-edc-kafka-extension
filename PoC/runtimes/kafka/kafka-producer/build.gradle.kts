@@ -28,8 +28,10 @@ dependencies {
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
-    implementation(libs.slf4j.api)
-    runtimeOnly(libs.logback.classic)
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)

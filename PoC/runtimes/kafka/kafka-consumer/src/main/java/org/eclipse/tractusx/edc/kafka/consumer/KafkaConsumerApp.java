@@ -24,7 +24,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
@@ -36,11 +35,6 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaConsumerApp {
-    static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
-    static final String PROVIDER_ID = System.getenv().getOrDefault("PROVIDER_ID", "BPNL00000003AZQP");
-    static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
-    static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
-    static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
 
     public static void main(final String[] args) {
         try {
@@ -56,10 +50,10 @@ public class KafkaConsumerApp {
         }
     }
 
-    private static EDRData fetchEdrData() throws IOException, InterruptedException {
+    private static EDRData fetchEdrData() {
         log.info("Fetching EDR data...");
-        DataTransferClient edrProvider = new DataTransferClient();
-        return edrProvider.executeDataTransferWorkflow(ASSET_ID);
+        EdrProvider edrProvider = new EdrProvider();
+        return edrProvider.getEdr();
     }
 
     private static void runKafkaConsumer(final EDRData edrData) {
@@ -76,6 +70,8 @@ public class KafkaConsumerApp {
                     log.info("Received record(key={}, value={}) meta(partition={}, offset={})", record.key(), record.value(), record.partition(), record.offset());
                 }
             }
+        } catch (Exception e) {
+            log.error("Error while consuming Kafka messages", e);
         }
     }
 
@@ -83,7 +79,8 @@ public class KafkaConsumerApp {
         Objects.requireNonNull(edrData, "EDR data cannot be null");
 
         Properties props = new Properties();
-        props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getKafkaBootstrapServers());
+//        props.put(BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getEndpoint());
         props.put(GROUP_ID_CONFIG, edrData.getGroupPrefix());
         props.put(ENABLE_AUTO_COMMIT_CONFIG, "true"); // Automatically commit offsets
         props.put(AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
@@ -94,16 +91,11 @@ public class KafkaConsumerApp {
         props.put(SECURITY_PROTOCOL_CONFIG, edrData.getKafkaSecurityProtocol());
         props.put(SASL_MECHANISM, edrData.getKafkaSaslMechanism());
 
-        props.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS, EdrTokenCallbackHandler.class.getName());
+        props.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS, "org.eclipse.tractusx.edc.kafka.consumer.EdrTokenCallbackHandler");
 
         props.put(SASL_JAAS_CONFIG, "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;");
 
         props.put(SASL_LOGIN_CONNECT_TIMEOUT_MS, "15000"); // optional
-
-        props.put(SASL_LOGIN_REFRESH_BUFFER_SECONDS, "120"); // Refresh 2 minutes before expiry
-        props.put(SASL_LOGIN_REFRESH_MIN_PERIOD_SECONDS, "30"); // Don't refresh more than once per 30 seconds
-        props.put(SASL_LOGIN_REFRESH_WINDOW_FACTOR, "0.8"); // Refresh at 80% of token lifetime
-        props.put(SASL_LOGIN_REFRESH_WINDOW_JITTER, "0.05"); // Add small random jitter
 
         return new KafkaConsumer<>(props);
     }

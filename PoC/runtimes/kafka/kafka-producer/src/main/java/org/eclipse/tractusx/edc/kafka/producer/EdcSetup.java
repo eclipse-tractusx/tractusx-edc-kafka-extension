@@ -26,15 +26,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp.*;
-
 @Slf4j
 public class EdcSetup {
-    static final String ASSETS_PATH = "/v3/assets";
-    static final String POLICY_DEFINITIONS_PATH = "/v3/policydefinitions";
-    static final String CONTRACT_DEFINITIONS_PATH = "/v3/contractdefinitions";
-    static final String CONTENT_TYPE_JSON = "application/json";
 
+    public static final String ASSETS_PATH = "/assets";
+    public static final String POLICY_DEFINITIONS_PATH = "/policydefinitions";
+    public static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
+        private static final String EDC_BASE_URL = "http://control-plane-alice:8181/management/v3";
+//    private static final String EDC_BASE_URL = "http://localhost:8181/management/v3";
+    private static final String CONTENT_TYPE_JSON = "application/json";
+    public static final String API_KEY = "password";
     private final HttpClient client;
 
     public EdcSetup(HttpClient client) {
@@ -80,9 +81,9 @@ public class EdcSetup {
 
     private HttpResponse<String> sendJsonRequest(String path, String jsonBody) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(EDC_MANAGEMENT_URL + path))
+                .uri(URI.create(EDC_BASE_URL + path))
                 .header("Content-Type", CONTENT_TYPE_JSON)
-                .header("X-API-KEY", EDC_API_AUTH_KEY)
+                .header("X-API-KEY", API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
         log.info("Sending request: {}", request);
@@ -93,6 +94,10 @@ public class EdcSetup {
      * Configuration class providing EDC-specific JSON payloads
      */
     private static class EdcConfig {
+        private static final String ASSET_ID = "kafka-stream-asset";
+        private static final String ASSET_NAME = "test asset";
+        private static final String TOPIC_NAME = "kafka-stream-topic";
+        private static final String KAFKA_BOOTSTRAP_SERVERS = "kafka-kraft:9092";
         private static final String POLICY_ID = "no-constraint-policy";
         private static final String CONTRACT_DEFINITION_ID = "contract-definition";
 
@@ -104,23 +109,24 @@ public class EdcSetup {
                       },
                       "@id": "%s",
                       "properties": {
-                        "name": "test asset",
+                        "name": "%s",
                         "contenttype": "application/json"
                       },
                       "dataAddress": {
                         "type": "KafkaBroker",
-                        "name": "test asset",
+                        "name": "%s",
                         "kafka.bootstrap.servers": "%s",
                         "topic": "%s",
+                        "secretKey": "secretKey",
                         "kafka.sasl.mechanism": "OAUTHBEARER",
                         "kafka.security.protocol": "SASL_PLAINTEXT",
-                        "tokenUrl": "%s",
-                        "revokeUrl": "%s",
-                        "clientId": "%s",
-                        "clientSecretKey": "%s"
+                        "tokenUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/token",
+                        "revokeUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/revoke",
+                        "clientId": "myclient",
+                        "clientSecretKey": "secretKey"
                       }
                     }
-                    """.formatted(ASSET_ID, KAFKA_BOOTSTRAP_SERVERS, KAFKA_STREAM_TOPIC, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(ASSET_ID, ASSET_NAME, ASSET_NAME, KAFKA_BOOTSTRAP_SERVERS, TOPIC_NAME);
         }
 
         static String getPolicyDefinitionJson() {

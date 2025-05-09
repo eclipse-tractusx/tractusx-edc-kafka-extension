@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,36 +19,35 @@
 package org.eclipse.tractusx.edc.kafka.consumer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Map;
 
 /**
- * Represents the Endpoint Data Reference (EDR) data needed for Kafka consumer configuration.
- * Contains connection parameters, authentication details, and topic information.
+ * Represents an Endpoint Data Reference entry containing information about
+ * a specific data transfer process in the EDC system.
  */
-@Data
-@Builder
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
-@AllArgsConstructor
-public class EDRData {
+public class EndpointDataReferenceEntry {
+    @JsonProperty("@id")
     private String id;
-    private String contractId;
-    private String endpoint;
-    private String topic;
-    private String groupPrefix;
-    private String authKey;
-    private String authCode;
-    private String token;
 
-    // Kafka-specific configuration
-    private static final String KAFKA_SECURITY_PROTOCOL = "kafka.security.protocol";
-    private static final String KAFKA_SASL_MECHANISM = "kafka.sasl.mechanism";
+    @JsonProperty("@type")
+    private String type;
 
-    @JsonProperty(KAFKA_SECURITY_PROTOCOL)
-    private String kafkaSecurityProtocol;
+    private String providerId;
+    private String assetId;
+    private String agreementId;
+    private String transferProcessId;
+    private long createdAt;
+    private String contractNegotiationId;
 
-    @JsonProperty(KAFKA_SASL_MECHANISM)
-    private String kafkaSaslMechanism;
+    @JsonProperty("@context")
+    private Map<String, String> context;
 }
