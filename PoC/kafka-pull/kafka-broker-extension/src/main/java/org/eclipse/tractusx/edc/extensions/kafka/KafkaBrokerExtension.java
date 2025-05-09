@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -19,11 +20,16 @@
 package org.eclipse.tractusx.edc.extensions.kafka;
 
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowManager;
+import org.eclipse.edc.http.spi.EdcHttpClient;
+import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
+import org.eclipse.edc.spi.types.TypeManager;
+import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
+import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
 
 /**
  * Kafka Broker flow extension
@@ -31,7 +37,7 @@ import org.eclipse.edc.spi.system.ServiceExtensionContext;
 @Extension(value = KafkaBrokerExtension.NAME)
 public class KafkaBrokerExtension implements ServiceExtension {
 
-    public static final String NAME =  "Kafka stream extension";
+    public static final String NAME = "Kafka stream extension";
 
     @Inject
     private DataFlowManager dataFlowManager;
@@ -39,8 +45,18 @@ public class KafkaBrokerExtension implements ServiceExtension {
     @Inject
     private Vault vault;
 
+    @Inject
+    private TypeManager typeManager;
+
+    @Inject
+    private EdcHttpClient httpClient;
+
+    @Inject
+    private Oauth2Client oauth2Client;
+
     @Override
-    public void initialize(ServiceExtensionContext context) {
-        dataFlowManager.register(10, new KafkaBrokerDataFlowController(vault, new KafkaAdminServiceProviderImpl()));
+    public void initialize(final ServiceExtensionContext context) {
+        KafkaOAuthService kafkaOAuthService = new KafkaOAuthServiceImpl(httpClient, typeManager.getMapper());
+        dataFlowManager.register(10, new KafkaBrokerDataFlowController(vault, kafkaOAuthService));
     }
 }

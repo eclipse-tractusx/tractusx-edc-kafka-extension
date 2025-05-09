@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -23,6 +24,7 @@ plugins {
 }
 
 dependencies {
+//    implementation(libs.tx.edc.runtime.memory) {
     implementation(libs.tx.edc.controlplane.base) {
         // DID / DCP extensions
         exclude(group = "org.eclipse.edc", module = "identity-did-core")
@@ -47,7 +49,6 @@ dependencies {
 
     implementation(libs.edc.iam.mock)
     implementation(project(":kafka-broker-extension"))
-    implementation(project(":seed-vault"))
     implementation(project(":local-services"))
 }
 

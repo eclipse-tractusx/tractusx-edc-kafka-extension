@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -48,7 +49,7 @@ public class KafkaAdminService implements AutoCloseable  {
     static final int TIMEOUT = 1;
     static final TimeUnit TIMEOUT_UNIT = TimeUnit.MINUTES;
 
-    KafkaAdminService(Admin adminClient, ScramMechanism scramMechanism) {
+    KafkaAdminService(final Admin adminClient, final ScramMechanism scramMechanism) {
         this.adminClient = adminClient;
         this.scramMechanism = scramMechanism;
     }
@@ -63,7 +64,7 @@ public class KafkaAdminService implements AutoCloseable  {
      * @throws InterruptedException Rethrow from KafkaFuture.
      * @throws TimeoutException     Rethrow from KafkaFuture.
      */
-    public Map.Entry<String, String> createToken(Duration duration, String username) throws ExecutionException, InterruptedException, TimeoutException {
+    public Map.Entry<String, String> createToken(final Duration duration, final String username) throws ExecutionException, InterruptedException, TimeoutException {
         var tokenOption = new CreateDelegationTokenOptions().owner(new KafkaPrincipal(USER_TYPE, username));
         Optional.ofNullable(duration).ifPresent(value -> tokenOption.maxlifeTimeMs(value.toMillis()));
 
@@ -86,7 +87,7 @@ public class KafkaAdminService implements AutoCloseable  {
      * @throws InterruptedException Rethrow from KafkaFuture.
      * @throws TimeoutException     Rethrow from KafkaFuture.
      */
-    public String createCredentialsAndGrantAccess(String username, String topic, String groupPrefix) throws ExecutionException, InterruptedException, TimeoutException {
+    public String createCredentialsAndGrantAccess(final String username, final String topic, final String groupPrefix) throws ExecutionException, InterruptedException, TimeoutException {
         var password = createConsumerCredentials(username);
         grantReadAccess(username, topic, groupPrefix);
 
@@ -102,7 +103,7 @@ public class KafkaAdminService implements AutoCloseable  {
      * @throws InterruptedException Rethrow from KafkaFuture.
      * @throws TimeoutException     Rethrow from KafkaFuture.
      */
-    public void deleteCredentialsAndRevokeAccess(String username, String topic) throws ExecutionException, InterruptedException, TimeoutException {
+    public void deleteCredentialsAndRevokeAccess(final String username, final String topic) throws ExecutionException, InterruptedException, TimeoutException {
         if (isConsumerCredential(username)) {
             revokeReadAccess(username, topic);
             deleteConsumerCredentials(username);
@@ -114,21 +115,21 @@ public class KafkaAdminService implements AutoCloseable  {
         adminClient.close();
     }
 
-    private String createConsumerCredentials(String username) throws ExecutionException, InterruptedException, TimeoutException {
+    private String createConsumerCredentials(final String username) throws ExecutionException, InterruptedException, TimeoutException {
         var password = generateSecurePassword();
         addScramCredential(username, password);
 
         return password;
     }
 
-    private void deleteConsumerCredentials(String username) throws ExecutionException, InterruptedException, TimeoutException {
+    private void deleteConsumerCredentials(final String username) throws ExecutionException, InterruptedException, TimeoutException {
         var deletion = new UserScramCredentialDeletion(username, scramMechanism);
         var result = adminClient.alterUserScramCredentials(Collections.singletonList(deletion));
 
         result.all().get(TIMEOUT, TIMEOUT_UNIT);
     }
 
-    private void grantReadAccess(String username, String topic, String groupPrefix) throws ExecutionException, InterruptedException, TimeoutException {
+    private void grantReadAccess(final String username, final String topic, final String groupPrefix) throws ExecutionException, InterruptedException, TimeoutException {
         var topicAclBinding = createTopicAclBinding(username, topic, READ);
         var groupAclBinding = createGroupAclBinding(username, groupPrefix);
         var readOffsetsAcl = createInternalTopicAclBinding(username, READ);
@@ -139,20 +140,20 @@ public class KafkaAdminService implements AutoCloseable  {
         result.all().get(TIMEOUT, TIMEOUT_UNIT);
     }
 
-    private boolean isConsumerCredential(String username) throws InterruptedException, ExecutionException, TimeoutException {
+    private boolean isConsumerCredential(final String username) throws InterruptedException, ExecutionException, TimeoutException {
         var result = adminClient.describeUserScramCredentials(List.of(username));
         var userCredentials = result.all().get(TIMEOUT, TIMEOUT_UNIT);
         return !userCredentials.get(username).credentialInfos().isEmpty();
     }
 
-    private void revokeReadAccess(String username, String topic) throws ExecutionException, InterruptedException, TimeoutException {
+    private void revokeReadAccess(final String username, final String topic) throws ExecutionException, InterruptedException, TimeoutException {
         var topicFilter = createTopicAclBindingFilter(username, topic);
         var result = adminClient.deleteAcls(List.of(topicFilter));
 
         result.all().get(TIMEOUT, TIMEOUT_UNIT);
     }
 
-    private void addScramCredential(String username, String password) throws ExecutionException, InterruptedException, TimeoutException {
+    private void addScramCredential(final String username, final String password) throws ExecutionException, InterruptedException, TimeoutException {
         var scramCredential = new ScramCredentialInfo(scramMechanism, 4096);
         var upsertion = new UserScramCredentialUpsertion(username, scramCredential, password);
         var result = adminClient.alterUserScramCredentials(Collections.singletonList(upsertion));
@@ -160,25 +161,25 @@ public class KafkaAdminService implements AutoCloseable  {
         result.all().get(TIMEOUT, TIMEOUT_UNIT);
     }
 
-    private AclBinding createTopicAclBinding(String username, String topic, AclOperation operation) {
+    private AclBinding createTopicAclBinding(final String username, final String topic, final AclOperation operation) {
         var resourcePattern = new ResourcePattern(TOPIC, topic, LITERAL);
         var entry = new AccessControlEntry("User:" + username, "*", operation, ALLOW);
         return new AclBinding(resourcePattern, entry);
     }
 
-    private AclBindingFilter createTopicAclBindingFilter(String username, String topic) {
+    private AclBindingFilter createTopicAclBindingFilter(final String username, final String topic) {
         var resourcePatternFilter = new ResourcePatternFilter(TOPIC, topic, LITERAL);
         var entryFilter = new AccessControlEntryFilter("User:" + username, "*", READ, ANY);
         return new AclBindingFilter(resourcePatternFilter, entryFilter);
     }
 
-    private AclBinding createGroupAclBinding(String username, String groupPrefix) {
+    private AclBinding createGroupAclBinding(final String username, final String groupPrefix) {
         var resourcePattern = new ResourcePattern(GROUP, groupPrefix, PREFIXED);
         var entry = new AccessControlEntry("User:" + username, "*", READ, ALLOW);
         return new AclBinding(resourcePattern, entry);
     }
 
-    private AclBinding createInternalTopicAclBinding(String username, AclOperation operation) {
+    private AclBinding createInternalTopicAclBinding(final String username, final AclOperation operation) {
         var internalTopic = "__consumer_offsets";
         return createTopicAclBinding(username, internalTopic, operation);
     }

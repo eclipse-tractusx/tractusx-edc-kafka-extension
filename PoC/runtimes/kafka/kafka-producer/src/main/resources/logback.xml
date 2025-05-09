@@ -1,0 +1,16 @@
+<configuration>
+
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Pattern: date level logger—message newline -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <logger name="org.apache.kafka" level="WARN"/>
+</configuration>

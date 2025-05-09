@@ -4,7 +4,7 @@ import org.eclipse.tractusx.edc.spi.identity.mapper.BdrsClient;
 
 public class DummyBdrsClient implements BdrsClient {
   @Override
-  public String resolve(String bpn) {
+  public String resolve(final String bpn) {
     return "did:web:" + bpn;
   }
 }

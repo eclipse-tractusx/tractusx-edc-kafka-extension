@@ -16,23 +16,28 @@ headers {
 
 body:json {
   {
-      "@context": {
-          "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
-      },
-      "@id": "{{ASSET_ID}}",
-      "properties": {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@id": "{{ASSET_ID}}",
+    "properties": {
       "name": "test asset",
       "contenttype": "application/json"
     },
-      "dataAddress": {
-          "type": "KafkaBroker",
-          "name": "test asset",
-          "kafka.bootstrap.servers": "{{KAFKA_URL}}",
-          "topic": "{{KAFKA_TOPIC}}",
-          //"pollDuration": "PT5M", 
-          "secretKey": "{{KAFKA_SECRET}}",
-          "kafka.sasl.mechanism": "{{KAFKA_SASL_MECHANISM}}",
-          "kafka.security.protocol": "{{KAFKA_SECURITY_PROTOCOL}}"
-      }
+    "dataAddress": {
+      "type": "KafkaBroker",
+      "name": "test asset",
+      "kafka.bootstrap.servers": "{{KAFKA_URL}}",
+      "topic": "{{KAFKA_TOPIC}}",
+      //"pollDuration": "PT5M", 
+      //"secretKey": "{{KAFKA_SECRET}}",
+      "kafka.sasl.mechanism": "{{KAFKA_SASL_MECHANISM}}",
+      "kafka.security.protocol": "{{KAFKA_SECURITY_PROTOCOL}}",
+      "tokenUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/token",
+      "revokeUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/revoke",
+      "clientId": "myclient",
+      //"clientSecret": "mysecret",
+      "clientSecretKey": "secretKey"
+    }
   }
 }

@@ -16,19 +16,25 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Map;
 
+/**
+ * Represents an Endpoint Data Reference entry containing information about
+ * a specific data transfer process in the EDC system.
+ */
 @Getter
 @Setter
-public class EDREntry {
-
+@ToString
+@NoArgsConstructor
+public class EndpointDataReferenceEntry {
     @JsonProperty("@id")
     private String id;
 
@@ -44,23 +50,4 @@ public class EDREntry {
 
     @JsonProperty("@context")
     private Map<String, String> context;
-
-    // Default constructor is needed for Jackson
-    public EDREntry() {
-    }
-
-    @Override
-    public String toString() {
-        return "EndpointDataReferenceEntry{" +
-                "id='" + id + '\'' +
-                ", type='" + type + '\'' +
-                ", providerId='" + providerId + '\'' +
-                ", assetId='" + assetId + '\'' +
-                ", agreementId='" + agreementId + '\'' +
-                ", transferProcessId='" + transferProcessId + '\'' +
-                ", createdAt=" + createdAt +
-                ", contractNegotiationId='" + contractNegotiationId + '\'' +
-                ", context=" + context +
-                '}';
-    }
 }

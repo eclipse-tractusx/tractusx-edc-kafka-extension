@@ -16,41 +16,47 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a query specification for filtering and sorting data.
+ * Used for making structured data requests to the EDC management API.
+ */
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class QuerySpec {
 
     @JsonProperty("@context")
     private Map<String, String> context;
+
     @JsonProperty("@type")
     private String type;
+
+    private String sortOrder;
+    private String sortField;
     private int offset;
     private int limit;
     private List<FilterExpression> filterExpression;
 
-    @Setter
+    /**
+     * Represents a filter expression with a left operand, operator, and right operand.
+     * Used for building query criteria.
+     */
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class FilterExpression {
-        public FilterExpression(String operandLeft, String operator, String operandRight) {
-            this.operator = operator;
-            this.operandRight = operandRight;
-            this.operandLeft = operandLeft;
-        }
-
+        private String operandLeft;
         private String operator;
         private String operandRight;
-        private String operandLeft;
-
     }
 }

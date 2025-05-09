@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -27,6 +28,10 @@ dependencies {
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
 
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
