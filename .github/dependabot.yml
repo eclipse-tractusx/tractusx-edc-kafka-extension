@@ -17,14 +17,12 @@
 #  SPDX-License-Identifier: Apache-2.0
 #################################################################################
 
-
 ---
 version: 2
 updates:
 
   # Gradle
-  -
-    package-ecosystem: "gradle"
+  - package-ecosystem: "gradle"
     target-branch: main
     directory: /
     labels:
@@ -34,8 +32,7 @@ updates:
       interval: "daily"
 
   # Github Actions
-  -
-    package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions"
     target-branch: main
     directory: /
     labels:
