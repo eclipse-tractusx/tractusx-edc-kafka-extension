@@ -24,7 +24,7 @@ updates:
   # Gradle
   - package-ecosystem: "gradle"
     target-branch: main
-    directory: /
+    directory: /PoC
     labels:
       - "dependabot"
       - "dependencies"
@@ -42,11 +42,11 @@ updates:
       interval: "daily"
 
   # Docker
-  - package-ecosystem: "docker"
-    target-branch: main
-    directory: resources
-    labels:
-      - "dependabot"
-      - "docker"
-    schedule:
-      interval:  "daily"
+#  - package-ecosystem: "docker"
+#    target-branch: main
+#    directory: resources
+#    labels:
+#      - "dependabot"
+#      - "docker"
+#    schedule:
+#      interval:  "daily"
