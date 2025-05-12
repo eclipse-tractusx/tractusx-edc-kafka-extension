@@ -295,6 +295,8 @@ An example for the extended standard could be:
 > 
 > Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the `dspace:dataAddress`.
 
+Related GitHub Issue: https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/issues/15.
+
 To be in line with the EDC development best-practices,
 the [Contrubutors Manual](https://eclipse-edc.github.io/documentation/for-contributors/) has to be understood.
 
