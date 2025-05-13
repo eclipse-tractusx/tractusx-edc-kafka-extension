@@ -52,6 +52,10 @@ jobs:
           java-version: 17
           cache: gradle
 
+      - name: Build fat-JAR
+        working-directory: PoC
+        run: ./gradlew shadowJar --no-daemon
+
       - name: Build docker image
         run: |
           docker build \
