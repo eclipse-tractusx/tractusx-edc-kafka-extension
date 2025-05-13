@@ -40,7 +40,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ./PoC
+    working-directory: /PoC
 
 jobs:
   git-sha7:
