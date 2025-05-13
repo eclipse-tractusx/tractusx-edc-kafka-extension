@@ -77,91 +77,12 @@ jobs:
         with:
           image-ref: local-image:${{ github.sha }} # points to the image we just built
           format: sarif
-          output: trivy-${{ github.sha }}.sarif
+          output: trivy-results-${{ github.sha }}.sarif
           severity: "CRITICAL,HIGH"
           limit-severities-for-sarif: true
-#          format: table                            # console-friendly output
-#          severity: CRITICAL,HIGH                  # tighten/loosen as you like
-#          ignore-unfixed: true                     # skip issues that have no upstream fix yet
-#          exit-code: 1                             # fail the job if vulns match severity filter
-#          vuln-type: os,library                    # scan both OS packages and language deps
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: success() && steps.imageCheck.outcome != 'failure'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-results-${{ github.sha }}.sarif"
-
-#jobs:
-#  git-sha7:
-#    name: Determine short git sha
-#    runs-on: ubuntu-latest
-#    outputs:
-#      value: ${{ steps.git-sha7.outputs.SHA7 }}
-#    steps:
-#      - name: Resolve git 7-chars sha
-#        id: git-sha7
-#        run: |
-#          echo "SHA7=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-#
-#  trivy:
-#    needs: [ git-sha7 ]
-#    permissions:
-#      actions: read
-#      contents: read
-#      security-events: write
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false # continue scanning other images although if the other has been vulnerable
-#      matrix:
-#        image:
-#          - edc-controlplane-kafka
-#          - edc-dataplane-kafka
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#
-#      - name: Set up JDK 17
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: temurin
-#          java-version: 17
-#
-#      - name: Build JARs
-#        working-directory: PoC
-#        run: ./gradlew clean build -x test
-#
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v3
-#
-#      - name: Build ${{ matrix.image }} image
-#        uses: docker/build-push-action@v5
-#        with:
-#          context: .
-#          # If you keep separate Dockerfiles, point to them here:
-#          # file: docker/${{ matrix.image }}.Dockerfile
-#          tags: local/${{ matrix.image }}:${{ github.sha }}
-#          load: true
-#
-#      - name: Trivy config scan (repository)
-#        uses: aquasecurity/trivy-action@0.29.0
-#        with:
-#          scan-type: fs
-#          scan-ref: .
-#          hide-progress: true
-#
-#      - name: Trivy image scan
-#        uses: aquasecurity/trivy-action@master
-#        with:
-#          image-ref: local/${{ matrix.image }}:${{ github.sha }}
-#          format: sarif
-#          output: trivy-${{ matrix.image }}.sarif
-#          severity: "CRITICAL,HIGH"
-#          trivyignores: .config/.trivyignore
-#          limit-severities-for-sarif: true
-#
-#      - name: Upload Trivy scan results to GitHub Security tab
-#        if: success() && steps.imageCheck.outcome != 'failure'
-#        uses: github/codeql-action/upload-sarif@v3
-#        with:
-#          sarif_file: "trivy-results-${{ matrix.image }}.sarif"
