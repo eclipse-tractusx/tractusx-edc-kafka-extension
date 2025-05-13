@@ -79,7 +79,6 @@ jobs:
           format: sarif
           output: trivy-${{ github.sha }}.sarif
           severity: "CRITICAL,HIGH"
-          trivyignores: .config/.trivyignore
           limit-severities-for-sarif: true
 #          format: table                            # console-friendly output
 #          severity: CRITICAL,HIGH                  # tighten/loosen as you like
