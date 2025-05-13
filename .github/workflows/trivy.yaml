@@ -52,17 +52,12 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Build image with Gradle Jib
-        working-directory: PoC
+      - name: Build docker image
         run: |
-          ./gradlew jibDockerBuild \
-            -Djib.to.image=local-image:${{ github.sha }}
-
-      # 2. Build a *local* Docker image and tag it with the commit SHA
-      - name: Build Docker image
-        working-directory: PoC
-        run: |
-          docker build -t local-image:${{ github.sha }} .
+          docker build \
+          -f PoC/runtimes/edc/controlplane-local/Dockerfile \
+          -t local-image:${{ github.sha }} \
+          .
 
       # 3. Vulnerability scan with Trivy
       - name: Run Trivy vulnerability scanner
