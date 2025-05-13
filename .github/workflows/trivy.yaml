@@ -68,7 +68,6 @@ jobs:
         working-directory: PoC/runtimes/edc/controlplane-local
         run: |
           docker build \
-          -f PoC/runtimes/edc/controlplane-local/Dockerfile \
           -t local-image:${{ github.sha }} \
           .
 
