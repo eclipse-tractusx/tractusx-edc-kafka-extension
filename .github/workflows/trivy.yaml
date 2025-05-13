@@ -37,11 +37,6 @@ on:
     types:
       - completed
 
-defaults:
-  run:
-    shell: bash
-    working-directory: /PoC
-
 jobs:
   git-sha7:
     name: Determine short git sha
@@ -78,6 +73,7 @@ jobs:
           java-version: 17
 
       - name: Build JARs
+        working-directory: PoC
         run: ./gradlew clean build -x test
 
       - name: Set up Docker Buildx
