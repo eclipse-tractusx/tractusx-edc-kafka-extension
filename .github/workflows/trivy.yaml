@@ -37,6 +37,11 @@ on:
     types:
       - completed
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./PoC
+
 jobs:
   git-sha7:
     name: Determine short git sha
