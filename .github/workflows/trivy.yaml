@@ -65,6 +65,7 @@ jobs:
           ls
 
       - name: Build docker image
+        working-directory: PoC/runtimes/edc/controlplane-local
         run: |
           docker build \
           -f PoC/runtimes/edc/controlplane-local/Dockerfile \
