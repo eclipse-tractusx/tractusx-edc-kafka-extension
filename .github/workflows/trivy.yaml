@@ -76,11 +76,22 @@ jobs:
         uses: aquasecurity/trivy-action@master   # pin to the latest tag (Mar 14 2025)
         with:
           image-ref: local-image:${{ github.sha }} # points to the image we just built
-          format: table                            # console-friendly output
-          severity: CRITICAL,HIGH                  # tighten/loosen as you like
-          ignore-unfixed: true                     # skip issues that have no upstream fix yet
-          exit-code: 1                             # fail the job if vulns match severity filter
-          vuln-type: os,library                    # scan both OS packages and language deps
+          format: sarif
+          output: trivy-${{ github.sha }}.sarif
+          severity: "CRITICAL,HIGH"
+          trivyignores: .config/.trivyignore
+          limit-severities-for-sarif: true
+#          format: table                            # console-friendly output
+#          severity: CRITICAL,HIGH                  # tighten/loosen as you like
+#          ignore-unfixed: true                     # skip issues that have no upstream fix yet
+#          exit-code: 1                             # fail the job if vulns match severity filter
+#          vuln-type: os,library                    # scan both OS packages and language deps
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: success() && steps.imageCheck.outcome != 'failure'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results-${{ github.sha }}.sarif"
 
 #jobs:
 #  git-sha7:
