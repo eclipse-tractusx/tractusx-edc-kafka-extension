@@ -47,6 +47,7 @@ jobs:
 
       # 2. Build a *local* Docker image and tag it with the commit SHA
       - name: Build Docker image
+        working-directory: PoC
         run: |
           docker build -t local-image:${{ github.sha }} .
 
