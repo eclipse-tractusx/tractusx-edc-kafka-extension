@@ -52,7 +52,7 @@ jobs:
 
       # 3. Vulnerability scan with Trivy
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.30.0   # pin to the latest tag (Mar 14 2025)
+        uses: aquasecurity/trivy-action@master   # pin to the latest tag (Mar 14 2025)
         with:
           image-ref: local-image:${{ github.sha }} # points to the image we just built
           format: table                            # console-friendly output
