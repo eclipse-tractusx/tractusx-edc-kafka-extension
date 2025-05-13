@@ -56,11 +56,11 @@ jobs:
         working-directory: PoC
         run: ./gradlew shadowJar --no-daemon
 
-      - name: Check if jar is av
+      - name: Check if JAR is present
         run: |
-          pwd \
-          ls \
-          cd PoC/runtimes/edc/controlplane-local \
+          pwd
+          ls
+          cd PoC/runtimes/edc/controlplane-local
           ls
 
       - name: Build docker image
