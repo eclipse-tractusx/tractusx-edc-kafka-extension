@@ -37,6 +37,17 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaProducerApp {
+    static final String KAFKA_STREAM_TOPIC = System.getenv().getOrDefault("KAFKA_STREAM_TOPIC", "kafka-stream-topic");
+    static final String KEYCLOAK_CLIENT_ID = System.getenv().getOrDefault("KEYCLOAK_CLIENT_ID", "default");
+    static final String KEYCLOAK_CLIENT_SECRET = System.getenv().getOrDefault("KEYCLOAK_CLIENT_SECRET", "mysecret");
+    static final String VAULT_CLIENT_SECRET_KEY = System.getenv().getOrDefault("VAULT_CLIENT_SECRET_KEY", "secretKey");
+    static final String KEYCLOAK_TOKEN_URL = System.getenv().getOrDefault("KEYCLOAK_TOKEN_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/token");
+    static final String KEYCLOAK_REVOKE_URL = System.getenv().getOrDefault("KEYCLOAK_REVOKE_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/revoke");
+    static final String KAFKA_BOOTSTRAP_SERVERS = System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
+    static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
+    static final String EDC_API_AUTH_KEY = System.getenv().getOrDefault("EDC_API_AUTH_KEY", "password");
+    static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final long MESSAGE_INTERVAL_MS = 1000;
 
@@ -46,7 +57,7 @@ public class KafkaProducerApp {
             edcSetup.setupEdcOffer();
         }
 
-        try (KafkaProducer<String, String> producer = KafkaConfig.createProducer()) {
+        try (KafkaProducer<String, String> producer = createProducer()) {
             log.info("Starting producer...");
             runProducer(producer);
         } catch (InterruptedException e) {
@@ -71,7 +82,7 @@ public class KafkaProducerApp {
     }
 
     private static void sendMessage(final KafkaProducer<String, String> producer, final String key, final String value) {
-        ProducerRecord<String, String> record = new ProducerRecord<>(KafkaConfig.TOPIC, key, value);
+        ProducerRecord<String, String> record = new ProducerRecord<>(KAFKA_STREAM_TOPIC, key, value);
         producer.send(record, (final RecordMetadata metadata, final Exception e) -> {
             if (e != null) {
                 log.error("Failed to send record: {}", e.getMessage(), e);
@@ -95,52 +106,39 @@ public class KafkaProducerApp {
         );
     }
 
-    /**
-     * Configuration class for Kafka producer settings
-     */
-    static class KafkaConfig {
-        static final String TOPIC = "kafka-stream-topic";
-        // OAuth Configuration
-        private static final String OAUTH_CLIENT_ID = "myclient";
-        private static final String OAUTH_CLIENT_SECRET = "mysecret";
-        private static final String OAUTH_TOKEN_URL = "http://keycloak:8080/realms/kafka/protocol/openid-connect/token";
-        // Kafka Configuration
-        private static final String BOOTSTRAP_SERVERS = "kafka-kraft:9092";
+    static KafkaProducer<String, String> createProducer() {
+        Properties props = new Properties();
 
-        static KafkaProducer<String, String> createProducer() {
-            Properties props = new Properties();
+        // Basic producer settings
+        props.put(BOOTSTRAP_SERVERS_CONFIG, KAFKA_BOOTSTRAP_SERVERS);
+        props.put(ACKS_CONFIG, "all");
+        props.put(RETRIES_CONFIG, 0);
+        props.put(BATCH_SIZE_CONFIG, 16384); // 16KB
+        props.put(LINGER_MS_CONFIG, 1);
+        props.put(BUFFER_MEMORY_CONFIG, 33554432); // 32MB
+        props.put(DELIVERY_TIMEOUT_MS_CONFIG, 3000);
+        props.put(REQUEST_TIMEOUT_MS_CONFIG, 2000);
+        props.put(KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
-            // Basic producer settings
-            props.put(BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-            props.put(ACKS_CONFIG, "all");
-            props.put(RETRIES_CONFIG, 0);
-            props.put(BATCH_SIZE_CONFIG, 16384); // 16KB
-            props.put(LINGER_MS_CONFIG, 1);
-            props.put(BUFFER_MEMORY_CONFIG, 33554432); // 32MB
-            props.put(DELIVERY_TIMEOUT_MS_CONFIG, 3000);
-            props.put(REQUEST_TIMEOUT_MS_CONFIG, 2000);
-            props.put(KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-            props.put(VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        // Security settings for SASL/OAUTHBEARER
+        props.put(SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        props.put(SASL_MECHANISM, "OAUTHBEARER");
 
-            // Security settings for SASL/OAUTHBEARER
-            props.put(SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
-            props.put(SASL_MECHANISM, "OAUTHBEARER");
+        // OAuth properties
+        props.put(SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL, KEYCLOAK_TOKEN_URL);
+        props.put("sasl.oauthbearer.client.id", KEYCLOAK_CLIENT_ID);
+        props.put("sasl.oauthbearer.client.secret", KEYCLOAK_CLIENT_SECRET);
+        props.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS,
+                "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler");
 
-            // OAuth properties
-            props.put(SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL, OAUTH_TOKEN_URL);
-            props.put("sasl.oauthbearer.client.id", OAUTH_CLIENT_ID);
-            props.put("sasl.oauthbearer.client.secret", OAUTH_CLIENT_SECRET);
-            props.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS,
-                    "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler");
+        // JAAS configuration for OAuth2
+        props.put(SASL_JAAS_CONFIG,
+                "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
+                        "clientId=\"" + KEYCLOAK_CLIENT_ID + "\" " +
+                        "clientSecret=\"" + KEYCLOAK_CLIENT_SECRET + "\";"
+        );
 
-            // JAAS configuration for OAuth2
-            props.put(SASL_JAAS_CONFIG,
-                    "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
-                            "clientId=\"" + OAUTH_CLIENT_ID + "\" " +
-                            "clientSecret=\"" + OAUTH_CLIENT_SECRET + "\";"
-            );
-
-            return new KafkaProducer<>(props);
-        }
+        return new KafkaProducer<>(props);
     }
 }

@@ -34,6 +34,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EDRData {
+    private static final String KAFKA_SECURITY_PROTOCOL = "kafka.security.protocol";
+    private static final String KAFKA_SASL_MECHANISM = "kafka.sasl.mechanism";
+    private static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
     private String id;
     private String contractId;
     private String endpoint;
@@ -43,13 +46,10 @@ public class EDRData {
     private String authCode;
     private String token;
 
-    // Kafka-specific configuration
-    private static final String KAFKA_SECURITY_PROTOCOL = "kafka.security.protocol";
-    private static final String KAFKA_SASL_MECHANISM = "kafka.sasl.mechanism";
-
     @JsonProperty(KAFKA_SECURITY_PROTOCOL)
     private String kafkaSecurityProtocol;
-
     @JsonProperty(KAFKA_SASL_MECHANISM)
     private String kafkaSaslMechanism;
+    @JsonProperty(KAFKA_BOOTSTRAP_SERVERS)
+    private String kafkaBootstrapServers;
 }
