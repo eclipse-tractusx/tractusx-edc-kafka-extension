@@ -33,11 +33,13 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.AppConfigurationEntry;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.apache.kafka.common.config.SaslConfigs.SASL_OAUTHBEARER_SCOPE_CLAIM_NAME;
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.ASSET_ID;
 
 /**
  * Callback handler that retrieves an OAuth bearer token from EDRData and converts it to
@@ -77,7 +79,6 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
         ConfigurationUtils cu = new ConfigurationUtils(configs, mechanism);
         scopeClaimName = cu.get(SASL_OAUTHBEARER_SCOPE_CLAIM_NAME);
         isInitialized = true;
-        log.debug("EdrTokenCallbackHandler configured with scopeClaimName: {}", scopeClaimName);
     }
 
     @Override
@@ -85,15 +86,20 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
         checkInitialized();
 
         for (Callback callback : callbacks) {
-            if (callback instanceof OAuthBearerTokenCallback) {
-                handleTokenCallback((OAuthBearerTokenCallback) callback);
+            if (callback instanceof OAuthBearerTokenCallback tokenCallback) {
+                try {
+                    handleTokenCallback(tokenCallback);
+                } catch (InterruptedException e) {
+                    log.warn("Interrupted while handling OAuthBearerTokenCallback", e);
+                    Thread.currentThread().interrupt();
+                }
             } else {
                 throw new UnsupportedCallbackException(callback, "Unsupported callback type");
             }
         }
     }
 
-    private void handleTokenCallback(final OAuthBearerTokenCallback callback) throws IOException {
+    private void handleTokenCallback(final OAuthBearerTokenCallback callback) throws IOException, InterruptedException {
         log.debug("Handling OAuthBearerTokenCallback");
         String accessToken = fetchAccessTokenFromEDC();
         OAuthBearerToken oAuthBearerToken = toOAuthBearerToken(accessToken);
@@ -103,11 +109,10 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
 
     private OAuthBearerToken toOAuthBearerToken(final String accessToken) {
         log.debug("Converting JWT access token to OAuthBearerToken");
-        log.debug("Access token: {}", accessToken);
         try {
             DecodedJWT jwt = JWT.decode(accessToken);
-            long issuedAt = jwt.getIssuedAtAsInstant().getEpochSecond();
-            long expiresAt = jwt.getExpiresAtAsInstant().getEpochSecond();
+            long issuedAt = jwt.getIssuedAtAsInstant().toEpochMilli();
+            long expiresAt = jwt.getExpiresAtAsInstant().toEpochMilli();
             String subject = jwt.getSubject();
             String scopeClaim = jwt.getClaim(scopeClaimName).asString();
             Set<String> scopes = Set.of(scopeClaim);
@@ -119,8 +124,8 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
         }
     }
 
-    private String fetchAccessTokenFromEDC() throws IOException {
-        log.info("Fetching access token from EDC");
+    private String fetchAccessTokenFromEDC() throws IOException, InterruptedException {
+        log.debug("Fetching access token from EDC");
         EDRData edrData = edrDataProvider.getEdrData();
 
         if (edrData == null) {
@@ -156,7 +161,7 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
      * Interface for providing EDR data, allows for dependency injection and testing
      */
     public interface EdrDataProvider {
-        EDRData getEdrData() throws IOException;
+        EDRData getEdrData() throws IOException, InterruptedException;
     }
 
     /**
@@ -164,9 +169,10 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
      */
     @RequiredArgsConstructor
     private static class DefaultEdrDataProvider implements EdrDataProvider {
+
         @Override
-        public EDRData getEdrData() throws IOException {
-            return new EdrProvider().getEdr();
+        public EDRData getEdrData() throws IOException, InterruptedException {
+            return new DataTransferClient().executeDataTransferWorkflow(ASSET_ID);
         }
     }
 }

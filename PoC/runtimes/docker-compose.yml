@@ -128,6 +128,17 @@ services:
     depends_on:
       kafka-kraft:
         condition: service_healthy
+    environment:
+      KAFKA_STREAM_TOPIC:      "kafka-stream-topic"
+      KEYCLOAK_CLIENT_ID:      "myclient"
+      KEYCLOAK_CLIENT_SECRET:  "mysecret"
+      VAULT_CLIENT_SECRET_KEY: "secretKey"
+      KEYCLOAK_TOKEN_URL:      "http://keycloak:8080/realms/kafka/protocol/openid-connect/token"
+      KEYCLOAK_REVOKE_URL:     "http://keycloak:8080/realms/kafka/protocol/openid-connect/revoke"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-kraft:9092"
+      ASSET_ID:                "kafka-stream-asset"
+      EDC_API_AUTH_KEY:        "password"
+      EDC_MANAGEMENT_URL:      "http://control-plane-alice:8081/management"
 
   kafka-consumer:
     restart: on-failure
@@ -135,3 +146,9 @@ services:
     depends_on:
       kafka-kraft:
         condition: service_healthy
+    environment:
+      ASSET_ID:              "kafka-stream-asset"
+      PROVIDER_ID:           "BPNL00000003AZQP"
+      PROVIDER_PROTOCOL_URL: "http://control-plane-alice:8084/api/v1/dsp"
+      EDC_MANAGEMENT_URL:    "http://control-plane-bob:8081/management"
+      EDC_API_KEY:           "password"
