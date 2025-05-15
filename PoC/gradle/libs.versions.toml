@@ -57,6 +57,9 @@ edc-iam-mock = { module = "org.eclipse.edc:iam-mock", version.ref = "edc" }
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
 edc-junit-base = { module = "org.eclipse.edc:junit-base", version.ref = "edc" }
 edc-auth-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
+edc-data-plane-http-oauth2 = { module = "org.eclipse.edc:data-plane-http-oauth2", version.ref = "edc" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
+edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
 
 # Testing
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }

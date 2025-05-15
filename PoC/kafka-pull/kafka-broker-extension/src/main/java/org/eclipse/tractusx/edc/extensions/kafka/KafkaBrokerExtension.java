@@ -20,16 +20,24 @@
 package org.eclipse.tractusx.edc.extensions.kafka;
 
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowManager;
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowPropertiesProvider;
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.TransferTypeParser;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
 import org.eclipse.edc.http.spi.EdcHttpClient;
-import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
+import org.eclipse.edc.runtime.metamodel.annotation.Setting;
+import org.eclipse.edc.spi.monitor.Monitor;
+import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
 import org.eclipse.edc.spi.types.TypeManager;
-import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
+import org.eclipse.edc.web.spi.configuration.context.ControlApiUrl;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
+
+import java.util.Map;
 
 /**
  * Kafka Broker flow extension
@@ -38,6 +46,9 @@ import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
 public class KafkaBrokerExtension implements ServiceExtension {
 
     public static final String NAME = "Kafka stream extension";
+    private static final String DEFAULT_DATAPLANE_SELECTOR_STRATEGY = "random";
+    @Setting(value = "Defines strategy for Data Plane instance selection in case Data Plane is not embedded in current runtime", defaultValue = DEFAULT_DATAPLANE_SELECTOR_STRATEGY)
+    private static final String DPF_SELECTOR_STRATEGY = "edc.dataplane.client.selector.strategy";
 
     @Inject
     private DataFlowManager dataFlowManager;
@@ -52,11 +63,34 @@ public class KafkaBrokerExtension implements ServiceExtension {
     private EdcHttpClient httpClient;
 
     @Inject
-    private Oauth2Client oauth2Client;
+    private DataPlaneSelectorService selectorService;
+
+    @Inject
+    private DataPlaneClientFactory clientFactory;
+
+    @Inject(required = false)
+    private DataFlowPropertiesProvider propertiesProvider;
+
+    @Inject
+    private TransferTypeParser transferTypeParser;
+
+    @Inject
+    private Monitor monitor;
+
+    @Inject(required = false)
+    private ControlApiUrl callbackUrl;
+
 
     @Override
     public void initialize(final ServiceExtensionContext context) {
-        KafkaOAuthService kafkaOAuthService = new KafkaOAuthServiceImpl(httpClient, typeManager.getMapper());
-        dataFlowManager.register(10, new KafkaBrokerDataFlowController(vault, kafkaOAuthService));
+        var selectionStrategy = context.getSetting(DPF_SELECTOR_STRATEGY, DEFAULT_DATAPLANE_SELECTOR_STRATEGY);
+        var kafkaOAuthService = new KafkaOAuthServiceImpl(httpClient, typeManager.getMapper());
+        var controller = new KafkaBrokerDataFlowController(vault, kafkaOAuthService, transferTypeParser, getPropertiesProvider(),
+                selectorService, clientFactory, selectionStrategy, monitor, callbackUrl);
+        dataFlowManager.register(10, controller);
+    }
+
+    private DataFlowPropertiesProvider getPropertiesProvider() {
+        return propertiesProvider == null ? (tp, p) -> StatusResult.success(Map.of()) : propertiesProvider;
     }
 }

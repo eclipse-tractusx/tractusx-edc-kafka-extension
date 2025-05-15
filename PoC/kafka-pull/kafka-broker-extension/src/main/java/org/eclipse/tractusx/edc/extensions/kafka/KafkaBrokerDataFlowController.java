@@ -21,26 +21,36 @@ package org.eclipse.tractusx.edc.extensions.kafka;
 
 import org.eclipse.edc.connector.controlplane.asset.spi.domain.Asset;
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowController;
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowPropertiesProvider;
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.TransferTypeParser;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
 import org.eclipse.edc.policy.model.Policy;
 import org.eclipse.edc.spi.EdcException;
+import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.response.ResponseStatus;
 import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.types.domain.DataAddress;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
+import org.eclipse.edc.spi.types.domain.transfer.FlowType;
+import org.eclipse.edc.spi.types.domain.transfer.TransferType;
+import org.eclipse.edc.web.spi.configuration.context.ControlApiUrl;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.OAuthCredentials;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.*;
+import static org.eclipse.edc.spi.response.ResponseStatus.FATAL_ERROR;
+import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.CONTRACT_ID;
 import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
 
 class KafkaBrokerDataFlowController implements DataFlowController {
+    public static final String DEFAULT_POLL_DURATION = Duration.ofSeconds(1).toString();
     static final String START_FAILED = "Failed to start data flow: ";
     static final String SUSPEND_FAILED = "Failed to suspend data flow: ";
     static final String TERMINATE_FAILED = "Failed to terminate data flow: ";
@@ -48,10 +58,26 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     private static final String TRANSFER_TYPE = "Kafka-PULL";
     private final Vault vault;
     private final KafkaOAuthService oauthService;
+    private final TransferTypeParser transferTypeParser;
+    private final DataFlowPropertiesProvider propertiesProvider;
+    private final DataPlaneSelectorService selectorService;
+    private final DataPlaneClientFactory clientFactory;
+    private final String selectionStrategy;
+    private final Monitor monitor;
+    private final ControlApiUrl callbackUrl;
 
-    public KafkaBrokerDataFlowController(final Vault vault, final KafkaOAuthService oauthService) {
+    public KafkaBrokerDataFlowController(final Vault vault, final KafkaOAuthService oauthService,
+                                         TransferTypeParser transferTypeParser, DataFlowPropertiesProvider propertiesProvider, DataPlaneSelectorService selectorService,
+                                         DataPlaneClientFactory clientFactory, String selectionStrategy, Monitor monitor, ControlApiUrl callbackUrl) {
         this.vault = vault;
         this.oauthService = oauthService;
+        this.transferTypeParser = transferTypeParser;
+        this.propertiesProvider = propertiesProvider;
+        this.selectorService = selectorService;
+        this.clientFactory = clientFactory;
+        this.selectionStrategy = selectionStrategy;
+        this.monitor = monitor;
+        this.callbackUrl = callbackUrl;
     }
 
     @Override
@@ -62,40 +88,65 @@ class KafkaBrokerDataFlowController implements DataFlowController {
 
     @Override
     public @NotNull StatusResult<DataFlowResponse> start(final TransferProcess transferProcess, final Policy policy) {
+        var transferTypeParse = transferTypeParser.parse(transferProcess.getTransferType());
+        if (transferTypeParse.failed()) {
+            return StatusResult.failure(FATAL_ERROR, transferTypeParse.getFailureDetail());
+        }
+
+        var propertiesResult = propertiesProvider.propertiesFor(transferProcess, policy);
+        if (propertiesResult.failed()) {
+            return StatusResult.failure(FATAL_ERROR, propertiesResult.getFailureDetail());
+        }
+        monitor.info("Properties from transfer process: " + propertiesResult.getContent());
+
+        var contentDataAddress = transferProcess.getContentDataAddress();
+
+        String token;
         try {
-            var contentDataAddress = transferProcess.getContentDataAddress();
-            var transferProcessId = transferProcess.getId();
-            var topic = contentDataAddress.getStringProperty(TOPIC);
-            var endpoint = contentDataAddress.getStringProperty(BOOTSTRAP_SERVERS);
-            var contractId = transferProcess.getContractId();
-            var mechanism = contentDataAddress.getStringProperty(MECHANISM);
-            var protocol = contentDataAddress.getStringProperty(PROTOCOL);
-            var defaultPollDuration = Duration.ofSeconds(1);
-            var pollDuration = Optional.ofNullable(contentDataAddress.getStringProperty(POLL_DURATION)).map(Duration::parse).orElse(defaultPollDuration);
-            var groupPrefix = policy.getAssignee();
-
             OAuthCredentials creds = extractOAuthCredentials(contentDataAddress);
-            var token = oauthService.getAccessToken(creds);
-
-            vault.storeSecret(transferProcessId, token);
-
-            var kafkaDataAddress = DataAddress.Builder.newInstance()
-                    .type(EDR_SIMPLE_TYPE)
-                    .property(ID, transferProcessId)
-                    .property(ENDPOINT, endpoint)
-                    .property(TOKEN, token)
-                    .property(CONTRACT_ID, contractId)
-                    .property(TOPIC, topic)
-                    .property(PROTOCOL, protocol)
-                    .property(MECHANISM, mechanism)
-                    .property(GROUP_PREFIX, groupPrefix)
-                    .property(POLL_DURATION, pollDuration)
-                    .build();
-
-            return StatusResult.success(DataFlowResponse.Builder.newInstance().dataAddress(kafkaDataAddress).build());
+            token = oauthService.getAccessToken(creds);
         } catch (EdcException e) {
             return StatusResult.failure(ResponseStatus.FATAL_ERROR, START_FAILED + e.getMessage());
         }
+        vault.storeSecret(transferProcess.getId(), token);
+
+        Map<String, String> content = buildProperties(transferProcess, policy, contentDataAddress, propertiesResult, token);
+
+        var dataFlowRequest = DataFlowStartMessage.Builder.newInstance()
+                .id(UUID.randomUUID().toString())
+                .processId(transferProcess.getId())
+                .sourceDataAddress(transferProcess.getContentDataAddress())
+                .destinationDataAddress(transferProcess.getDataDestination())
+                .participantId(policy.getAssignee())
+                .agreementId(transferProcess.getContractId())
+                .assetId(transferProcess.getAssetId())
+                .transferType(new TransferType("HttpData", FlowType.PULL))
+                .callbackAddress(callbackUrl != null ? callbackUrl.get() : null)
+                .properties(content)
+                .build();
+
+        var dataPlaneInstance = selectorService.getAll().getContent().getFirst();
+        return clientFactory.createClient(dataPlaneInstance)
+                .start(dataFlowRequest)
+                .map(it -> DataFlowResponse.Builder.newInstance()
+                        .dataAddress(it.getDataAddress())
+                        .dataPlaneId(dataPlaneInstance.getId())
+                        .build()
+                );
+    }
+
+    private @NotNull Map<String, String> buildProperties(TransferProcess transferProcess, Policy policy, DataAddress contentDataAddress, StatusResult<Map<String, String>> propertiesResult, String token) {
+        var pollDuration = Optional.ofNullable(contentDataAddress.getStringProperty(POLL_DURATION)).orElse(DEFAULT_POLL_DURATION);
+        Map<String, String> content = new HashMap<>(propertiesResult.getContent());
+        content.put(TOKEN, token);
+        content.put(BOOTSTRAP_SERVERS, contentDataAddress.getStringProperty(BOOTSTRAP_SERVERS));
+        content.put(CONTRACT_ID, transferProcess.getContractId());
+        content.put(TOPIC, contentDataAddress.getStringProperty(TOPIC));
+        content.put(PROTOCOL, contentDataAddress.getStringProperty(PROTOCOL));
+        content.put(MECHANISM, contentDataAddress.getStringProperty(MECHANISM));
+        content.put(GROUP_PREFIX, policy.getAssignee());
+        content.put(POLL_DURATION, pollDuration);
+        return content;
     }
 
     private OAuthCredentials extractOAuthCredentials(final DataAddress contentDataAddress) {
@@ -140,7 +191,7 @@ class KafkaBrokerDataFlowController implements DataFlowController {
             return StatusResult.success();
 
         } catch (EdcException e) {
-            return StatusResult.failure(ResponseStatus.FATAL_ERROR, error + e.getMessage());
+            return StatusResult.failure(FATAL_ERROR, error + e.getMessage());
         }
     }
 }
