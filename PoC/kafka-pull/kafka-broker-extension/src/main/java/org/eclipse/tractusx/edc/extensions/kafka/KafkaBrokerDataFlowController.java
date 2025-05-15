@@ -97,7 +97,6 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         if (propertiesResult.failed()) {
             return StatusResult.failure(FATAL_ERROR, propertiesResult.getFailureDetail());
         }
-        monitor.info("Properties from transfer process: " + propertiesResult.getContent());
 
         var contentDataAddress = transferProcess.getContentDataAddress();
 
