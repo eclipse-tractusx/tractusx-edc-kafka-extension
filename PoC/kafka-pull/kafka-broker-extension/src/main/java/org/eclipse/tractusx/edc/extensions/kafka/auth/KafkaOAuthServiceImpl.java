@@ -79,8 +79,6 @@ public class KafkaOAuthServiceImpl implements KafkaOAuthService {
      * Revokes the given token.
      */
     public void revokeToken(final OAuthCredentials creds, final String token) {
-        // TODO Figure out if there is a way to to online token validation for kafka.
-        //      Right now this is not working, the token is still usable after revokation.
         if (creds.revocationUrl().isEmpty()) {
             return;
         }

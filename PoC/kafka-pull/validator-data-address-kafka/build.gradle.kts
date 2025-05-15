@@ -27,9 +27,10 @@ dependencies {
     implementation(libs.edc.spi.validator)
     implementation(project(":data-address-kafka"))
 
-    testImplementation(libs.edc.junit.base)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
+    testImplementation(libs.edc.junit)
+    testImplementation(libs.mockito.core)
 }
 
 tasks.test {

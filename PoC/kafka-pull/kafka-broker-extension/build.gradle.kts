@@ -29,9 +29,6 @@ dependencies {
    implementation(libs.edc.transfer.data.plane.signaling)
 
    testImplementation(libs.junit.jupiter)
-   testImplementation(libs.junit.jupiter.api)
-   testImplementation(libs.junit.jupiter.engine)
-   testImplementation(libs.junit.jupiter.params)
    testImplementation(libs.assertj)
    testImplementation(libs.edc.junit)
    testImplementation(libs.mockito.core)
