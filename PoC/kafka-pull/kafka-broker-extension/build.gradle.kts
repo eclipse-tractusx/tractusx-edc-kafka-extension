@@ -25,7 +25,8 @@ dependencies {
    implementation(libs.edc.lib.util)
    implementation(project(":data-address-kafka"))
    implementation(project(":validator-data-address-kafka"))
-   implementation(libs.edc.auth.oauth2.client)
+   implementation(libs.edc.spi.http)
+   implementation(libs.edc.transfer.data.plane.signaling)
 
    testImplementation(libs.junit.jupiter)
    testImplementation(libs.junit.jupiter.api)

@@ -20,6 +20,7 @@
 
 rootProject.name = "Poc"
 include(":controlplane-local")
+include(":dataplane-local")
 include(":seed-vault")
 include(":local-services")
 include(":kafka-consumer")
@@ -29,6 +30,7 @@ include(":data-address-kafka")
 include(":validator-data-address-kafka")
 
 project(":controlplane-local").projectDir = file("runtimes/edc/controlplane-local")
+project(":dataplane-local").projectDir = file("runtimes/edc/dataplane-local")
 project(":seed-vault").projectDir = file("runtimes/edc/seed-in-memory-vault")
 project(":local-services").projectDir = file("runtimes/edc/local-services")
 project(":kafka-consumer").projectDir = file("runtimes/kafka/kafka-consumer")
