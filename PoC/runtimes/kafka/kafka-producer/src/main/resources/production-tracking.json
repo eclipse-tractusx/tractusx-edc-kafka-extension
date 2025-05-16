@@ -1,0 +1,372 @@
+[
+  {
+    "request": {
+      "identifierNumber": "hFgQjzSGbUBzKeZHdoEaqno",
+      "catenaXId": "urn:uuid:6d80cde5-0bb1-4612-8046-2d74aebd6e97",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_01",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-101-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-101",
+          "billOfMaterialId": "201-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "89431TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL9557717721VY",
+      "relatedMessageId": "66a18474-0e72-4324-8fe8-58e38c7422f2",
+      "expectedResponseBy": "2023-06-20T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "53e9c4a9-215f-483f-a1a1-cc1864f1de11",
+      "receiverBpn": "BPNL7898114171L8",
+      "sentDateTime": "2023-06-20T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "YeEYAZMaeXTKwkxaurLnHtw",
+      "catenaXId": "urn:uuid:3ff5cc71-9139-4fb9-aeb7-61f0716c53b4",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_02",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-102-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-102",
+          "billOfMaterialId": "202-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "16328TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL7450933459QE",
+      "relatedMessageId": "3e7b6cbd-9e12-4ae6-9d86-21caec6b5c07",
+      "expectedResponseBy": "2023-06-21T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "e9eb21ee-1491-4675-9e2d-c7441adc4ec2",
+      "receiverBpn": "BPNL6961055600G3",
+      "sentDateTime": "2023-06-21T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "zTdMpPwKDgzjJxQkcIJrabA",
+      "catenaXId": "urn:uuid:228ba711-7e48-4577-9e9c-1a33f6c4490f",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_03",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-103-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-103",
+          "billOfMaterialId": "203-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "74263TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL6926335733ZB",
+      "relatedMessageId": "04563a85-3b1a-45cc-9d54-3a41f8134411",
+      "expectedResponseBy": "2023-06-22T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "9db83229-41ce-4ff5-b61a-257df398b01d",
+      "receiverBpn": "BPNL6058456089XJ",
+      "sentDateTime": "2023-06-22T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "hKykEcVOTfaMRkfWPtUAWUG",
+      "catenaXId": "urn:uuid:2a6e2eb6-eb7d-4ffd-8c91-6f49f9ec5af5",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_04",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-104-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-104",
+          "billOfMaterialId": "204-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "63827TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL1344825010CQ",
+      "relatedMessageId": "75f5fe24-dba3-4c32-82c2-871e30cf0b9a",
+      "expectedResponseBy": "2023-06-23T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "1dfdfa54-12e4-4544-aa75-77e6eaee3c6e",
+      "receiverBpn": "BPNL9869911780K2",
+      "sentDateTime": "2023-06-23T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "FRhAKvLlFmqpbnmfhdvSgts",
+      "catenaXId": "urn:uuid:888f30da-08ad-48e5-a341-7ba9dafa1c28",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_05",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-105-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-105",
+          "billOfMaterialId": "205-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "41894TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL2022558440AZ",
+      "relatedMessageId": "0ad5a26a-038e-43e6-a4fa-5b28978bd890",
+      "expectedResponseBy": "2023-06-24T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "82b86c6b-b1ea-4ed3-b246-7c848feb52b4",
+      "receiverBpn": "BPNL9639857265Z2",
+      "sentDateTime": "2023-06-24T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "xddtbFwyDBxeKRefWRtMJCZ",
+      "catenaXId": "urn:uuid:a1f99506-3e7e-4af6-aa5e-543e0b6d2600",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_06",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-106-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-106",
+          "billOfMaterialId": "206-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "54973TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL1167398924PK",
+      "relatedMessageId": "d8d39a22-e8df-4618-a7a1-8763fd7726e7",
+      "expectedResponseBy": "2023-06-25T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "eaca2764-72ec-4d71-86b0-c9c09fc2781a",
+      "receiverBpn": "BPNL3553870097M7",
+      "sentDateTime": "2023-06-25T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "eCgWUYepqiSveDaJEKTQvkR",
+      "catenaXId": "urn:uuid:826fe7b3-9bcb-444f-aab7-ae73422f44f1",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_07",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-107-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-107",
+          "billOfMaterialId": "207-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "98651TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL8691393269AT",
+      "relatedMessageId": "3874aad0-2657-4e2c-a1b1-2e354f115d10",
+      "expectedResponseBy": "2023-06-26T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "ababd1d9-cc5f-46d8-8f94-c45ff9fcbaf5",
+      "receiverBpn": "BPNL3633089355XN",
+      "sentDateTime": "2023-06-26T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "fEQSszeIThrwWUMdzNBOjMg",
+      "catenaXId": "urn:uuid:1acc16c9-7b81-4c91-b089-6412ae4825fd",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_08",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-108-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-108",
+          "billOfMaterialId": "208-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "58092TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL7547982077CX",
+      "relatedMessageId": "05f1f50b-0a04-4c4b-bd42-3999f63a17f2",
+      "expectedResponseBy": "2023-06-27T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "439d2e2d-2bf3-488b-bf36-9405d0de7761",
+      "receiverBpn": "BPNL9223890525EF",
+      "sentDateTime": "2023-06-27T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "YkqiFLxudvzKXOkJniUIQbK",
+      "catenaXId": "urn:uuid:74b45545-14ac-48da-802b-91da432adb5e",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_09",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-109-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-109",
+          "billOfMaterialId": "209-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "36918TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL7692061688KH",
+      "relatedMessageId": "be2a5c62-0e6e-4adc-9bc0-6494bff974b4",
+      "expectedResponseBy": "2023-06-28T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "917e0ba2-660c-498b-8ff5-21e75ec8e074",
+      "receiverBpn": "BPNL8093849771PG",
+      "sentDateTime": "2023-06-28T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  },
+  {
+    "request": {
+      "identifierNumber": "DqvvjjNVOhaaVGqdItEJAmn",
+      "catenaXId": "urn:uuid:925bf413-ac47-47f0-98ce-1c73c5174978",
+      "stepIdentifierList": [
+        {
+          "processStepId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben_10",
+          "processParameterList": [
+            {
+              "processParameterSemanticId": "Semantic_Drehmoment_max",
+              "processParameterName": "Drehmoment_max"
+            }
+          ],
+          "capabilityId": "Fuegen.Anpressen_Einpressen.Schrauben.Deckelverschrauben",
+          "billOfMaterialElementId": "Deckel-Bom-110-Schraube",
+          "partInstanceLevel": "partInstanceId",
+          "partInstanceId": "Deckel-Serial-110",
+          "billOfMaterialId": "210-BomIdentifier"
+        }
+      ],
+      "customerId": "^BPNL[0-9]{8}[a-zA-Z0-9]{4}$",
+      "billOfProcessId": "71549TestBoP.org",
+      "identifierType": "partInstanceId",
+      "version": "2.0.0",
+      "processReferenceType": "processStep"
+    },
+    "header": {
+      "senderBpn": "BPNL9076228335HP",
+      "relatedMessageId": "461465de-16f7-480e-9e89-68d80b8bee52",
+      "expectedResponseBy": "2023-06-29T21:24:00+07:00",
+      "context": "urn:samm:io.catenax.<ASPECT-MODEL-NAME>:1.x.x",
+      "messageId": "c0e885aa-5b3f-47f0-8bf0-401394e26aaf",
+      "receiverBpn": "BPNL7999726717AX",
+      "sentDateTime": "2023-06-29T21:24:00+07:00",
+      "version": "2.0.0"
+    }
+  }
+]

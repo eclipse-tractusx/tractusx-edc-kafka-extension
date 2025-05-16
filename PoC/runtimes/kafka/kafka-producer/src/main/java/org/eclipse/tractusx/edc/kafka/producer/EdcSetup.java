@@ -120,7 +120,7 @@ public class EdcSetup {
                         "clientSecretKey": "%s"
                       }
                     }
-                    """.formatted(ASSET_ID, KAFKA_BOOTSTRAP_SERVERS, KAFKA_STREAM_TOPIC, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(ASSET_ID, KAFKA_BOOTSTRAP_SERVERS, KAFKA_PRODUCTION_FORECAST_TOPIC, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
         }
 
         static String getPolicyDefinitionJson() {
