@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -24,6 +25,8 @@ dependencies {
    implementation(libs.edc.lib.util)
    implementation(project(":data-address-kafka"))
    implementation(project(":validator-data-address-kafka"))
+   implementation(libs.edc.spi.http)
+   implementation(libs.edc.transfer.data.plane.signaling)
 
    testImplementation(libs.junit.jupiter)
    testImplementation(libs.junit.jupiter.api)

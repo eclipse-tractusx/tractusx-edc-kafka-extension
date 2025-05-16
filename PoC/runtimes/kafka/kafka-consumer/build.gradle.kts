@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -28,6 +29,17 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
+    implementation("com.auth0:java-jwt:4.5.0")
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
+
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.assertj)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }

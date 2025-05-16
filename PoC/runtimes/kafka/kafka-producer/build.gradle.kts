@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -25,6 +26,17 @@ plugins {
 dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.kafka.clients)
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
+
+    testCompileOnly(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
 }
 
 application {

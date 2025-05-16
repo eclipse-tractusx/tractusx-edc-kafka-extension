@@ -9,6 +9,11 @@
 .idea/**/dictionaries
 .idea/**/shelf
 
+.idea/modules.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/tractusx-edc-kafka-extension-fork.iml
+.idea/vcs.xml
+
 # AWS User-specific
 .idea/**/aws.xml
 
@@ -125,4 +130,4 @@ gradle-app.setting
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
-
+/.idea/git_toolbox_prj.xml

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -36,13 +37,13 @@ class KafkaBrokerExtensionTest {
     private final Vault vault = mock();
 
     @BeforeEach
-    void setUp(ServiceExtensionContext context) {
+    void setUp(final ServiceExtensionContext context) {
         context.registerService(DataFlowManager.class, dataFlowManager);
         context.registerService(Vault.class, vault);
     }
 
     @Test
-    void initialize_RegistersKafkaDataFlowController(KafkaBrokerExtension extension, ServiceExtensionContext context) {
+    void initialize_RegistersKafkaDataFlowController(final KafkaBrokerExtension extension, final ServiceExtensionContext context) {
         extension.initialize(context);
 
         verify(dataFlowManager, times(1))

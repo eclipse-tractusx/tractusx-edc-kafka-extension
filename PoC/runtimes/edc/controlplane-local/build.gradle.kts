@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -18,6 +19,7 @@
  */
 
 plugins {
+    `java-library`
     id("application")
     alias(libs.plugins.shadow)
 }
@@ -47,8 +49,8 @@ dependencies {
 
     implementation(libs.edc.iam.mock)
     implementation(project(":kafka-broker-extension"))
-    implementation(project(":seed-vault"))
     implementation(project(":local-services"))
+    implementation(project(":seed-vault"))
 }
 
 application {

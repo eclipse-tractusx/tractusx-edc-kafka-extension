@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -38,7 +39,7 @@ public class KafkaAdminServiceProviderImpl implements KafkaAdminServiceProvider{
     }
 
     @Override
-    public KafkaAdminService provide(DataAddress contentDataAddress, String secret) {
+    public KafkaAdminService provide(final DataAddress contentDataAddress, final String secret) {
         var mechanism = contentDataAddress.getStringProperty(MECHANISM);
         var adminProps = new Properties();
         adminProps.put(BOOTSTRAP_SERVERS_CONFIG, contentDataAddress.getStringProperty(BOOTSTRAP_SERVERS));

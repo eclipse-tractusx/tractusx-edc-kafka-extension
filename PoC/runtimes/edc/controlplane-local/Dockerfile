@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
 # Copyright (c) 2025 Cofinity-X GmbH
 #
 # See the NOTICE file(s) distributed with this work for additional
@@ -41,4 +42,5 @@ ENTRYPOINT [ \
      "-Dedc.fs.config=/app/configuration.properties", \
      "-Djava.security.egd=file:/dev/urandom", \
      "-jar", \
-     "/app/application.jar"]
+     "/app/application.jar", \
+     "--log-level=DEBUG"]
