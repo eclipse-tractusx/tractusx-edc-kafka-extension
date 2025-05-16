@@ -27,6 +27,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -41,6 +42,10 @@ public class KafkaConsumerApp {
     static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
+    static final String KAFKA_PRODUCTION_FORECAST_TOPIC =
+            System.getenv().getOrDefault("KAFKA_PRODUCTION_FORECAST_TOPIC", "kafka-production-forecast-topic");
+    static final String KAFKA_PRODUCTION_TRACKING_TOPIC =
+            System.getenv().getOrDefault("KAFKA_PRODUCTION_TRACKING_TOPIC", "kafka-production-tracking-topic");
 
     public static void main(final String[] args) {
         try {
@@ -64,16 +69,16 @@ public class KafkaConsumerApp {
 
     private static void runKafkaConsumer(final EDRData edrData) {
         try (final KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrData)) {
-            final String topic = edrData.getTopic();
-            if (topic == null || topic.isBlank()) {
-                throw new IllegalArgumentException("Topic cannot be null or empty");
-            }
-            consumer.subscribe(Collections.singletonList(topic));
+            final var topicsToSubscribe = List.of(
+                    KAFKA_PRODUCTION_FORECAST_TOPIC,
+                    KAFKA_PRODUCTION_TRACKING_TOPIC
+            );
+            consumer.subscribe(topicsToSubscribe);
             log.info("Consumer started with {} authentication. Waiting for messages...", edrData.getKafkaSaslMechanism());
             while (true) {
                 final ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
-                for (final ConsumerRecord<String, String> record : records) {
-                    log.info("Received record(key={}, value={}) meta(partition={}, offset={})", record.key(), record.value(), record.partition(), record.offset());
+                for (final ConsumerRecord<String, String> consumerRecord : records) {
+                    log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
                 }
             }
         }

@@ -1,8 +1,6 @@
 package org.eclipse.tractusx.edc.kafka.producer;
 
-import java.time.OffsetDateTime;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -10,7 +8,7 @@ import lombok.Data;
 public class TrackingMessage {
 
     private Request request;
-    private Header header;
+    private MessageHeader header;
 
     @Data
     public static class Request {
@@ -23,19 +21,6 @@ public class TrackingMessage {
         private String identifierType;
         private String version;
         private String processReferenceType;
-    }
-
-    @Data
-    public static class Header {
-
-        private String        senderBpn;
-        private String        relatedMessageId;
-        private OffsetDateTime expectedResponseBy;
-        private String        context;
-        private String        messageId;
-        private String        receiverBpn;
-        private OffsetDateTime sentDateTime;
-        private String        version;
     }
 
     @Data
