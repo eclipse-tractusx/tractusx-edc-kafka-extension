@@ -26,7 +26,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -37,44 +36,45 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaConsumerApp {
+    public static final String FORECAST_ASSET_ID = System.getenv().getOrDefault("FORECAST_ASSET_ID", "kafka-forecast-asset");
+    public static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
     static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
     static final String PROVIDER_ID = System.getenv().getOrDefault("PROVIDER_ID", "BPNL00000003AZQP");
     static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
-    static final String KAFKA_PRODUCTION_FORECAST_TOPIC =
-            System.getenv().getOrDefault("KAFKA_PRODUCTION_FORECAST_TOPIC", "kafka-production-forecast-topic");
-    static final String KAFKA_PRODUCTION_TRACKING_TOPIC =
-            System.getenv().getOrDefault("KAFKA_PRODUCTION_TRACKING_TOPIC", "kafka-production-tracking-topic");
 
     public static void main(final String[] args) {
         try {
-            final EDRData edrData = fetchEdrData();
-            if (edrData == null) {
+            final List<EDRData> edrDataList = fetchAllEdrData();
+            if (edrDataList.isEmpty()) {
                 log.error("Failed to retrieve EDR data. Exiting application.");
                 return;
             }
 
-            runKafkaConsumer(edrData);
+            runKafkaConsumer(edrDataList);
         } catch (final Exception e) {
             log.error("Fatal error in KafkaConsumerApp", e);
         }
     }
 
-    private static EDRData fetchEdrData() throws IOException, InterruptedException {
-        log.info("Fetching EDR data...");
-        final DataTransferClient edrProvider = new DataTransferClient();
-        return edrProvider.executeDataTransferWorkflow(ASSET_ID);
+    private static List<EDRData> fetchAllEdrData() throws IOException, InterruptedException {
+        final DataTransferClient client = new DataTransferClient();
+        return List.of(
+                client.executeDataTransferWorkflow(FORECAST_ASSET_ID),
+                client.executeDataTransferWorkflow(TRACKING_ASSET_ID)
+        );
     }
 
-    private static void runKafkaConsumer(final EDRData edrData) {
-        try (final KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrData)) {
-            final var topicsToSubscribe = List.of(
-                    KAFKA_PRODUCTION_FORECAST_TOPIC,
-                    KAFKA_PRODUCTION_TRACKING_TOPIC
-            );
-            consumer.subscribe(topicsToSubscribe);
-            log.info("Consumer started with {} authentication. Waiting for messages...", edrData.getKafkaSaslMechanism());
+    private static void runKafkaConsumer(final List<EDRData> edrDataList) {
+        try (final KafkaConsumer<String, String> consumer = initializeKafkaConsumer(edrDataList.getFirst())) {
+            final List<String> topics = edrDataList.stream()
+                    .map(EDRData::getTopic)
+                    .filter(t -> t != null && !t.isBlank())
+                    .toList();
+
+            consumer.subscribe(topics);
+            log.info("Consumer started with {} authentication. Waiting for messages...", edrDataList.getFirst().getKafkaSaslMechanism());
             while (true) {
                 final ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
                 for (final ConsumerRecord<String, String> consumerRecord : records) {

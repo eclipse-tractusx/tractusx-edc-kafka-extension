@@ -47,7 +47,10 @@ public class EdcSetup {
     void setupEdcOffer() {
         log.info("Setting up EDC offer...");
         try {
-            createAsset();
+            createAsset(FORECAST_ASSET_ID,  KAFKA_PRODUCTION_FORECAST_TOPIC);
+            createAsset(TRACKING_ASSET_ID,  KAFKA_PRODUCTION_TRACKING_TOPIC);
+            // Default AssetID, Default Topic
+            createAsset(ASSET_ID, KAFKA_STREAM_TOPIC);
             createPolicyDefinition();
             createContractDefinition();
         } catch (final IOException e) {
@@ -60,8 +63,8 @@ public class EdcSetup {
         }
     }
 
-    private void createAsset() throws IOException, InterruptedException {
-        final String assetJson = EdcConfig.getAssetJson();
+    private void createAsset(final String assetId, final String topic) throws IOException, InterruptedException {
+        final String assetJson = EdcConfig.getAssetJson(assetId, topic);
         final HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
         log.info("Asset creation response: {} - {}", response.statusCode(), response.body());
     }
@@ -96,7 +99,7 @@ public class EdcSetup {
         private static final String POLICY_ID = "no-constraint-policy";
         private static final String CONTRACT_DEFINITION_ID = "contract-definition";
 
-        static String getAssetJson() {
+        static String getAssetJson(final String assetId, final String topic) {
             return """
                     {
                       "@context": {
@@ -120,7 +123,7 @@ public class EdcSetup {
                         "clientSecretKey": "%s"
                       }
                     }
-                    """.formatted(ASSET_ID, KAFKA_BOOTSTRAP_SERVERS, KAFKA_PRODUCTION_FORECAST_TOPIC, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
         }
 
         static String getPolicyDefinitionJson() {
