@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -25,30 +24,12 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.tx.edc.controlplane.base) {
-        // DID / DCP extensions
-        exclude(group = "org.eclipse.edc", module = "identity-did-core")
-        exclude(group = "org.eclipse.edc", module = "identity-did-web")
-        exclude(group = "org.eclipse.edc", module = "identity-trust-core")
-        exclude(group = "org.eclipse.edc", module = "identity-trust-transform")
-        exclude(group = "org.eclipse.edc", module = "identity-trust-issuers-configuration")
+    runtimeOnly(libs.tx.edc.dataplane.base) {
         exclude(group = "org.eclipse.tractusx.edc", module = "tx-dcp")
         exclude(group = "org.eclipse.tractusx.edc", module = "tx-dcp-sts-dim")
-
-        // BDRS
-        exclude(group = "org.eclipse.tractusx.edc", module = "bdrs-client")
-
-        // Azure
-        exclude(group = "org.eclipse.tractusx.edc", module = "azblob-provisioner")
-
-        // Federated Catalog
-        exclude(group = "org.eclipse.edc", module = "federated-catalog-core")
-        exclude(group = "org.eclipse.edc", module = "federated-catalog-api")
-        exclude(group = "org.eclipse.tractusx.edc", module = "federated-catalog")
     }
 
     implementation(libs.edc.iam.mock)
-    implementation(project(":kafka-broker-extension"))
     implementation(project(":local-services"))
     implementation(project(":seed-vault"))
 }
@@ -60,7 +41,7 @@ application {
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     dependsOn("distTar", "distZip")
     mergeServiceFiles()
-    archiveFileName.set("controlplane-local.jar")
+    archiveFileName.set("dataplane-local.jar")
 }
 
-description = "controlplane-local"
+description = "dataplane-local"

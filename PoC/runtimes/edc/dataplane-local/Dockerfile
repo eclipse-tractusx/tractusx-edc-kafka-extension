@@ -1,6 +1,5 @@
 #
 # Copyright (c) 2025 Contributors to the Eclipse Foundation
-# Copyright (c) 2025 Cofinity-X GmbH
 #
 # See the NOTICE file(s) distributed with this work for additional
 # information regarding copyright ownership.
@@ -33,7 +32,7 @@ RUN addgroup --system "$APP_USER" && \
         --uid "$APP_UID" \
         "$APP_USER"
 
-COPY build/libs/controlplane-local.jar /app/application.jar
+COPY build/libs/dataplane-local.jar /app/application.jar
 
 USER "$APP_USER"
 

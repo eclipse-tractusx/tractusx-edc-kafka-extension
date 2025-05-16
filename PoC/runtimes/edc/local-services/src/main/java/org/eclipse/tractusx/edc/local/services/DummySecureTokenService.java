@@ -11,7 +11,7 @@ import java.util.Map;
 public class DummySecureTokenService implements SecureTokenService {
 
   @Override
-  public Result<TokenRepresentation> createToken(Map<String, String> map, @Nullable String s) {
+  public Result<TokenRepresentation> createToken(final Map<String, String> map, @Nullable final String s) {
     var tokenRepresentation = TokenRepresentation.Builder.newInstance()
       .token("token")
       .expiresIn(LocalDateTime.of(2030, 1, 1, 1, 1).toEpochSecond(ZoneOffset.UTC))

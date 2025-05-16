@@ -17,6 +17,7 @@ lombok = "1.18.38"
 [libraries]
 # Tractus-X EDC - Runtimes
 tx-edc-controlplane-base = { module = "org.eclipse.tractusx.edc:edc-controlplane-base", version.ref = "tractusx" }
+tx-edc-runtime-memory = { module = "org.eclipse.tractusx.edc:edc-runtime-memory", version.ref = "tractusx" }
 tx-edc-dataplane-base = { module = "org.eclipse.tractusx.edc:edc-dataplane-base", version.ref = "tractusx" }
 tx-edc-controlplane-postgresql-hashicorp = { module = "org.eclipse.tractusx.edc:edc-controlplane-postgresql-hashicorp-vault", version.ref = "tractusx" }
 tx-edc-dataplane-hashicorp = { module = "org.eclipse.tractusx.edc:edc-dataplane-hashicorp-vault", version.ref = "tractusx" }
@@ -36,6 +37,7 @@ edc-spi-keys = { module = "org.eclipse.edc:keys-spi", version.ref = "edc" }
 edc-spi-validator = { module = "org.eclipse.edc:validator-spi", version.ref = "edc" }
 edc-spi-token = { module = "org.eclipse.edc:token-spi", version.ref = "edc" }
 edc-spi-transfer = { module = "org.eclipse.edc:transfer-spi", version.ref = "edc" }
+edc-spi-dataplane = { module = "org.eclipse.edc:data-plane-spi", version.ref = "edc" }
 
 # Upstream EDC - Core
 edc-core-connector = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
@@ -53,6 +55,9 @@ edc-lib-util = { module = "org.eclipse.edc:util-lib", version.ref = "edc" }
 edc-transaction-local = { module = "org.eclipse.edc:transaction-local", version.ref = "edc" }
 edc-iam-mock = { module = "org.eclipse.edc:iam-mock", version.ref = "edc" }
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
+edc-auth-oauth2-client = { module = "org.eclipse.edc:oauth2-client", version.ref = "edc" }
+edc-data-plane-http-oauth2 = { module = "org.eclipse.edc:data-plane-http-oauth2", version.ref = "edc" }
+edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 edc-junit-base = { module = "org.eclipse.edc:junit-base", version.ref = "edc" }
 
 # Testing
