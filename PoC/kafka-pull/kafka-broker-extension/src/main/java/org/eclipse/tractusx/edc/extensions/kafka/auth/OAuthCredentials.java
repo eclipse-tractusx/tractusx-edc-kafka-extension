@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -18,10 +17,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-dependencies {
-    implementation(libs.edc.spi.core)
-}
+package org.eclipse.tractusx.edc.extensions.kafka.auth;
 
-tasks.test {
-    useJUnitPlatform()
+import java.util.Optional;
+
+/**
+ * Simple immutable holder for the four OAuth2 parameters.
+ *
+ * @param tokenUrl       The endpoint URL to fetch OAuth2 tokens using client credentials flow.
+ * @param revocationUrl  The optional endpoint URL used to revoke tokens. This may be empty if token revocation is not supported.
+ * @param clientId       The identifier of the client application attempting to authenticate.
+ * @param clientSecret   The secret associated with the client identifier for authentication.
+ */
+public record OAuthCredentials(String tokenUrl, Optional<String> revocationUrl, String clientId, String clientSecret) {
+
 }

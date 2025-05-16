@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -17,36 +16,36 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package org.eclipse.tractusx.edc.extensions.kafka;
+package org.eclipse.tractusx.edc.validator.dataaddress.kafka;
 
-import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowManager;
 import org.eclipse.edc.junit.extensions.DependencyInjectionExtension;
-import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
+import org.eclipse.edc.validator.spi.DataAddressValidatorRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(DependencyInjectionExtension.class)
-class KafkaBrokerExtensionTest {
+class KafkaBrokerDataAddressValidatorExtensionTest {
 
-    private final DataFlowManager dataFlowManager = mock();
-
-    private final Vault vault = mock();
+    private final DataAddressValidatorRegistry dataAddressValidatorRegistry = mock();
 
     @BeforeEach
     void setUp(final ServiceExtensionContext context) {
-        context.registerService(DataFlowManager.class, dataFlowManager);
-        context.registerService(Vault.class, vault);
+        context.registerService(DataAddressValidatorRegistry.class, dataAddressValidatorRegistry);
     }
 
     @Test
-    void initialize_RegistersKafkaDataFlowController(final KafkaBrokerExtension extension, final ServiceExtensionContext context) {
+    void initialize_shouldRegisterValidatorsWithKafkaType(final KafkaBrokerDataAddressValidatorExtension extension, final ServiceExtensionContext context) {
+        // Arrange
         extension.initialize(context);
 
-        verify(dataFlowManager, times(1))
-                .register(anyInt(), any(KafkaBrokerDataFlowController.class));
+        verify(dataAddressValidatorRegistry, times(1))
+                .registerSourceValidator(anyString(), any(KafkaBrokerDataAddressValidator.class));
+        verify(dataAddressValidatorRegistry, times(1))
+                .registerDestinationValidator(anyString(), any(KafkaBrokerDataAddressValidator.class));
     }
 }
