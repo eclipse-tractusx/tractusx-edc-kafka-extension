@@ -13,6 +13,9 @@ shadow = "8.3.5"
 kafka = "3.7.0"
 jackson = "2.15.2"
 lombok = "1.18.38"
+slf4j = "1.7.36"
+logback = "1.5.13"
+java-jwt = "4.5.0"
 
 [libraries]
 # Tractus-X EDC - Runtimes
@@ -70,6 +73,9 @@ failsafe = { module = "dev.failsafe:failsafe", version.ref = "failsafe" }
 kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
+slf4j-api = {module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
+logback-classic = {module = "ch.qos.logback:logback-classic", version.ref = "logback"}
+java-jwt = {module = "com.auth0:java-jwt", version.ref = "java-jwt"}
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

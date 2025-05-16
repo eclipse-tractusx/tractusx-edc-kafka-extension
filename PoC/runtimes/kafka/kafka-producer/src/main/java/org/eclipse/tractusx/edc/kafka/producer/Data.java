@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -16,51 +17,10 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.producer;
 
-class Data {
-    private String id;
-    private long x;
-    private long y;
-    private long z;
-
-    public Data(String id, long x, long y, long z) {
-        this.id = id;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public long getX() {
-        return x;
-    }
-
-    public void setX(long x) {
-        this.x = x;
-    }
-
-    public long getY() {
-        return y;
-    }
-
-    public void setY(long y) {
-        this.y = y;
-    }
-
-    public long getZ() {
-        return z;
-    }
-
-    public void setZ(long z) {
-        this.z = z;
-    }
+/**
+ * Represents a data point with three-dimensional coordinates.
+ */
+public record Data(String id, long x, long y, long z) {
 }
