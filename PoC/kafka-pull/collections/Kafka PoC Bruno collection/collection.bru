@@ -13,9 +13,9 @@ auth:apikey {
 }
 vars:pre-request {
   API_KEY_PASSWORD: password
-  PROVIDER_PROTOCOL_URL: http://control-plane-alice:8282/protocol
-  CONSUMER_MANAGEMENT_URL: http://localhost:9191/management
-  PROVIDER_MANAGEMENT_URL: http://localhost:8181/management
+  PROVIDER_PROTOCOL_URL: http://control-plane-alice:8084/api/v1/dsp
+  CONSUMER_MANAGEMENT_URL: http://localhost:9081/management
+  PROVIDER_MANAGEMENT_URL: http://localhost:8081/management
   PROVIDER_ID: alice
   ASSET_ID: kafka-stream-asset
   KAFKA_URL: kafka-kraft:9092
