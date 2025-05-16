@@ -37,7 +37,7 @@ public class EdcSetup {
 
     private final HttpClient client;
 
-    public EdcSetup(HttpClient client) {
+    public EdcSetup(final HttpClient client) {
         this.client = client;
     }
 
@@ -50,36 +50,36 @@ public class EdcSetup {
             createAsset();
             createPolicyDefinition();
             createContractDefinition();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             log.error("I/O error setting up EDC offer: {}", e.getMessage(), e);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             log.error("Process interrupted while setting up EDC offer: {}", e.getMessage(), e);
             Thread.currentThread().interrupt();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error("Unexpected error setting up EDC offer: {}", e.getMessage(), e);
         }
     }
 
     private void createAsset() throws IOException, InterruptedException {
-        String assetJson = EdcConfig.getAssetJson();
-        HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
+        final String assetJson = EdcConfig.getAssetJson();
+        final HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
         log.info("Asset creation response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createPolicyDefinition() throws IOException, InterruptedException {
-        String policyJson = EdcConfig.getPolicyDefinitionJson();
-        HttpResponse<String> response = sendJsonRequest(POLICY_DEFINITIONS_PATH, policyJson);
+        final String policyJson = EdcConfig.getPolicyDefinitionJson();
+        final HttpResponse<String> response = sendJsonRequest(POLICY_DEFINITIONS_PATH, policyJson);
         log.info("Policy definition response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createContractDefinition() throws IOException, InterruptedException {
-        String contractJson = EdcConfig.getContractDefinitionJson();
-        HttpResponse<String> response = sendJsonRequest(CONTRACT_DEFINITIONS_PATH, contractJson);
+        final String contractJson = EdcConfig.getContractDefinitionJson();
+        final HttpResponse<String> response = sendJsonRequest(CONTRACT_DEFINITIONS_PATH, contractJson);
         log.info("Contract definition response: {} - {}", response.statusCode(), response.body());
     }
 
-    private HttpResponse<String> sendJsonRequest(String path, String jsonBody) throws IOException, InterruptedException {
-        HttpRequest request = HttpRequest.newBuilder()
+    private HttpResponse<String> sendJsonRequest(final String path, final String jsonBody) throws IOException, InterruptedException {
+        final HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(EDC_MANAGEMENT_URL + path))
                 .header("Content-Type", CONTENT_TYPE_JSON)
                 .header("X-API-KEY", EDC_API_AUTH_KEY)

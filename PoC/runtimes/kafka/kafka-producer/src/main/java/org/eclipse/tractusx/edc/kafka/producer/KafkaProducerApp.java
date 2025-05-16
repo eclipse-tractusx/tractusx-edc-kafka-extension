@@ -19,7 +19,6 @@
  */
 package org.eclipse.tractusx.edc.kafka.producer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -38,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
-
-import javax.sound.midi.Track;
 
 @Slf4j
 public class KafkaProducerApp {
@@ -143,13 +140,13 @@ public class KafkaProducerApp {
     }
 
     private static void sendMessage(final KafkaProducer<String, String> producer, final String topic, final String key, final String value) {
-        final ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
-        producer.send(record, (final RecordMetadata metadata, final Exception e) -> {
+        final ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, key, value);
+        producer.send(producerRecord, (final RecordMetadata metadata, final Exception e) -> {
             if (e != null) {
                 log.error("Failed to send record: {}", e.getMessage(), e);
             } else {
                 log.info("Sent record(topic={} key={} value={}) meta(partition={}, offset={})",
-                        record.topic(), record.key(), record.value(), metadata.partition(), metadata.offset());
+                        producerRecord.topic(), producerRecord.key(), producerRecord.value(), metadata.partition(), metadata.offset());
             }
         });
     }
