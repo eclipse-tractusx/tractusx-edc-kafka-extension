@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -18,27 +19,32 @@
  */
 package org.eclipse.tractusx.edc.validator.dataaddress.kafka;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import org.eclipse.edc.spi.types.domain.DataAddress;
 import org.eclipse.edc.validator.spi.ValidationResult;
 import org.eclipse.edc.validator.spi.Validator;
 import org.eclipse.edc.validator.spi.Violation;
 
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.BOOTSTRAP_SERVERS;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.MECHANISM;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.PROTOCOL;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.SECRET_KEY;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.TOPIC;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
 
 public class KafkaBrokerDataAddressValidator implements Validator<DataAddress> {
     public KafkaBrokerDataAddressValidator() {
     }
 
-    public ValidationResult validate(DataAddress input) {
-        List<Violation> violations = Stream.of(TOPIC, BOOTSTRAP_SERVERS, MECHANISM, PROTOCOL, SECRET_KEY).map((String it) -> {
+    public ValidationResult validate(final DataAddress input) {
+        List<Violation> violations = Stream.of(
+                TOPIC,
+                BOOTSTRAP_SERVERS,
+                MECHANISM,
+                PROTOCOL,
+                OAUTH_TOKEN_URL,
+                OAUTH_REVOKE_URL,
+                OAUTH_CLIENT_ID,
+                OAUTH_CLIENT_SECRET_KEY
+        ).map((final String it) -> {
             String value = input.getStringProperty(it);
             return value != null && !value.isBlank() ? null : Violation.violation("'%s' is a mandatory attribute".formatted(it), it, value);
         }).filter(Objects::nonNull).toList();

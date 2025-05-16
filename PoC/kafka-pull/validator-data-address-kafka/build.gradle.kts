@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -26,9 +27,10 @@ dependencies {
     implementation(libs.edc.spi.validator)
     implementation(project(":data-address-kafka"))
 
-    testImplementation(libs.edc.junit.base)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
+    testImplementation(libs.edc.junit)
+    testImplementation(libs.mockito.core)
 }
 
 tasks.test {

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -35,7 +36,7 @@ public class KafkaBrokerDataAddressValidatorExtension implements ServiceExtensio
     public KafkaBrokerDataAddressValidatorExtension() {
     }
 
-    public void initialize(ServiceExtensionContext context) {
+    public void initialize(final ServiceExtensionContext context) {
         var validator = new KafkaBrokerDataAddressValidator();
         this.dataAddressValidatorRegistry.registerSourceValidator(KAFKA_TYPE, validator);
         this.dataAddressValidatorRegistry.registerDestinationValidator(KAFKA_TYPE, validator);

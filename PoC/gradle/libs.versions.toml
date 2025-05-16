@@ -2,7 +2,7 @@
 format.version = "1.1"
 
 [versions]
-tractusx = "0.8.1"
+tractusx = "0.9.0"
 edc = "0.10.1"
 junit = "5.11.3"
 assertj = "3.26.3"
@@ -54,6 +54,7 @@ edc-transaction-local = { module = "org.eclipse.edc:transaction-local", version.
 edc-iam-mock = { module = "org.eclipse.edc:iam-mock", version.ref = "edc" }
 edc-junit = { module = "org.eclipse.edc:junit", version.ref = "edc" }
 edc-junit-base = { module = "org.eclipse.edc:junit-base", version.ref = "edc" }
+edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
 
 # Testing
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }

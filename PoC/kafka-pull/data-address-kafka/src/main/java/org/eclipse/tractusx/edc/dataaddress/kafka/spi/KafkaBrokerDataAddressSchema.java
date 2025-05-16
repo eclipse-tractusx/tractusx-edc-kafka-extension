@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -36,19 +37,9 @@ public interface KafkaBrokerDataAddressSchema {
     String TOPIC = EDC_NAMESPACE + "topic";
 
     /**
-     * The bootstrap.servers property
+     * The bootstrap.servers property.
      */
-    String BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
-
-    /**
-     * The sasl.mechanism property
-     */
-    String MECHANISM = "kafka.sasl.mechanism";
-
-    /**
-     * The security.protocol property
-     */
-    String PROTOCOL = "kafka.security.protocol";
+    String BOOTSTRAP_SERVERS = EDC_NAMESPACE + "kafka.bootstrap.servers";
 
     /**
      * The duration of the consumer polling.
@@ -61,12 +52,42 @@ public interface KafkaBrokerDataAddressSchema {
     String POLL_DURATION = EDC_NAMESPACE + "pollDuration";
 
     /**
-     * The secret token/credentials
-     */
-    String SECRET_KEY = EDC_NAMESPACE + "secretKey";
-
-    /**
-     * The groupPrefix that will be allowed to use for the consumer
+     * The groupPrefix that will be allowed to use for the consumer.
      */
     String GROUP_PREFIX = EDC_NAMESPACE + "groupPrefix";
+
+    /**
+     * The security.protocol property.
+     */
+    String PROTOCOL = EDC_NAMESPACE + "kafka.security.protocol";
+
+    /**
+     * The sasl.mechanism property.
+     */
+    String MECHANISM = EDC_NAMESPACE + "kafka.sasl.mechanism";
+
+    /**
+     * The authentication token.
+     */
+    String TOKEN = EDC_NAMESPACE + "token";
+
+    /**
+     * The OAuth token URL for retrieving access tokens.
+     */
+    String OAUTH_TOKEN_URL = EDC_NAMESPACE + "tokenUrl";
+
+    /**
+     * The OAuth revoke URL for invalidating tokens.
+     */
+    String OAUTH_REVOKE_URL = EDC_NAMESPACE + "revokeUrl";
+
+    /**
+     * The OAuth client ID.
+     */
+    String OAUTH_CLIENT_ID = EDC_NAMESPACE + "clientId";
+
+    /**
+     * The OAuth client secret key.
+     */
+    String OAUTH_CLIENT_SECRET_KEY = EDC_NAMESPACE + "clientSecretKey";
 }

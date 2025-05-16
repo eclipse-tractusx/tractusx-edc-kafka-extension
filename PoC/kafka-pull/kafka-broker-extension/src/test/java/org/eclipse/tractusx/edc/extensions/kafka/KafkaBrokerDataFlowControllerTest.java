@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -18,60 +19,68 @@
  */
 package org.eclipse.tractusx.edc.extensions.kafka;
 
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowPropertiesProvider;
+import org.eclipse.edc.connector.controlplane.transfer.spi.flow.TransferTypeParser;
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowResponse;
+import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
+import org.eclipse.edc.connector.dataplane.selector.spi.DataPlaneSelectorService;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClient;
+import org.eclipse.edc.connector.dataplane.selector.spi.client.DataPlaneClientFactory;
+import org.eclipse.edc.connector.dataplane.selector.spi.instance.DataPlaneInstance;
 import org.eclipse.edc.junit.assertions.AbstractResultAssert;
+import org.eclipse.edc.policy.model.Policy;
+import org.eclipse.edc.spi.monitor.ConsoleMonitor;
 import org.eclipse.edc.spi.response.StatusResult;
+import org.eclipse.edc.spi.result.Result;
+import org.eclipse.edc.spi.result.ServiceResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.types.domain.DataAddress;
-import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
-import org.eclipse.edc.policy.model.Policy;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowResponseMessage;
+import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
+import org.eclipse.edc.spi.types.domain.transfer.FlowType;
+import org.eclipse.edc.spi.types.domain.transfer.TransferType;
+import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.AbstractMap;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowController.SECRET_NOT_DEFINED;
-import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowController.START_FAILED;
-import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowController.SUSPEND_FAILED;
-import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowController.TERMINATE_FAILED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.BOOTSTRAP_SERVERS;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.GROUP_PREFIX;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.KAFKA_TYPE;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.MECHANISM;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.POLL_DURATION;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.PROTOCOL;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.SECRET_KEY;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.TOPIC;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.AUTH_CODE;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.AUTH_KEY;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.CONTRACT_ID;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.EDR_SIMPLE_TYPE;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.ENDPOINT;
-import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.ID;
+import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
+import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowController.*;
 import static org.mockito.Mockito.*;
 
 class KafkaBrokerDataFlowControllerTest {
+    private final Vault vault = mock();
+    private final KafkaOAuthService oauthService = mock();
+    private final DataPlaneClient dataPlaneClient = mock();
+    private final DataPlaneClientFactory dataPlaneClientFactory = mock();
+    private final DataPlaneSelectorService selectorService = mock();
+    private final DataFlowPropertiesProvider propertiesProvider = mock();
+    private final TransferTypeParser transferTypeParser = mock();
     private KafkaBrokerDataFlowController controller;
-
     private DataAddress contentDataAddress;
-
     private TransferProcess transferProcess;
-
     private Policy policy;
 
-    private Vault vault;
-
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         contentDataAddress = DataAddress.Builder.newInstance()
                 .type(KAFKA_TYPE)
                 .property(TOPIC, "test-topic")
                 .property(BOOTSTRAP_SERVERS, "localhost:9092")
-                .property(SECRET_KEY, "secretKey")
                 .property(PROTOCOL, "protocol")
                 .property(MECHANISM, "mechanism")
+                .property(GROUP_PREFIX, "test-group")
                 .property(POLL_DURATION, "PT5M")
+                .property(OAUTH_TOKEN_URL, "http://localhost:8080/token")
+                .property(OAUTH_REVOKE_URL, "http://keycloak:8080/revoke")
+                .property(OAUTH_CLIENT_ID, "client-id")
+                .property(OAUTH_CLIENT_SECRET_KEY, "clientSecretKey")
+                .property(TOKEN, "token")
                 .build();
 
         transferProcess = TransferProcess.Builder.newInstance()
@@ -81,13 +90,27 @@ class KafkaBrokerDataFlowControllerTest {
                 .correlationId("correlation")
                 .id("transferProcessId").build();
         policy = Policy.Builder.newInstance().assignee("test-group").build();
-        vault = mock();
-        KafkaAdminServiceProvider kafkaAdminServiceProvider = mock();
-        KafkaAdminService kafkaAdminService = mock();
-        when(kafkaAdminService.createCredentialsAndGrantAccess(anyString(), anyString(), anyString())).thenReturn("password");
-        when(kafkaAdminService.createToken(any(), anyString())).thenReturn(new AbstractMap.SimpleEntry<>("tokenId", "password"));
-        when(kafkaAdminServiceProvider.provide(any(), any())).thenReturn(kafkaAdminService);
-        controller = new KafkaBrokerDataFlowController(vault, kafkaAdminServiceProvider);
+
+        when(oauthService.getAccessToken(any())).thenReturn("token");
+
+        when(transferTypeParser.parse(any())).thenReturn(Result.success(new TransferType("Kafka", FlowType.PULL)));
+
+        Map<String, Object> properties = contentDataAddress.getProperties();
+        when(propertiesProvider.propertiesFor(any(), any())).thenReturn(StatusResult.success(properties.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().toString()))));
+
+        var dataPlaneInstance = DataPlaneInstance.Builder.newInstance().url("http://any").build();
+        when(selectorService.select(any(), anyString(), any())).thenReturn(ServiceResult.success(dataPlaneInstance));
+        when(selectorService.getAll()).thenReturn(ServiceResult.success(List.of(dataPlaneInstance)));
+
+        when(dataPlaneClientFactory.createClient(any())).thenReturn(dataPlaneClient);
+
+        var response = mock(DataFlowResponseMessage.class);
+        when(response.getDataAddress()).thenReturn(contentDataAddress);
+        when(dataPlaneClient.start(any(DataFlowStartMessage.class))).thenReturn(StatusResult.success(response));
+
+        controller = new KafkaBrokerDataFlowController(vault, oauthService, transferTypeParser, propertiesProvider,
+                selectorService, dataPlaneClientFactory, "random", new ConsoleMonitor(), () -> URI.create("http://localhost"));
     }
 
     @Test
@@ -120,14 +143,13 @@ class KafkaBrokerDataFlowControllerTest {
         assertThat(result.getContent()).isNotNull();
 
         AbstractResultAssert.assertThat(result).isSucceeded().extracting(DataFlowResponse::getDataAddress).satisfies(kafkaDataAddress -> {
-            assertThat(kafkaDataAddress.getType()).isEqualTo(EDR_SIMPLE_TYPE);
-            assertThat(kafkaDataAddress.getStringProperty(ID)).isEqualTo("transferProcessId");
-            assertThat(kafkaDataAddress.getStringProperty(ENDPOINT)).isEqualTo("localhost:9092");
-            assertThat(kafkaDataAddress.getStringProperty(AUTH_KEY)).isEqualTo("tokenId");
-            assertThat(kafkaDataAddress.getStringProperty(AUTH_CODE)).isEqualTo("password");
-            assertThat(kafkaDataAddress.getStringProperty(CONTRACT_ID)).isEqualTo("contract");
+            assertThat(kafkaDataAddress.getType()).isEqualTo(KAFKA_TYPE);
+            assertThat(kafkaDataAddress.getStringProperty(BOOTSTRAP_SERVERS)).isEqualTo("localhost:9092");
             assertThat(kafkaDataAddress.getStringProperty(TOPIC)).isEqualTo("test-topic");
             assertThat(kafkaDataAddress.getStringProperty(GROUP_PREFIX)).isEqualTo("test-group");
+            assertThat(kafkaDataAddress.getStringProperty(MECHANISM)).isEqualTo("mechanism");
+            assertThat(kafkaDataAddress.getStringProperty(PROTOCOL)).isEqualTo("protocol");
+            assertThat(kafkaDataAddress.getStringProperty(TOKEN)).isEqualTo("token");
         });
     }
 
@@ -135,7 +157,7 @@ class KafkaBrokerDataFlowControllerTest {
     void start_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.start(transferProcess, policy);
         assertThat(result.fatalError()).isTrue();
-        assertThat(START_FAILED + SECRET_NOT_DEFINED.formatted("secretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(START_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
     }
 
     @Test
@@ -149,7 +171,7 @@ class KafkaBrokerDataFlowControllerTest {
     void suspend_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.suspend(transferProcess);
         assertThat(result.fatalError()).isTrue();
-        assertThat(SUSPEND_FAILED + SECRET_NOT_DEFINED.formatted("secretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(SUSPEND_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
     }
 
     @Test
@@ -163,7 +185,7 @@ class KafkaBrokerDataFlowControllerTest {
     void terminate_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.terminate(transferProcess);
         assertThat(result.fatalError()).isTrue();
-        assertThat(TERMINATE_FAILED + SECRET_NOT_DEFINED.formatted("secretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(TERMINATE_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
     }
 }
 

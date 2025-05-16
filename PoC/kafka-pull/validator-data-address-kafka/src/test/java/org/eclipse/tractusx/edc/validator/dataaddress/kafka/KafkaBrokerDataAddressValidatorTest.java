@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -24,12 +25,8 @@ import org.eclipse.edc.validator.spi.Violation;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.BOOTSTRAP_SERVERS;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.MECHANISM;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.PROTOCOL;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.SECRET_KEY;
-import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.TOPIC;
 import static org.eclipse.edc.junit.assertions.AbstractResultAssert.assertThat;
+import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
 
 class KafkaBrokerDataAddressValidatorTest {
 
@@ -41,9 +38,12 @@ class KafkaBrokerDataAddressValidatorTest {
                 .type("Kafka")
                 .property(TOPIC, "topic.name")
                 .property(BOOTSTRAP_SERVERS, "any:98123")
-                .property(MECHANISM, "SCRAM-SHA-256")
+                .property(MECHANISM, "OAUTHBEARER")
                 .property(PROTOCOL, "SASL_PLAINTEXT")
-                .property(SECRET_KEY, "secretKey")
+                .property(OAUTH_TOKEN_URL, "http://keycloak/token")
+                .property(OAUTH_REVOKE_URL, "http://keycloak/revoke")
+                .property(OAUTH_CLIENT_ID, "client-id")
+                .property(OAUTH_CLIENT_SECRET_KEY, "clientSecretKey")
                 .build();
 
         var result = validator.validate(dataAddress);
@@ -61,6 +61,7 @@ class KafkaBrokerDataAddressValidatorTest {
 
         assertThat(result).isFailed().extracting(ValidationFailure::getViolations)
                 .satisfies(violations -> assertThat(violations).extracting(Violation::path)
-                        .containsExactlyInAnyOrder(TOPIC, BOOTSTRAP_SERVERS, MECHANISM, PROTOCOL, SECRET_KEY));
+                        .containsExactlyInAnyOrder(TOPIC, BOOTSTRAP_SERVERS, MECHANISM, PROTOCOL, OAUTH_TOKEN_URL,
+                                OAUTH_REVOKE_URL, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET_KEY));
     }
 }
