@@ -20,24 +20,31 @@
 package org.eclipse.tractusx.edc.kafka.producer;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.http.HttpClient;
+import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
 
+import javax.sound.midi.Track;
+
 @Slf4j
 public class KafkaProducerApp {
-    static final String KAFKA_STREAM_TOPIC = System.getenv().getOrDefault("KAFKA_STREAM_TOPIC", "kafka-stream-topic");
+    static final String KAFKA_PRODUCTION_FORECAST_TOPIC = System.getenv().getOrDefault("KAFKA_PRODUCTION_FORECAST_TOPIC", "kafka-production-forecast-topic");
+    static final String KAFKA_PRODUCTION_TRACKING_TOPIC = System.getenv().getOrDefault("KAFKA_PRODUCTION_TRACKING_TOPIC", "kafka-production-tracking-topic");
     static final String KEYCLOAK_CLIENT_ID = System.getenv().getOrDefault("KEYCLOAK_CLIENT_ID", "default");
     static final String KEYCLOAK_CLIENT_SECRET = System.getenv().getOrDefault("KEYCLOAK_CLIENT_SECRET", "mysecret");
     static final String VAULT_CLIENT_SECRET_KEY = System.getenv().getOrDefault("VAULT_CLIENT_SECRET_KEY", "secretKey");
@@ -48,66 +55,107 @@ public class KafkaProducerApp {
     static final String EDC_API_AUTH_KEY = System.getenv().getOrDefault("EDC_API_AUTH_KEY", "password");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final long MESSAGE_INTERVAL_MS = 1000;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
+    private static final long MESSAGE_INTERVAL_MS = 5000;
 
     public static void main(final String[] args) {
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            EdcSetup edcSetup = new EdcSetup(client);
-            edcSetup.setupEdcOffer();
+        try (final HttpClient client = HttpClient.newHttpClient()) {
+            new EdcSetup(client).setupEdcOffer();
         }
 
-        try (KafkaProducer<String, String> producer = createProducer()) {
+        try (final KafkaProducer<String, String> producer = createProducer()) {
             log.info("Starting producer...");
             runProducer(producer);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             log.info("Producer interrupted: {}", e.getMessage());
             Thread.currentThread().interrupt();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             log.error("Error in producer: {}", e.getMessage(), e);
         }
     }
 
-    private static void runProducer(final KafkaProducer<String, String> producer) throws InterruptedException {
+    private static void runProducer(final KafkaProducer<String, String> producer)
+            throws InterruptedException, IOException {
+        int fIndex = 0;
+        int tIndex = 0;
+        int counter = 0;
+        final List<ForecastMessage> forecasts = loadForecastMessages();
+        final List<TrackingMessage> trackings = loadTrackingMessages();
+
         while (true) {
-            try {
-                Data data = generateRandomData();
-                String jsonPayload = serializeData(data);
-                sendMessage(producer, data.id(), jsonPayload);
-                TimeUnit.MILLISECONDS.sleep(MESSAGE_INTERVAL_MS);
-            } catch (JsonProcessingException e) {
-                log.error("Error serializing data: {}", e.getMessage(), e);
+            final boolean sendForecast = (counter++ % 2 == 0);
+
+            if (sendForecast) {
+                final ForecastMessage msg = forecasts.get(fIndex++ % forecasts.size());
+                final String payload = OBJECT_MAPPER.writeValueAsString(msg);
+                final String key     = extractKey(msg);
+                sendMessage(producer, KAFKA_PRODUCTION_FORECAST_TOPIC, key, payload);
+            } else {
+                final TrackingMessage msg = trackings.get(tIndex++ % trackings.size());
+                final String payload = OBJECT_MAPPER.writeValueAsString(msg);
+                final String key     = extractKey(msg);
+                sendMessage(producer, KAFKA_PRODUCTION_TRACKING_TOPIC, key, payload);
             }
+            TimeUnit.MILLISECONDS.sleep(MESSAGE_INTERVAL_MS);
         }
     }
 
-    private static void sendMessage(final KafkaProducer<String, String> producer, final String key, final String value) {
-        ProducerRecord<String, String> record = new ProducerRecord<>(KAFKA_STREAM_TOPIC, key, value);
+    private static List<ForecastMessage> loadForecastMessages() throws IOException {
+        try (final InputStream in =
+                KafkaProducerApp.class.getClassLoader()
+                        .getResourceAsStream("production-forecast.json")) {
+            if (in == null) {
+                throw new IllegalStateException("Resource not found on classpath");
+            }
+            return OBJECT_MAPPER.readValue(in, new TypeReference<>() {});
+        }
+    }
+
+    private static List<TrackingMessage> loadTrackingMessages() throws IOException {
+        try (final InputStream in =
+                KafkaProducerApp.class.getClassLoader()
+                        .getResourceAsStream("production-tracking.json")) {
+            if (in == null) {
+                throw new IllegalStateException("Resource not found on classpath");
+            }
+            return OBJECT_MAPPER.readValue(in, new TypeReference<>() {});
+        }
+    }
+
+    private static String extractKey(final ForecastMessage msg) {
+        if (msg.getRequest() != null && msg.getRequest().getOrderId() != null) {
+            return msg.getRequest().getOrderId();
+        }
+        if (msg.getHeader() != null && msg.getHeader().getMessageId() != null) {
+            return msg.getHeader().getMessageId();
+        }
+        return null;
+    }
+
+    private static String extractKey(final TrackingMessage msg) {
+        if (msg.getRequest() != null && msg.getRequest().getIdentifierNumber() != null) {
+            return msg.getRequest().getIdentifierNumber();
+        }
+        if (msg.getHeader() != null && msg.getHeader().getMessageId() != null) {
+            return msg.getHeader().getMessageId();
+        }
+        return null;
+    }
+
+    private static void sendMessage(final KafkaProducer<String, String> producer, final String topic, final String key, final String value) {
+        final ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
         producer.send(record, (final RecordMetadata metadata, final Exception e) -> {
             if (e != null) {
                 log.error("Failed to send record: {}", e.getMessage(), e);
             } else {
-                log.info("Sent record(key={} value={}) meta(partition={}, offset={})",
-                        record.key(), record.value(), metadata.partition(), metadata.offset());
+                log.info("Sent record(topic={} key={} value={}) meta(partition={}, offset={})",
+                        record.topic(), record.key(), record.value(), metadata.partition(), metadata.offset());
             }
         });
     }
 
-    private static String serializeData(final Data data) throws JsonProcessingException {
-        return OBJECT_MAPPER.writeValueAsString(data);
-    }
-
-    private static Data generateRandomData() {
-        return new Data(
-                UUID.randomUUID().toString(),
-                Math.round(Math.random() * 100),
-                Math.round(Math.random() * 100),
-                Math.round(Math.random() * 100)
-        );
-    }
-
     static KafkaProducer<String, String> createProducer() {
-        Properties props = new Properties();
+        final Properties props = new Properties();
 
         // Basic producer settings
         props.put(BOOTSTRAP_SERVERS_CONFIG, KAFKA_BOOTSTRAP_SERVERS);
