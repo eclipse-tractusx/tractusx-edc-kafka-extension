@@ -98,7 +98,7 @@ public class KafkaConsumerApp {
 
         props.put(SASL_JAAS_CONFIG, "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;");
 
-        props.put(SASL_LOGIN_CONNECT_TIMEOUT_MS, "15000"); // optional
+        props.put(SASL_LOGIN_CONNECT_TIMEOUT_MS, "15000"); // (optional) timeout for external authentication provider connection in ms
 
         props.put(SASL_LOGIN_REFRESH_BUFFER_SECONDS, "120"); // Refresh 2 minutes before expiry
         props.put(SASL_LOGIN_REFRESH_MIN_PERIOD_SECONDS, "30"); // Don't refresh more than once per 30 seconds

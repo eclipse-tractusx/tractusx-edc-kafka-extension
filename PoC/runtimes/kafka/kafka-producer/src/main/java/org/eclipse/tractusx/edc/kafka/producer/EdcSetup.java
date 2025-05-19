@@ -28,6 +28,11 @@ import java.net.http.HttpResponse;
 
 import static org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp.*;
 
+/**
+ * This class is responsible for setting up an EDC (Eclipse Dataspace Connector) offer.
+ * It facilitates the creation of assets, policy definitions, and contract definitions
+ * necessary for the operation of the EDC.
+ */
 @Slf4j
 public class EdcSetup {
     static final String ASSETS_PATH = "/v3/assets";

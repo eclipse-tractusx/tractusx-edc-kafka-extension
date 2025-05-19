@@ -20,6 +20,7 @@
 package org.eclipse.tractusx.edc.kafka.consumer;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -80,6 +81,15 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
         isInitialized = true;
     }
 
+    /**
+     * Handles an array of {@link Callback} objects, processing each callback as needed.
+     * If the callback is of type {@link OAuthBearerTokenCallback}, it manages the token retrieval
+     * and sets the token on the callback. Unsupported callback types will result in an exception.
+     *
+     * @param callbacks an array of {@link Callback} objects to be processed
+     * @throws UnsupportedCallbackException if one or more callbacks are of an unsupported type
+     * @throws IOException if an I/O error occurs during token retrieval
+     */
     @Override
     public void handle(final Callback[] callbacks) throws UnsupportedCallbackException, IOException {
         checkInitialized();
@@ -117,8 +127,7 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
             Set<String> scopes = Set.of(scopeClaim);
 
             return new BasicOAuthBearerToken(accessToken, scopes, expiresAt, subject, issuedAt);
-        } catch (Exception e) {
-            log.error("Failed to decode JWT token", e);
+        } catch (JWTDecodeException e) {
             throw new IllegalStateException("Failed to decode JWT token: " + e.getMessage(), e);
         }
     }
@@ -128,13 +137,11 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
         EDRData edrData = edrDataProvider.getEdrData();
 
         if (edrData == null) {
-            log.error("No EDR data found");
             throw new IOException("No EDR data found");
         }
 
         String token = edrData.getToken();
         if (token == null || token.isEmpty()) {
-            log.error("EDR data contains no token");
             throw new IOException("EDR data contains no token");
         }
 
