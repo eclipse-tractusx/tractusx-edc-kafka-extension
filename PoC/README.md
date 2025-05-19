@@ -39,7 +39,8 @@ Then run these requests on consumer side:
 - Kafka PULL
 - Get transfer process
 
-After initiating the Kafka pull transfer, the Kafka Consumer App wil automatically pick up the EDR and connect to the Kafka Broker.
+When using the docker compose setup, the requests will be executed by the provider and consumer applications.
+Afterward, data transfer will be initiated automatically.
 
 ### DataAddress Schema
 
