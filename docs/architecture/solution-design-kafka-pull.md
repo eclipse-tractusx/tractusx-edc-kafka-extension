@@ -137,8 +137,8 @@ ecosystem/cluster. The PlantUML component diagram explicitly illustrates these d
       necessary to create a secure connection to Kafka.
     - **Consumer API (via Kafka Consumer):** Directly interacts with the Kafka Service to poll data once authenticated.
 
-[Component diagram of using KafkaBroker](/concepts/MVP-kafka-pull/puml/Component%20diagram%20EDC%20Kafka%20Extension.puml):
-![Component diagram EDC Kafka Extension.png](/concepts/MVP-kafka-pull/png/Component%20diagram%20EDC%20Kafka%20Extension.png)
+[Component diagram of using KafkaBroker](/docs/concepts/MVP-kafka-pull/puml/Component%20diagram%20EDC%20Kafka%20Extension.puml):
+![Component diagram EDC Kafka Extension.png](/docs/concepts/MVP-kafka-pull/png/Component%20diagram%20EDC%20Kafka%20Extension.png)
 
 ## Workflow and Process Phases
 
@@ -165,9 +165,9 @@ which provides a step-by-step message flow.
     - After credential deletion, the Kafka Extension clears the corresponding entries from the Vault and returns a *
       *DeprovisionResponse**.
 
-[Sequence diagram of provisioning/deprovisioning using Kafka Extension](/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20provisioning-deprovisioning.puml):
+[Sequence diagram of provisioning/deprovisioning using Kafka Extension](/docs/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20provisioning-deprovisioning.puml):
 
-![Sequence diagram EDC Kafka Extension provisioning-deprovisioning.png](/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20provisioning-deprovisioning.png)
+![Sequence diagram EDC Kafka Extension provisioning-deprovisioning.png](/docs/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20provisioning-deprovisioning.png)
 
 ### B. Initiating the Transfer
 
@@ -192,9 +192,9 @@ which provides a step-by-step message flow.
     - The Consumer Control Plane then constructs the final Endpoint Data Reference (EDR) for use by the consumer
       application.
 
-[Sequence diagram of start transfer process](/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20start%20transfer%20process.puml):
+[Sequence diagram of start transfer process](/docs/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20start%20transfer%20process.puml):
 
-![Sequence diagram EDC Kafka Extension start transfer process.png](/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20start%20transfer%20process.png)
+![Sequence diagram EDC Kafka Extension start transfer process.png](/docs/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20start%20transfer%20process.png)
 
 ### C. Data Streaming Phase
 
@@ -213,9 +213,9 @@ which provides a step-by-step message flow.
       Service.
     - The token’s life-cycle is managed automatically via one of the configured refresh strategies.
 
-[Sequence diagram of data streaming](/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20data%20streaming.puml):
+[Sequence diagram of data streaming](/docs/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20data%20streaming.puml):
 
-![Sequence diagram EDC Kafka Extension data streaming.png](/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20data%20streaming.png)
+![Sequence diagram EDC Kafka Extension data streaming.png](/docs/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20data%20streaming.png)
 
 ### D. Suspending/Terminating the Transfer
 
@@ -233,9 +233,9 @@ which provides a step-by-step message flow.
       acknowledged back to the Provider Control Plane.
     - Finally, the Consumer Control Plane is informed that the transfer has been suspended or terminated.
 
-[Sequence diagram suspending/terminating using KafkaBroker](/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20suspending-terminating.puml):
+[Sequence diagram suspending/terminating using KafkaBroker](/docs/concepts/MVP-kafka-pull/puml/Sequence%20diagram%20EDC%20Kafka%20Extension%20suspending-terminating.puml):
 
-![Sequence diagram EDC Kafka Extension suspending-terminating.png](/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20suspending-terminating.png)
+![Sequence diagram EDC Kafka Extension suspending-terminating.png](/docs/concepts/MVP-kafka-pull/png/Sequence%20diagram%20EDC%20Kafka%20Extension%20suspending-terminating.png)
 
 ## Security and Token Management
 
