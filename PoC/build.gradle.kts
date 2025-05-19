@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -44,4 +45,8 @@ allprojects {
         mavenLocal()
         mavenCentral()
     }
+}
+
+subprojects {
+    tasks.register<DependencyReportTask>("allDependencies"){}
 }
