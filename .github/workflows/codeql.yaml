@@ -82,7 +82,7 @@ jobs:
       - name: Build Production Code
         run: |
           cd PoC
-          ./gradlew compileJava --no-daemon
+          ./gradlew build
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
