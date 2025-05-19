@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation
  * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
@@ -16,84 +17,39 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Represents the Endpoint Data Reference (EDR) data needed for Kafka consumer configuration.
+ * Contains connection parameters, authentication details, and topic information.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EDRData {
-    private String endpoint;
-    private String authCode;
-    private String contractId;
-    private String topic;
+    private static final String KAFKA_SECURITY_PROTOCOL = "kafka.security.protocol";
+    private static final String KAFKA_SASL_MECHANISM = "kafka.sasl.mechanism";
+    private static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
     private String id;
-    private String authKey;
+    private String contractId;
+    private String endpoint;
+    private String topic;
     private String groupPrefix;
+    private String authKey;
+    private String authCode;
+    private String token;
 
-    public String getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public String getAuthCode() {
-        return authCode;
-    }
-
-    public void setAuthCode(String authCode) {
-        this.authCode = authCode;
-    }
-
-    public String getContractId() {
-        return contractId;
-    }
-
-    public void setContractId(String contractId) {
-        this.contractId = contractId;
-    }
-
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getAuthKey() {
-        return authKey;
-    }
-
-    public void setAuthKey(String authKey) {
-        this.authKey = authKey;
-    }
-
-    public String getGroupPrefix() {
-        return groupPrefix;
-    }
-
-    public void setGroupPrefix(String groupPrefix) {
-        this.groupPrefix = groupPrefix;
-    }
-
-    @Override
-    public String toString() {
-        return "EDRData{" +
-                "endpoint='" + endpoint + '\'' +
-                ", authCode='" + authCode + '\'' +
-                ", contractId='" + contractId + '\'' +
-                ", topic='" + topic + '\'' +
-                ", id='" + id + '\'' +
-                ", authKey='" + authKey + '\'' +
-                ", groupPrefix='" + groupPrefix + '\'' +
-                '}';
-    }
+    @JsonProperty(KAFKA_SECURITY_PROTOCOL)
+    private String kafkaSecurityProtocol;
+    @JsonProperty(KAFKA_SASL_MECHANISM)
+    private String kafkaSaslMechanism;
+    @JsonProperty(KAFKA_BOOTSTRAP_SERVERS)
+    private String kafkaBootstrapServers;
 }
