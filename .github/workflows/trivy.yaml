@@ -1,0 +1,80 @@
+#################################################################################
+#  Copyright (c) 2021,2023,2025 Contributors to the Eclipse Foundation
+#
+#  See the NOTICE file(s) distributed with this work for additional
+#  information regarding copyright ownership.
+#
+#  This program and the accompanying materials are made available under the
+#  terms of the Apache License, Version 2.0 which is available at
+#  https://www.apache.org/licenses/LICENSE-2.0.
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations
+#  under the License.
+#
+#  SPDX-License-Identifier: Apache-2.0
+#################################################################################
+
+
+---
+name: "Trivy"
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  workflow_run:
+    workflows: [ "Publish Artefacts" ]
+    branches:
+      - main
+      - releases
+      - release/*
+      - hotfix/*
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+    types:
+      - completed
+
+jobs:
+  scan-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out your source so the runner can build the image
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Build fat-JAR
+        working-directory: PoC
+        run: ./gradlew shadowJar --no-daemon
+
+      - name: Build docker image
+        working-directory: PoC/runtimes/edc/controlplane-local
+        run: |
+          docker build \
+          -t local-image:${{ github.sha }} \
+          .
+
+      # 3. Vulnerability scan with Trivy
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master   # pin to the latest tag (Mar 14 2025)
+        with:
+          image-ref: local-image:${{ github.sha }} # points to the image we just built
+          format: sarif
+          output: trivy-results-${{ github.sha }}.sarif
+          severity: "CRITICAL,HIGH"
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: success() && steps.imageCheck.outcome != 'failure'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results-${{ github.sha }}.sarif"
