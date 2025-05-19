@@ -65,49 +65,43 @@ reducing downtime.
 ````mermaid
 flowchart TD
     Kafka["Catena-X Use Cases for Kafka"]
-
     Kafka --> QM["Quality Management"]
     Kafka --> DCM["Demand & Capacity Management (DCM)"]
     Kafka --> DT["Digital Twin / Asset Admin Shell (AAS)"]
     Kafka --> TR["Traceability"]
     Kafka --> CE["Circular Economy / Product Pass"]
     Kafka --> SUS["ESG-Monitoring (LkSG)"]
-
-    %% Sub-Use Cases
+%% Sub-Use Cases
     QM --> QM1["Predictive Maintenance & Data Integration"]
     QM --> QM2["Early Warning Notification"]
     DT --> DT1["Real-time Operational Monitoring and Analysis"]
     DT --> DT2["Shopfloor Efficiency Monitoring"]
     DT --> DT3["Condition Monitoring"]
-
-    %% Dark-friendly styling
-    style QM fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
-    style DCM fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
-    style DT fill:#1b5e20,color:#ffffff,stroke:#81c784,stroke-width:2px
-
-    style TR fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
-    style CE fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
-    style SUS fill:#cfcfcf,color:#1a1a1a,stroke:#666,stroke-width:1px
-
-    style QM1 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
-    style QM2 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
-    style DT1 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
-    style DT2 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
-    style DT3 fill:#2e7d32,color:#ffffff,stroke:#a5d6a7,stroke-width:1px
+%% Dark-friendly styling
+    style QM fill: #1b5e20, color: #ffffff, stroke: #81c784, stroke-width: 2px
+    style DCM fill: #1b5e20, color: #ffffff, stroke: #81c784, stroke-width: 2px
+    style DT fill: #1b5e20, color: #ffffff, stroke: #81c784, stroke-width: 2px
+    style TR fill: #cfcfcf, color: #1a1a1a, stroke: #666, stroke-width: 1px
+    style CE fill: #cfcfcf, color: #1a1a1a, stroke: #666, stroke-width: 1px
+    style SUS fill: #cfcfcf, color: #1a1a1a, stroke: #666, stroke-width: 1px
+    style QM1 fill: #2e7d32, color: #ffffff, stroke: #a5d6a7, stroke-width: 1px
+    style QM2 fill: #2e7d32, color: #ffffff, stroke: #a5d6a7, stroke-width: 1px
+    style DT1 fill: #2e7d32, color: #ffffff, stroke: #a5d6a7, stroke-width: 1px
+    style DT2 fill: #2e7d32, color: #ffffff, stroke: #a5d6a7, stroke-width: 1px
+    style DT3 fill: #2e7d32, color: #ffffff, stroke: #a5d6a7, stroke-width: 1px
 ````
 
 🟢 strategically valuable impact of kafka
 ⚪ useful impact of kafka
 
-
-| Catena-X Use Case                                      | Description                                                                 | Sub-Use Cases                                                                                                                                       | Value of Using Kafka                                                                                      |
-|--------------------------------------------------------|-----------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
-| Quality Management                                     | Focuses on monitoring, analyzing, and continuously improving product and process quality across all stages of the manufacturing value chain. Enables the detection of anomalies and non-conformities in real-time to reduce scrap, rework, and customer complaints. |- Predictive Maintenance and Data Integration: Uses streaming data to identify maintenance needs early by combining internal and external sources, reducing downtime and improving planning.<br>- Early Warning Notification: Enables proactive alerts for emerging quality issues, facilitating timely root cause analysis and corrective actions. | Kafka enables real-time analysis of sensor data and machine logs, allowing early detection of quality issues and predictive insights for maintenance planning. |
-| Demand & Capacity Management (DCM)                     | Deals with the synchronization of production capabilities with dynamic customer demand. Supports planning flexibility by reacting to short-term fluctuations and optimizing supply chain coordination. | - | Kafka allows real-time streaming of planning data, capacity updates, and order changes, supporting rapid decision-making and system-wide visibility. |
-| Digital Twin / Asset Administration Shell (AAS)                 | Enables a digital representation of physical assets (machines, tools, components) using real-time operational data to enhance visibility, analysis, and control throughout the lifecycle. | - Real-time Operational Monitoring and Analysis: Continuously monitors production data, environmental factors, and supply chain parameters to enable immediate insights and action. <br> - Shopfloor Efficiency Monitoring: Enables real-time visibility into production performance across distributed sites to support operational control, benchmarking, and rapid escalation.<br>- Condition Monitoring: Provides real-time surveillance of asset conditions, enabling prompt detection of anomalies and maintenance needs. | Kafka is ideal for streaming telemetry data from assets, supporting real-time monitoring, condition-based actions, and integration into digital twins.  | Kafka is ideal for streaming telemetry data from assets, supporting real-time monitoring, condition-based actions, and integration into digital twins. |
-| Traceability                                           | Ensures the ability to track components, assemblies, and products across the entire supply chain. Vital for root cause analysis, recalls, and compliance documentation. | - | Kafka can support event-driven tracking of part movements and status changes, enabling near real-time traceability and transparency. |
-| Circular Economy / Product Pass          | Enables sustainable product use by tracking lifecycle data including reuse, refurbishment, and recycling. The DPP serves as a digital information carrier across the product lifecycle. | - | Kafka can stream lifecycle events like repair status, return cycles, or recycling information, contributing to circular economy goals. |
-| ESG-Monitoring (LkSG)                               | Supports continuous environmental performance monitoring, focusing on reducing CO2 emissions, optimizing energy usage, and supporting compliance with sustainability regulations. | - | Kafka enables streaming of environmental sensor data (e.g. energy, water, CO2), useful for real-time dashboards and adaptive control. |
+| Catena-X Use Case                               | Description                                                                                                                                                                                                                                                         | Sub-Use Cases                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Value of Using Kafka                                                                                                                                           |
+|-------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Quality Management                              | Focuses on monitoring, analyzing, and continuously improving product and process quality across all stages of the manufacturing value chain. Enables the detection of anomalies and non-conformities in real-time to reduce scrap, rework, and customer complaints. | - Predictive Maintenance and Data Integration: Uses streaming data to identify maintenance needs early by combining internal and external sources, reducing downtime and improving planning.<br>- Early Warning Notification: Enables proactive alerts for emerging quality issues, facilitating timely root cause analysis and corrective actions.                                                                                                                                                                             | Kafka enables real-time analysis of sensor data and machine logs, allowing early detection of quality issues and predictive insights for maintenance planning. |
+| Demand & Capacity Management (DCM)              | Deals with the synchronization of production capabilities with dynamic customer demand. Supports planning flexibility by reacting to short-term fluctuations and optimizing supply chain coordination.                                                              | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Kafka allows real-time streaming of planning data, capacity updates, and order changes, supporting rapid decision-making and system-wide visibility.           |
+| Digital Twin / Asset Administration Shell (AAS) | Enables a digital representation of physical assets (machines, tools, components) using real-time operational data to enhance visibility, analysis, and control throughout the lifecycle.                                                                           | - Real-time Operational Monitoring and Analysis: Continuously monitors production data, environmental factors, and supply chain parameters to enable immediate insights and action. <br> - Shopfloor Efficiency Monitoring: Enables real-time visibility into production performance across distributed sites to support operational control, benchmarking, and rapid escalation.<br>- Condition Monitoring: Provides real-time surveillance of asset conditions, enabling prompt detection of anomalies and maintenance needs. | Kafka is ideal for streaming telemetry data from assets, supporting real-time monitoring, condition-based actions, and integration into digital twins.         | Kafka is ideal for streaming telemetry data from assets, supporting real-time monitoring, condition-based actions, and integration into digital twins. |
+| Traceability                                    | Ensures the ability to track components, assemblies, and products across the entire supply chain. Vital for root cause analysis, recalls, and compliance documentation.                                                                                             | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Kafka can support event-driven tracking of part movements and status changes, enabling near real-time traceability and transparency.                           |
+| Circular Economy / Product Pass                 | Enables sustainable product use by tracking lifecycle data including reuse, refurbishment, and recycling. The DPP serves as a digital information carrier across the product lifecycle.                                                                             | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Kafka can stream lifecycle events like repair status, return cycles, or recycling information, contributing to circular economy goals.                         |
+| ESG-Monitoring (LkSG)                           | Supports continuous environmental performance monitoring, focusing on reducing CO2 emissions, optimizing energy usage, and supporting compliance with sustainability regulations.                                                                                   | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Kafka enables streaming of environmental sensor data (e.g. energy, water, CO2), useful for real-time dashboards and adaptive control.                          |
 
 ## Architectural Overview
 
@@ -268,7 +262,8 @@ The design supports various token refresh strategies:
 These strategies ensure that the system can maintain uninterrupted data flow while complying with dynamic security
 policies.
 
-See the [Tractus-X EDC Signaling Extension](https://github.com/eclipse-tractusx/tractusx-edc/blob/main/docs/development/dataplane-signaling/tx-signaling.extensions.md)
+See
+the [Tractus-X EDC Signaling Extension](https://github.com/eclipse-tractusx/tractusx-edc/blob/main/docs/development/dataplane-signaling/tx-signaling.extensions.md)
 for more details.
 
 ## Interoperability
@@ -284,16 +279,19 @@ new type once the extension exits POC state and is introduced as a proper Tractu
 An example for the extended standard could be:
 
 > 2.2.3 Kafka-PULL
-> 
+>
 > A Consumer MUST send a `dspace:TransferRequestMessage` with `dct:format:dspace:Kafka-PULL`.
-> 
-> A Provider MUST send a `dspace:TransferStartMessage` with sufficient information in the `dspace:dataAddress` property so that a client connection to the `dspace:endpoint` may succeed when initialized with the properties `scopes`, `groupPrefix` and `topic`.
-> 
+>
+> A Provider MUST send a `dspace:TransferStartMessage` with sufficient information in the
+`dspace:dataAddress` property so that a client connection to the
+`dspace:endpoint` may succeed when initialized with the properties `scopes`, `groupPrefix` and `topic`.
+>
 > A Provider Connector MUST ensure that the requested backend system has sufficient context from the negotiation to evaluate the legitimacy of the request.
-> 
+>
 > A Consumer may then use the provided data to execute requests against the endpoint.
-> 
-> Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the `dspace:dataAddress`.
+>
+> Despite the token, the endpoint still has the right to refuse serving a request. This may occur for instance when a consumer attempts to request for a different topic than the one specified in the
+`dspace:dataAddress`.
 
 To be in line with the EDC development best-practices,
 the [Contrubutors Manual](https://eclipse-edc.github.io/documentation/for-contributors/) has to be understood.
@@ -315,8 +313,10 @@ Importan chapters are:
 
 The revised design improves upon the initial proof-of-concept by incorporating:
 
-- **Dynamic Credential Management:** Replacing hard-coded credentials with OAuth-driven dynamic client registration and token management.
-- **Robust Security and Token Lifecycle:** Implementing short-lived tokens with secure vault storage and supporting multiple token refresh strategies, thereby reducing exposure risks.
+- **Dynamic Credential Management:** Replacing hard-coded credentials with OAuth-driven dynamic client registration and
+  token management.
+- **Robust Security and Token Lifecycle:** Implementing short-lived tokens with secure vault storage and supporting
+  multiple token refresh strategies, thereby reducing exposure risks.
 
 ## NOTICE
 
