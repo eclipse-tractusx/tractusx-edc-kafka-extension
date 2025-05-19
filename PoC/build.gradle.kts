@@ -45,3 +45,7 @@ allprojects {
         mavenCentral()
     }
 }
+
+subprojects {
+    tasks.register<DependencyReportTask>("allDependencies"){}
+}
