@@ -81,6 +81,7 @@ jobs:
 
       - name: Build Production Code
         run: |
+          cd PoC
           ./gradlew compileJava --no-daemon
 
       - name: Perform CodeQL Analysis
