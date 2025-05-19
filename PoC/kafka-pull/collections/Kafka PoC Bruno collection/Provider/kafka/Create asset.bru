@@ -21,22 +21,20 @@ body:json {
     },
     "@id": "{{ASSET_ID}}",
     "properties": {
-      "name": "test asset",
+      "name": "EDC Kafka asset",
       "contenttype": "application/json"
     },
     "dataAddress": {
       "type": "KafkaBroker",
-      "name": "test asset",
+      "name": "EDC Kafka asset",
       "kafka.bootstrap.servers": "{{KAFKA_URL}}",
       "topic": "{{KAFKA_TOPIC}}",
-      //"pollDuration": "PT5M", 
-      //"secretKey": "{{KAFKA_SECRET}}",
+      "pollDuration": "PT5M",
       "kafka.sasl.mechanism": "{{KAFKA_SASL_MECHANISM}}",
       "kafka.security.protocol": "{{KAFKA_SECURITY_PROTOCOL}}",
       "tokenUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/token",
       "revokeUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/revoke",
       "clientId": "myclient",
-      //"clientSecret": "mysecret",
       "clientSecretKey": "secretKey"
     }
   }
