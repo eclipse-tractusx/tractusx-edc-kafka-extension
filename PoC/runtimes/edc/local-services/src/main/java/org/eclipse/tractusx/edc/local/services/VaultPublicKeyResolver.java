@@ -8,16 +8,16 @@ import java.security.PublicKey;
 
 public class VaultPublicKeyResolver implements DidPublicKeyResolver {
 
-  private Vault vault;
-  private PemParser pemParser;
+  private final Vault vault;
+  private final PemParser pemParser;
 
-  public VaultPublicKeyResolver(Vault vault, PemParser pemParser) {
+  public VaultPublicKeyResolver(final Vault vault, final PemParser pemParser) {
     this.vault = vault;
     this.pemParser = pemParser;
   }
 
   @Override
-  public Result<PublicKey> resolveKey(String id) {
+  public Result<PublicKey> resolveKey(final String id) {
     var encoded = vault.resolveSecret("public-key");
     var key = pemParser.parse(encoded);
     if (key instanceof PublicKey publicKey) {
