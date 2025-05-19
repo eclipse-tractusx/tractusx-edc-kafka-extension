@@ -47,6 +47,6 @@ class KafkaBrokerExtensionTest {
         extension.initialize(context);
 
         verify(dataFlowManager, times(1))
-                .register(anyInt(), any(KafkaBrokerDataFlowController.class));
+                .register(any(KafkaBrokerDataFlowController.class));
     }
 }

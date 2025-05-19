@@ -43,6 +43,7 @@ class KafkaOAuthServiceImplTest {
     private static final String CLIENT_SECRET = "clientSecret";
     private static final String TEST_TOKEN = "test-token";
     private static final String IO_ERROR_MESSAGE = "IO error";
+    public static final String ACCESS_TOKEN_KEY = "access_token";
 
     private EdcHttpClient mockHttpClient;
     private ObjectMapper mockObjectMapper;
@@ -133,7 +134,7 @@ class KafkaOAuthServiceImplTest {
             when(mockResponse.isSuccessful()).thenReturn(true);
             when(mockResponse.body()).thenReturn(mockResponseBodyObj);
             when(mockResponseBodyObj.string()).thenReturn(mockResponseBody);
-            when(mockJsonNode.get("access_token")).thenReturn(mockTokenNode);
+            when(mockJsonNode.get(ACCESS_TOKEN_KEY)).thenReturn(mockTokenNode);
             when(mockTokenNode.asText()).thenReturn(TEST_TOKEN);
             when(mockHttpClient.execute(any(Request.class))).thenReturn(mockResponse);
             when(mockObjectMapper.readTree(mockResponseBody)).thenReturn(mockJsonNode);
@@ -156,7 +157,7 @@ class KafkaOAuthServiceImplTest {
             // Act & Assert
             RuntimeException exception = assertThrows(RuntimeException.class,
                     () -> oauthService.getAccessToken(createCredentials()));
-            assertEquals("Token endpoint returned HTTP 401", exception.getMessage());
+            assertEquals("OAuth2 token endpoint returned HTTP 401", exception.getMessage());
             verify(mockHttpClient, times(1)).execute(any(Request.class));
         }
 

@@ -87,7 +87,7 @@ public class KafkaBrokerExtension implements ServiceExtension {
         var kafkaOAuthService = new KafkaOAuthServiceImpl(httpClient, typeManager.getMapper());
         var controller = new KafkaBrokerDataFlowController(vault, kafkaOAuthService, transferTypeParser, getPropertiesProvider(),
                 selectorService, clientFactory, selectionStrategy, monitor, callbackUrl);
-        dataFlowManager.register(10, controller);
+        dataFlowManager.register(controller);
     }
 
     private DataFlowPropertiesProvider getPropertiesProvider() {

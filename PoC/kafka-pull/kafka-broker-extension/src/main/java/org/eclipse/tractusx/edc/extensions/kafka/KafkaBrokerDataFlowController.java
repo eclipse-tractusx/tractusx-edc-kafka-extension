@@ -49,13 +49,20 @@ import static org.eclipse.edc.spi.response.ResponseStatus.FATAL_ERROR;
 import static org.eclipse.edc.spi.types.domain.edr.EndpointDataReference.CONTRACT_ID;
 import static org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema.*;
 
+/**
+ * Implementation of the {@link DataFlowController} interface responsible for managing data flows
+ * using Kafka.
+ * It integrates with OAuth for token management and authorizes data transfer operations.
+ */
 class KafkaBrokerDataFlowController implements DataFlowController {
     public static final String DEFAULT_POLL_DURATION = Duration.ofSeconds(1).toString();
     static final String START_FAILED = "Failed to start data flow: ";
     static final String SUSPEND_FAILED = "Failed to suspend data flow: ";
     static final String TERMINATE_FAILED = "Failed to terminate data flow: ";
-    static final String SECRET_NOT_DEFINED = "secret key %s was not defined";
+    static final String SECRET_NOT_DEFINED = "Secret key %s was not defined";
+    static final String DESTINATION_TYPE = "HttpData";
     private static final String TRANSFER_TYPE = "Kafka-PULL";
+
     private final Vault vault;
     private final KafkaOAuthService oauthService;
     private final TransferTypeParser transferTypeParser;
@@ -119,7 +126,7 @@ class KafkaBrokerDataFlowController implements DataFlowController {
                 .participantId(policy.getAssignee())
                 .agreementId(transferProcess.getContractId())
                 .assetId(transferProcess.getAssetId())
-                .transferType(new TransferType("HttpData", FlowType.PULL))
+                .transferType(new TransferType(DESTINATION_TYPE, FlowType.PULL))
                 .callbackAddress(callbackUrl != null ? callbackUrl.get() : null)
                 .properties(content)
                 .build();

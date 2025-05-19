@@ -54,6 +54,8 @@ import static org.eclipse.tractusx.edc.extensions.kafka.KafkaBrokerDataFlowContr
 import static org.mockito.Mockito.*;
 
 class KafkaBrokerDataFlowControllerTest {
+    public static final String NOT_DEFINED_SECRET_KEY = "clientSecretKey";
+    public static final String SECRET_KEY = "secret-key";
     private final Vault vault = mock();
     private final KafkaOAuthService oauthService = mock();
     private final DataPlaneClient dataPlaneClient = mock();
@@ -79,7 +81,7 @@ class KafkaBrokerDataFlowControllerTest {
                 .property(OAUTH_TOKEN_URL, "http://localhost:8080/token")
                 .property(OAUTH_REVOKE_URL, "http://keycloak:8080/revoke")
                 .property(OAUTH_CLIENT_ID, "client-id")
-                .property(OAUTH_CLIENT_SECRET_KEY, "clientSecretKey")
+                .property(OAUTH_CLIENT_SECRET_KEY, NOT_DEFINED_SECRET_KEY)
                 .property(TOKEN, "token")
                 .build();
 
@@ -136,7 +138,7 @@ class KafkaBrokerDataFlowControllerTest {
 
     @Test
     void start_ShouldReturnSuccess_WhenValidInput() {
-        when(vault.resolveSecret(any())).thenReturn("secret-key");
+        when(vault.resolveSecret(any())).thenReturn(SECRET_KEY);
         StatusResult<DataFlowResponse> result = controller.start(transferProcess, policy);
 
         assertThat(result.succeeded()).isTrue();
@@ -157,12 +159,12 @@ class KafkaBrokerDataFlowControllerTest {
     void start_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.start(transferProcess, policy);
         assertThat(result.fatalError()).isTrue();
-        assertThat(START_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(START_FAILED + SECRET_NOT_DEFINED.formatted(NOT_DEFINED_SECRET_KEY)).isEqualTo(result.getFailureDetail());
     }
 
     @Test
     void suspend_ShouldReturnSuccess_WhenOperationSucceeds() {
-        when(vault.resolveSecret(any())).thenReturn("secret-key");
+        when(vault.resolveSecret(any())).thenReturn(SECRET_KEY);
         StatusResult<?> result = controller.suspend(transferProcess);
         assertThat(result.succeeded()).isTrue();
     }
@@ -171,12 +173,12 @@ class KafkaBrokerDataFlowControllerTest {
     void suspend_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.suspend(transferProcess);
         assertThat(result.fatalError()).isTrue();
-        assertThat(SUSPEND_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(SUSPEND_FAILED + SECRET_NOT_DEFINED.formatted(NOT_DEFINED_SECRET_KEY)).isEqualTo(result.getFailureDetail());
     }
 
     @Test
     void terminate_ShouldReturnSuccess_WhenOperationSucceeds() {
-        when(vault.resolveSecret(any())).thenReturn("secret-key");
+        when(vault.resolveSecret(any())).thenReturn(SECRET_KEY);
         StatusResult<?> result = controller.terminate(transferProcess);
         assertThat(result.succeeded()).isTrue();
     }
@@ -185,7 +187,7 @@ class KafkaBrokerDataFlowControllerTest {
     void terminate_ShouldReturnFailure_WhenMissedSecret() {
         StatusResult<?> result = controller.terminate(transferProcess);
         assertThat(result.fatalError()).isTrue();
-        assertThat(TERMINATE_FAILED + SECRET_NOT_DEFINED.formatted("clientSecretKey")).isEqualTo(result.getFailureDetail());
+        assertThat(TERMINATE_FAILED + SECRET_NOT_DEFINED.formatted(NOT_DEFINED_SECRET_KEY)).isEqualTo(result.getFailureDetail());
     }
 }
 

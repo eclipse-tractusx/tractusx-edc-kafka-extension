@@ -32,6 +32,15 @@ import java.io.IOException;
  * No token is cached—each getAccessToken() call always retrieves a new token.
  */
 public class KafkaOAuthServiceImpl implements KafkaOAuthService {
+    static final String ACCESS_TOKEN_KEY = "access_token";
+    static final String GRANT_TYPE_KEY = "grant_type";
+    static final String CLIENT_CREDENTIALS_GRANT_TYPE = "client_credentials";
+    static final String CLIENT_ID_KEY = "client_id";
+    static final String CLIENT_SECRET_KEY = "client_secret";
+    static final String CONTENT_TYPE_HEADER = "Content-Type";
+    static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
+    static final String TOKEN_KEY = "token";
+
     private final EdcHttpClient httpClient;
     private final ObjectMapper objectMapper;
 
@@ -50,25 +59,25 @@ public class KafkaOAuthServiceImpl implements KafkaOAuthService {
     private String fetchNewToken(final OAuthCredentials creds) {
         try {
             FormBody formBody = new FormBody.Builder()
-                    .add("grant_type", "client_credentials")
-                    .add("client_id", creds.clientId())
-                    .add("client_secret", creds.clientSecret())
+                    .add(GRANT_TYPE_KEY, CLIENT_CREDENTIALS_GRANT_TYPE)
+                    .add(CLIENT_ID_KEY, creds.clientId())
+                    .add(CLIENT_SECRET_KEY, creds.clientSecret())
                     .build();
 
             Request request = new Request.Builder()
                     .url(creds.tokenUrl())
-                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header(CONTENT_TYPE_HEADER, APPLICATION_X_WWW_FORM_URLENCODED)
                     .post(formBody)
                     .build();
 
             try (Response response = httpClient.execute(request)) {
                 if (!response.isSuccessful()) {
-                    throw new RuntimeException("Token endpoint returned HTTP " + response.code());
+                    throw new RuntimeException("OAuth2 token endpoint returned HTTP " + response.code());
                 }
 
                 String responseBody = response.body() != null ? response.body().string() : "";
                 JsonNode json = objectMapper.readTree(responseBody);
-                return json.get("access_token").asText();
+                return json.get(ACCESS_TOKEN_KEY).asText();
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to fetch OAuth2 token", e);
@@ -84,14 +93,14 @@ public class KafkaOAuthServiceImpl implements KafkaOAuthService {
         }
         try {
             FormBody formBody = new FormBody.Builder()
-                    .add("token", token)
-                    .add("client_id", creds.clientId())
-                    .add("client_secret", creds.clientSecret())
+                    .add(TOKEN_KEY, token)
+                    .add(CLIENT_ID_KEY, creds.clientId())
+                    .add(CLIENT_SECRET_KEY, creds.clientSecret())
                     .build();
 
             Request request = new Request.Builder()
                     .url(creds.revocationUrl().get())
-                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header(CONTENT_TYPE_HEADER, APPLICATION_X_WWW_FORM_URLENCODED)
                     .post(formBody)
                     .build();
 
