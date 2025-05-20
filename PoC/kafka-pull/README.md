@@ -1,41 +1,66 @@
-# KafkaBroker Control Plane module
+# Kafka Broker Extension
 
-## About this module
+## Overview
 
-This module contains a Control Plane extension(`kafka-broker-extension`) that allow to manage access for specific topic 
-by creating SCRAM credentials and token directly in provider's kafka.
+The Kafka Broker Extension is a Control Plane extension that enables secure, dynamic access to Kafka topics within the
+Eclipse Dataspace Connector (EDC) framework. This extension allows data providers to share Kafka streams with consumers
+while maintaining full control over access permissions.
 
-### Concept
+## Key Components
 
-In this sample the dataplane is not used, the consumer will set up a kafka client to poll the messages from the broker 
-using credentials obtained from the transfer process.
+The extension consists of the following modules:
 
-The DataFlow is managed by the KafkaBrokerDataFlowController, that on flow initialization creates the credentials for 
-the consumer with access to poll data only from specific topic. Base on these credentials generates token. Finally, it 
-provides an EDR with all necessary information for the consumer to poll the messages.
+- **kafka-broker-extension**: Core Control Plane extension that manages access to Kafka topics by creating credentials
+  and tokens
+- **data-address-kafka**: Defines the data address format for Kafka assets
+- **validator-data-address-kafka**: Validates Kafka data addresses
 
+## Technical Implementation
 
-### DataAddress Schema
+The extension implements the `DataFlowController` interface to handle the "Kafka-PULL" transfer type. The main
+controller class, `KafkaBrokerDataFlowController`, manages the following operations:
 
-#### Properties
+1. **Start Transfer**: Creates OAuth credentials, generates tokens, and builds an Endpoint Data Reference (EDR) for the
+   consumer
+2. **Suspend/Terminate Transfer**: Revokes tokens and cleans up credentials
+3. **Token Management**: Integrates with OAuth services for secure authentication
 
-| Key                       | Description                                                                                                         | Mandatory |
-|:--------------------------|:--------------------------------------------------------------------------------------------------------------------|-----------|
-| `type`                    | Identifier of kafka data address. Should be set as 'KafkaBroker'                                                    | `true`    |
-| `topic`                   | Defines the Kafka topic                                                                                             | `true`    |
-| `kafka.bootstrap.servers` | Defines a custom endpoint URL to kafka                                                                              | `true`    |
-| `kafka.sasl.mechanism`    | Defines the SASL kafka mechanism (SCRAM-SHA-256 or SCRAM-SHA-512)                                                   | `true`    |
-| `kafka.security.protocol` | Defines the kafka  security protocol (SASL_PLAINTEXT or SASL_SSL)                                                   | `true`    |
-| `pollDuration`            | Defines the duration of the consumer polling. The value should be a ISO-8601 duration e.g. "PT10S" for 10 seconds.  | `false`   |
-| `secretKey`               | Defines the `vault` entry containing the secret token/credentials                                                   | `true`    |
-| `groupPrefix`             | Defines the groupPrefix that will be allowed to use for the consumer                                                | `true`    |
+## DataAddress Schema
 
-#### Secret Resolution
+When creating a Kafka asset, use the following properties in the DataAddress:
 
-The `secretKey` property should point to a `vault` entry that contains a string object with admin kafka credentials.
+| Key                       | Description                                                                                                        | Mandatory |
+|:--------------------------|:-------------------------------------------------------------------------------------------------------------------|-----------|
+| `type`                    | Identifier of kafka data address. Should be set as 'KafkaBroker'                                                   | `true`    |
+| `topic`                   | Defines the Kafka topic                                                                                            | `true`    |
+| `kafka.bootstrap.servers` | Defines a custom endpoint URL to kafka                                                                             | `true`    |
+| `kafka.sasl.mechanism`    | Defines the SASL kafka mechanism (OAUTHBEARER)                                                                     | `true`    |
+| `kafka.security.protocol` | Defines the kafka security protocol (SASL_PLAINTEXT or SASL_SSL)                                                   | `true`    |
+| `pollDuration`            | Defines the duration of the consumer polling. The value should be a ISO-8601 duration e.g. "PT10S" for 10 seconds. | `false`   |
+| `groupPrefix`             | Defines the groupPrefix that will be allowed to use for the consumer                                               | `true`    |
+| `tokenUrl`                | The OAuth token URL for retrieving access tokens                                                                   | `true`    |
+| `revokeUrl`               | The OAuth revoke URL for invalidating tokens                                                                       | `true`    |
+| `clientId`                | The OAuth client ID                                                                                                | `true`    |
+| `clientSecretKey`         | Defines the `vault` entry containing the OAuth client secret to the `clientId`                                     | `true`    |
 
-  ```
-secretKey=org.apache.kafka.common.security.scram.ScramLoginModule required username="admin" password="admin-secret";
-  ```
-It should be admin credential that has permission to create additional credentials with permissions to read topic.
+### Secret Resolution
 
+The `clientSecretKey` property should point to a `vault` entry that contains a string object with the OAuth2 client
+secret. The client should have permission to read the topic which is part of the Asset.
+
+## Usage
+
+For detailed usage instructions, refer to:
+
+- [Admin Manual](../../docs/administration/admin-manual.md): Installation and configuration
+- [Solution Design](../../docs/architecture/solution-design-kafka-pull.md): Detailed architecture and workflow
+
+## Example
+
+The [Bruno collection](collections/Kafka%20PoC%20Bruno%20collection) contains example HTTP requests that demonstrate how
+to:
+
+1. Create a Kafka asset
+2. Create policies and contract definitions
+3. Initiate a transfer process
+4. Monitor the transfer

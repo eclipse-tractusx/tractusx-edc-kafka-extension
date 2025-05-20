@@ -1,48 +1,22 @@
-### Run the setup
+# Tractus-X EDC Kafka Extension - Proof of Concept
 
-### Build
+## Overview
 
-To build the project use:
+This Proof of Concept (PoC) demonstrates the integration of Apache Kafka with the Eclipse Dataspace Connector (EDC) to
+enable real-time data streaming between data providers and consumers in a secure and controlled manner. 
+The PoC showcases how Kafka can be used as a streaming protocol within the Tractus-X ecosystem.
 
-```bash
-./gradlew build
-```
+## Project Structure
 
-### Run in Docker
+The project is organized into the following main directories:
 
-#### Start docker compose
+- **kafka-pull**: Contains the core extension modules that enable Kafka integration with EDC
+    - `data-address-kafka`: Data address implementation for Kafka
+    - `kafka-broker-extension`: Control Plane extension for managing Kafka broker access
+    - `validator-data-address-kafka`: Validator for Kafka data addresses
+    - `collections`: Bruno collection with HTTP requests for testing
 
-To start the `docker compose`, simply run configuration for IntelliJ `kafka-poc-docker` or
-the following command from the project root:
-
-```shell
-docker compose --project-directory poc/runtimes up --build
-```
-
-#### Data transfer
-
-In [bruno collection](kafka-pull/collections/Kafka%20PoC%20Bruno%20collection)
-all HTTP requests required to run kafka pull transfers are prepared.
-Using these requests, Alice will act as the provider and Bob will act as the consumer.
-
-Run these requests on provider side:
-
-- Create asset
-- Create Contract definition
-- Create policy
-
-Then run these requests on consumer side:
-
-- Get dataset
-- Initiate Negotiation
-- Get Negotiation
-- Kafka PULL
-- Get transfer process
-
-When using the docker compose setup, the requests will be executed by the provider and consumer applications.
-Afterward, data transfer will be initiated automatically.
-
-### DataAddress Schema
-
-Information about `kafka-broker-extension` could be found in [README.md](kafka-pull/README.md)
-
+- **runtimes**: Contains example implementations and test setups
+    - `edc`: EDC control plane and data plane configurations
+    - `kafka`: Kafka server, producer, and consumer examples
+    - `oauth`: OAuth service for authentication
