@@ -40,8 +40,6 @@ The project is organized into the following main directories:
     - `architecture`: Architecture and design documents
     - `administration`: Administration documentation
 
-- **charts**: Helm charts for deployment
-
 ## Documentation
 
 ### Getting Started
