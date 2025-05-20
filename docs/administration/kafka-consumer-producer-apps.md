@@ -15,14 +15,15 @@ The Kafka producer application acts as a data provider in the EDC ecosystem. It 
 1. **KafkaProducerApp**: The main application class that:
     - Sets up the EDC offer
     - Creates a Kafka producer with OAuth authentication
-    - Continuously generates random data and sends it to a Kafka topic
+    - Continuously generates production forecast messages and production tracking messages and sends them to a Kafka topic
 
 2. **EdcSetup**: Responsible for setting up the EDC offer by:
     - Creating an asset that represents the Kafka stream
     - Creating a policy definition that defines access rules
     - Creating a contract definition that combines the asset and policy
 
-3. **Data**: A simple data model representing a data point with three-dimensional coordinates (x, y, z).
+3. **Data**: Example values for the Semantic Models [GetProductionForecast](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shopfloor_information.get_production_forecast/1.0.0/gen/GetProductionForecast.json) and [GetProductionTracking](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shopfloor_information.get_production_tracking/1.0.0/gen/GetProductionTracking.json).  
+      For each of the semantic models, a dedicated topic is created.
 
 ### Kafka Consumer Application
 
@@ -62,7 +63,7 @@ The Kafka consumer application acts as a data consumer in the EDC ecosystem. It 
 
 2. **Data Production Phase**:
     - The producer initializes a Kafka producer with OAuth authentication
-    - The producer continuously generates random data
+    - The producer continuously generates production forecast messages and production tracking messages
     - The producer sends the data to the configured Kafka topic
 
 ### Consumer Workflow
