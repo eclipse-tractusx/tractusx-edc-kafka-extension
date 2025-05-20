@@ -20,6 +20,21 @@
 
 FROM eclipse-temurin:21-jre-alpine
 
+ARG APP_USER=docker
+ARG APP_UID=10100
+
+RUN addgroup --system "$APP_USER" && \
+    adduser \
+        --shell /sbin/nologin \
+        --disabled-password \
+        --gecos "" \
+        --ingroup "$APP_USER" \
+        --no-create-home \
+        --uid "$APP_UID" \
+        "$APP_USER"
+
 COPY build/libs/kafka-producer.jar /app/application.jar
+
+USER "$APP_USER"
 
 ENTRYPOINT ["java", "-jar", "/app/application.jar"]
