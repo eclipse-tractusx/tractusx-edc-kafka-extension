@@ -21,6 +21,10 @@
 ---
 name: "Trivy"
 
+permissions:
+  contents: read
+  security-events: write
+
 on:
   schedule:
     - cron: "0 0 * * *"
@@ -42,7 +46,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Check out your source so the runner can build the image
       - uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -63,11 +66,10 @@ jobs:
           -t local-image:${{ github.sha }} \
           .
 
-      # 3. Vulnerability scan with Trivy
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master   # pin to the latest tag (Mar 14 2025)
+        uses: aquasecurity/trivy-action@0.30.0
         with:
-          image-ref: local-image:${{ github.sha }} # points to the image we just built
+          image-ref: local-image:${{ github.sha }}
           format: sarif
           output: trivy-results-${{ github.sha }}.sarif
           severity: "CRITICAL,HIGH"
