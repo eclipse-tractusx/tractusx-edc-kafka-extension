@@ -29,9 +29,11 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
-    implementation(libs.java.jwt)
-    implementation(libs.slf4j.api)
-    runtimeOnly(libs.logback.classic)
+    implementation("com.auth0:java-jwt:4.5.0")
+    // SLF4J API
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    // Logback Classic provides a concrete implementation for SLF4J
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.api)
