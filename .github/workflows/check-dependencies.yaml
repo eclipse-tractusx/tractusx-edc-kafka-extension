@@ -57,6 +57,7 @@ jobs:
       - name: Print file
         if: failure()
         run: |
+          ls -l
           echo "=== Please copy the following content back to DEPENDENCIES ==="
           cat DEPENDENCIES
           echo "=== end of content ==="
