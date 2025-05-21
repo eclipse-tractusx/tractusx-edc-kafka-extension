@@ -59,6 +59,11 @@ jobs:
   check_sonar_configured:
     runs-on: ubuntu-latest
     steps:
+      - name: Show whether each SONAR variable is set
+        run: |
+          echo "SONAR_TOKEN present?        ${{ secrets.SONAR_TOKEN     != '' }}"
+          echo "SONAR_PROJECT_KEY present? ${{ vars.SONAR_PROJECT_KEY  != '' }}"
+          echo "SONAR_ORGANIZATION present? ${{ vars.SONAR_ORGANIZATION != '' }}"
       - name: check_sonar_configured
         run: |
           echo "Checking if sonar is configured: ${{ env.SONAR_CONFIGURED }}"
@@ -94,12 +99,15 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: Analyze with Sonar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+      - name: Build & analyze with Sonar
+        working-directory: poc
+        env: # SONAR_TOKEN stays masked in the log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          mvn --batch-mode --update-snapshots verify \
-          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} \
-          -Dcheckstyle.skip -Dpmd.skip=true
+          # --no-daemon keeps CI logs shorter; drop it if you prefer the daemon
+          ./gradlew --no-daemon build sonar \
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dcheckstyle.skip=true -Dpmd.skip=true
