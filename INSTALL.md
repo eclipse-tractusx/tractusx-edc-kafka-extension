@@ -10,7 +10,7 @@
 To build the project, run:
 
 ```bash
-cd PoC/
+cd poc/
 ./gradlew build
 ```
 

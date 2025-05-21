@@ -32,7 +32,7 @@ This extension is particularly valuable for use cases requiring real-time data e
 
 The project is organized into the following main directories:
 
-- **PoC**: Contains the Proof of Concept implementation
+- **poc**: Contains the Proof of Concept implementation
     - `kafka-pull`: Core extension modules for Kafka integration
     - `runtimes`: Example implementations and test setups
 
@@ -44,7 +44,7 @@ The project is organized into the following main directories:
 
 ### Getting Started
 
-- [PoC README](PoC/README.md): Instructions for running the Proof of Concept implementation
+- [poc README](poc/README.md): Instructions for running the Proof of Concept implementation
 - [Documentation Overview](docs/README.md): Central hub for all documentation
 
 ### Administration
@@ -55,7 +55,7 @@ The project is organized into the following main directories:
 
 - [Solution Design](docs/architecture/solution-design-kafka-pull.md):
   Detailed architecture and design of the Kafka extension
-- [Kafka Broker Extension](PoC/kafka-pull/README.md): Technical details of the extension implementation
+- [Kafka Broker Extension](poc/kafka-pull/README.md): Technical details of the extension implementation
 
 ## Quick Start
 

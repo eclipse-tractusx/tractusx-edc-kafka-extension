@@ -82,7 +82,7 @@ jobs:
 
       - name: Build Production Code
         run: |
-          cd PoC
+          cd poc
           ./gradlew build
 
       - name: Perform CodeQL Analysis

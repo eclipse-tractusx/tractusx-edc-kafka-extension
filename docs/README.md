@@ -19,15 +19,15 @@ The documentation is organized into the following sections:
 ## Quick Links
 
 - [Project README](../README.md): High-level overview of the project, key features, and use cases
-- [PoC README](../PoC/README.md): Instructions for running the Proof of Concept implementation
-- [Kafka Broker Extension](../PoC/kafka-pull/README.md): Technical details of the Kafka broker extension implementation
+- [poc README](../poc/README.md): Instructions for running the Proof of Concept implementation
+- [Kafka Broker Extension](../poc/kafka-pull/README.md): Technical details of the Kafka broker extension implementation
 
 ## Getting Started
 
 If you're new to the Tractus-X EDC Kafka Extension:
 
 1. Start with the [Project README](../README.md) for a high-level overview
-2. Follow the [PoC README](../PoC/README.md) to run the example implementation
+2. Follow the [poc README](../poc/README.md) to run the example implementation
 3. Consult the [Admin Manual](administration/admin-manual.md) for configuration guidance
 4. See the [Kafka Reference Apps](administration/kafka-consumer-producer-apps.md) for example data exchange scenarios and further insights on how the extension can be used
 

@@ -30,7 +30,7 @@ dependencies {
 
 ### Docker Deployment
 
-For containerized deployment, use the provided Docker Compose file as a reference: [PoC/runtimes/docker-compose.yml](/PoC/runtimes/docker-compose.yml)
+For containerized deployment, use the provided Docker Compose file as a reference: [poc/runtimes/docker-compose.yml](/poc/runtimes/docker-compose.yml)
 
 ## Configuration
 
