@@ -83,7 +83,7 @@ jobs:
       - name: Build Production Code
         run: |
           cd poc
-          ./gradlew build
+          ./gradlew clean build --no-daemon --no-build-cache --rerun-tasks
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
