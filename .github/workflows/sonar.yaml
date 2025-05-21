@@ -59,11 +59,6 @@ jobs:
   check_sonar_configured:
     runs-on: ubuntu-latest
     steps:
-      - name: Show whether each SONAR variable is set
-        run: |
-          echo "SONAR_TOKEN present?        ${{ secrets.SONAR_TOKEN     != '' }}"
-          echo "SONAR_PROJECT_KEY present? ${{ vars.SONAR_PROJECT_KEY  != '' }}"
-          echo "SONAR_ORGANIZATION present? ${{ vars.SONAR_ORGANIZATION != '' }}"
       - name: check_sonar_configured
         run: |
           echo "Checking if sonar is configured: ${{ env.SONAR_CONFIGURED }}"
@@ -108,6 +103,7 @@ jobs:
           # --no-daemon keeps CI logs shorter; drop it if you prefer the daemon
           ./gradlew --no-daemon build sonar \
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=$SONAR_TOKEN \
             -Dcheckstyle.skip=true -Dpmd.skip=true
