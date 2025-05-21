@@ -68,7 +68,7 @@ jobs:
         run: |
           echo "Checking if sonar is configured: ${{ env.SONAR_CONFIGURED }}"
     env:
-      SONAR_CONFIGURED: ${{ secrets.SONAR_TOKEN != '' && sonar_project_key != '' && sonar_organization != '' }}
+      SONAR_CONFIGURED: ${{ secrets.SONAR_TOKEN != '' && env.sonar_project_key != '' && env.sonar_organization != '' }}
     outputs:
       sonar_configured: ${{ env.SONAR_CONFIGURED }}
 
@@ -106,5 +106,5 @@ jobs:
         run: |
           mvn --batch-mode --update-snapshots verify \
           org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+          -Dsonar.projectKey=${{ env.sonar_project_key }} -Dsonar.organization=${{ env.sonar_organization }} \
           -Dcheckstyle.skip -Dpmd.skip=true
