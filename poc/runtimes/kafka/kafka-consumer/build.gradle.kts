@@ -33,7 +33,7 @@ dependencies {
     // SLF4J API
     implementation("org.slf4j:slf4j-api:1.7.36")
     // Logback Classic provides a concrete implementation for SLF4J
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.13")
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.api)
