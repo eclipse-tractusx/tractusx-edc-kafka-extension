@@ -56,11 +56,11 @@ jobs:
           cache: gradle
 
       - name: Build fat-JAR
-        working-directory: PoC
+        working-directory: poc
         run: ./gradlew shadowJar --no-daemon
 
       - name: Build docker image
-        working-directory: PoC/runtimes/edc/controlplane-local
+        working-directory: poc/runtimes/edc/controlplane-local
         run: |
           docker build \
           -t local-image:${{ github.sha }} \

@@ -24,7 +24,7 @@ updates:
   # Gradle
   - package-ecosystem: "gradle"
     target-branch: main
-    directory: /PoC
+    directory: /poc
     labels:
       - "dependabot"
       - "dependencies"

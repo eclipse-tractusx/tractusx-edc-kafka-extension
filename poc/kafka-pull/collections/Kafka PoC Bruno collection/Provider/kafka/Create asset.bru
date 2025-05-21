@@ -1,0 +1,41 @@
+meta {
+  name: Create asset
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{PROVIDER_MANAGEMENT_URL}}/v3/assets
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "@context": {
+      "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+    },
+    "@id": "{{ASSET_ID}}",
+    "properties": {
+      "name": "EDC Kafka asset",
+      "contenttype": "application/json"
+    },
+    "dataAddress": {
+      "type": "KafkaBroker",
+      "name": "EDC Kafka asset",
+      "kafka.bootstrap.servers": "{{KAFKA_URL}}",
+      "topic": "{{KAFKA_TOPIC}}",
+      "kafka.poll.duration": "PT5M",
+      "kafka.sasl.mechanism": "{{KAFKA_SASL_MECHANISM}}",
+      "kafka.security.protocol": "{{KAFKA_SECURITY_PROTOCOL}}",
+      "tokenUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/token",
+      "revokeUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/revoke",
+      "clientId": "myclient",
+      "clientSecretKey": "secretKey"
+    }
+  }
+}
