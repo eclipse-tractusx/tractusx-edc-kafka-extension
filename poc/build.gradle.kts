@@ -49,12 +49,6 @@ allprojects {
     }
 }
 
-sonar {
-    properties {
-        property("sonar.host.url", "https://sonarcloud.io")
-    }
-}
-
 subprojects {
     tasks.register<DependencyReportTask>("allDependencies"){}
 }
