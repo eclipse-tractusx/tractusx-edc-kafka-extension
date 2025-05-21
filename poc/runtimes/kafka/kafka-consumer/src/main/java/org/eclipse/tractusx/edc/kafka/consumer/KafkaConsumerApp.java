@@ -91,6 +91,7 @@ public class KafkaConsumerApp {
         props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getKafkaBootstrapServers());
         props.put(GROUP_ID_CONFIG, edrData.getKafkaGroupPrefix());
         props.put(ENABLE_AUTO_COMMIT_CONFIG, "true"); // Automatically commit offsets
+        props.put(AUTO_OFFSET_RESET_CONFIG, "earliest"); // Automatically reset the offset to the earliest offset
         props.put(AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
         props.put(KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         props.put(VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

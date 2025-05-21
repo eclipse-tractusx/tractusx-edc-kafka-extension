@@ -87,7 +87,7 @@ services:
       retries: 5
 
   kafka-kraft:
-    image: confluentinc/cp-kafka:7.9.0
+    image: apache/kafka:4.0.0
     hostname: kafka-kraft
     container_name: kafka-kraft
     depends_on:
@@ -111,14 +111,12 @@ services:
       ## ─── Listeners & Protocols ────────────────────────────────────────────
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,OIDC:SASL_PLAINTEXT"
       KAFKA_LISTENERS: "PLAINTEXT://kafka-kraft:29092,CONTROLLER://kafka-kraft:29093,OIDC://0.0.0.0:9092"
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-kraft:29092,OIDC://kafka-kraft:9092" # switch to OIDC://localhost:9092 for local testing
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka-kraft:29092,OIDC://kafka-kraft:9092"
       KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
       ## ─── Topic Replication ─────────────────────────────────────────────────
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-      ## ─── Storage ───────────────────────────────────────────────────────────
-      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
       ## ─── SASL/OAUTHBEARER ──────────────────────────────────────────────────
       KAFKA_SASL_ENABLED_MECHANISMS: "OAUTHBEARER"
       KAFKA_SASL_OAUTHBEARER_JWKS_ENDPOINT_URL: "http://keycloak:8080/realms/kafka/protocol/openid-connect/certs"
@@ -127,11 +125,11 @@ services:
       KAFKA_SASL_OAUTHBEARER_CLIENT_SECRET: "mysecret"
       KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "account"
       ## ─── JAAS Config ───────────────────────────────────────────────────────
-      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf"
+      KAFKA_OPTS: |
+        -Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf
+        -Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://keycloak:8080/realms/kafka/protocol/openid-connect/certs,http://keycloak:8080/realms/kafka/protocol/openid-connect/token
       KAFKA_LISTENER_NAME_OIDC_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: "org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallbackHandler"
       ## ─── Cluster Initialization ────────────────────────────────────────────
-      # Generate your own with:
-      #   docker run --rm confluentinc/cp-kafka:7.9.0 kafka-storage random-uuid
       CLUSTER_ID: "hNz3ciwPTzig3iL9jqyQ9w"
     volumes:
       - ./kafka/kafka-server/kafka_server_jaas.conf:/etc/kafka/secrets/kafka_server_jaas.conf:ro
