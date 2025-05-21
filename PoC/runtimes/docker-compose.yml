@@ -126,7 +126,6 @@ services:
       KAFKA_SASL_OAUTHBEARER_CLIENT_ID: "myclient"
       KAFKA_SASL_OAUTHBEARER_CLIENT_SECRET: "mysecret"
       KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "account"
-      #      KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "kafka"
       ## ─── JAAS Config ───────────────────────────────────────────────────────
       KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf"
       KAFKA_LISTENER_NAME_OIDC_OAUTHBEARER_SASL_SERVER_CALLBACK_HANDLER_CLASS: "org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallbackHandler"

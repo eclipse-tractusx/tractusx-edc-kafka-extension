@@ -76,7 +76,7 @@ public class KafkaConsumerApp {
             consumer.subscribe(topics);
             log.info("Consumer started with {} authentication. Waiting for messages...", edrDataList.getFirst().getKafkaSaslMechanism());
             while (true) {
-                final ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+                final ConsumerRecords<String, String> records = consumer.poll(Duration.parse(edrDataList.getFirst().getKafkaPollDuration()));
                 for (final ConsumerRecord<String, String> consumerRecord : records) {
                     log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
                 }
@@ -89,7 +89,7 @@ public class KafkaConsumerApp {
 
         final Properties props = new Properties();
         props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getKafkaBootstrapServers());
-        props.put(GROUP_ID_CONFIG, edrData.getGroupPrefix());
+        props.put(GROUP_ID_CONFIG, edrData.getKafkaGroupPrefix());
         props.put(ENABLE_AUTO_COMMIT_CONFIG, "true"); // Automatically commit offsets
         props.put(AUTO_COMMIT_INTERVAL_MS_CONFIG, "1000");
         props.put(KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

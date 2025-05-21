@@ -37,24 +37,24 @@ public interface KafkaBrokerDataAddressSchema {
     String TOPIC = EDC_NAMESPACE + "topic";
 
     /**
-     * The bootstrap.servers property.
+     * The kafka.bootstrap.servers property.
      */
     String BOOTSTRAP_SERVERS = EDC_NAMESPACE + "kafka.bootstrap.servers";
 
     /**
-     * The duration of the consumer polling.
+     * The kafka.poll.duration property which specifies the duration of the consumer polling.
      * <p>
      * The value should be a ISO-8601 duration e.g. "PT10S" for 10 seconds.
-     * This parameter is optional. Default value is 1s.
+     * This parameter is optional. The default value is 1 second.
      *
      * @see java.time.Duration#parse(CharSequence) for ISO-8601 duration format
      */
-    String POLL_DURATION = EDC_NAMESPACE + "pollDuration";
+    String POLL_DURATION = EDC_NAMESPACE + "kafka.poll.duration";
 
     /**
-     * The groupPrefix that will be allowed to use for the consumer.
+     * The kafka.group.prefix that will be allowed to use for the consumer.
      */
-    String GROUP_PREFIX = EDC_NAMESPACE + "groupPrefix";
+    String GROUP_PREFIX = EDC_NAMESPACE + "kafka.group.prefix";
 
     /**
      * The security.protocol property.

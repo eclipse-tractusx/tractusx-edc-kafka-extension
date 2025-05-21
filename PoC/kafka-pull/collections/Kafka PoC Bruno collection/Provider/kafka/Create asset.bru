@@ -29,7 +29,7 @@ body:json {
       "name": "EDC Kafka asset",
       "kafka.bootstrap.servers": "{{KAFKA_URL}}",
       "topic": "{{KAFKA_TOPIC}}",
-      "pollDuration": "PT5M",
+      "kafka.poll.duration": "PT5M",
       "kafka.sasl.mechanism": "{{KAFKA_SASL_MECHANISM}}",
       "kafka.security.protocol": "{{KAFKA_SECURITY_PROTOCOL}}",
       "tokenUrl": "http://keycloak:8080/realms/kafka/protocol/openid-connect/token",

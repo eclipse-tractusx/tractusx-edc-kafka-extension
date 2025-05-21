@@ -37,15 +37,20 @@ public class EDRData {
     private static final String KAFKA_SECURITY_PROTOCOL = "kafka.security.protocol";
     private static final String KAFKA_SASL_MECHANISM = "kafka.sasl.mechanism";
     private static final String KAFKA_BOOTSTRAP_SERVERS = "kafka.bootstrap.servers";
+    private static final String KAFKA_GROUP_PREFIX = "kafka.group.prefix";
+    private static final String KAFKA_POLL_DURATION = "kafka.poll.duration";
     private String id;
     private String contractId;
     private String endpoint;
     private String topic;
-    private String groupPrefix;
     private String authKey;
     private String authCode;
     private String token;
 
+    @JsonProperty(KAFKA_POLL_DURATION)
+    private String kafkaPollDuration;
+    @JsonProperty(KAFKA_GROUP_PREFIX)
+    private String kafkaGroupPrefix;
     @JsonProperty(KAFKA_SECURITY_PROTOCOL)
     private String kafkaSecurityProtocol;
     @JsonProperty(KAFKA_SASL_MECHANISM)
