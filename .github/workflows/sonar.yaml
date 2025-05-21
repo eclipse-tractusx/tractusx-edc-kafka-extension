@@ -33,7 +33,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Gradle
-        working-directory: PoC
+        working-directory: poc
         run: ./gradlew build
 
   check_sonar_configured:
