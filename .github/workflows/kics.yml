@@ -43,6 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Mkdir kicsResults
+        # make sure kicsResults dir is created
+        run: mkdir -p kicsResults
+
       - name: KICS scan
         uses: checkmarx/kics-github-action@c456d047c6b73a360a5e1deb892e3f90fa372a04 # v2.1.8
         with:
