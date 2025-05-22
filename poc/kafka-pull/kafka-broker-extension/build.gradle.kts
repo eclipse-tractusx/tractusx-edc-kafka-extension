@@ -18,6 +18,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+plugins {
+   jacoco
+}
+
 dependencies {
    implementation(libs.edc.spi.transfer)
    implementation(libs.edc.spi.validator)

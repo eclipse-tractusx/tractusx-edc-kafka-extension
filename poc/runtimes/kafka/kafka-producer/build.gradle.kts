@@ -20,6 +20,7 @@
 
 plugins {
     application
+    jacoco
     alias(libs.plugins.shadow)
 }
 
