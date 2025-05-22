@@ -20,6 +20,7 @@
 
 plugins {
     `java-library`
+    jacoco
 }
 
 dependencies {

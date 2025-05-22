@@ -21,6 +21,7 @@
 plugins {
     application
     alias(libs.plugins.shadow)
+    jacoco
 }
 
 dependencies {
