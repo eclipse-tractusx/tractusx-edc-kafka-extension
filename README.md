@@ -1,5 +1,12 @@
 # Tractus-X EDC Kafka Extension
 
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=eclipse-tractusx_tractusx-edc-kafka-extension&metric=coverage)](https://sonarcloud.io/summary/new_code?id=eclipse-tractusx_tractusx-edc-kafka-extension)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eclipse-tractusx_tractusx-edc-kafka-extension&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eclipse-tractusx_tractusx-edc-kafka-extension)
+[![KICS](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/kics.yml/badge.svg)](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/kics.yml)
+[![Sonar Scan](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/sonar.yaml/badge.svg)](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/sonar.yaml)
+[![CodeQL](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/codeql.yaml/badge.svg)](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/codeql.yaml)
+[![TruffleHog](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/trufflehog.yml/badge.svg)](https://github.com/eclipse-tractusx/tractusx-edc-kafka-extension/actions/workflows/trufflehog.yml)
+
 > **NOTE**: This is an experimental extension that is used to validate conceptual questions.
 > It is not part of the official Eclipse Tractus-X connector offering.
 
