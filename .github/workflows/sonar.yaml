@@ -100,8 +100,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          # --no-daemon keeps CI logs shorter; drop it if you prefer the daemon
-          ./gradlew --no-daemon build testCodeCoverageReport sonar \
+          ./gradlew --no-daemon build testCodeCoverageReport
+          ./gradlew sonar \
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} \
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} \
             -Dsonar.host.url=https://sonarcloud.io \
