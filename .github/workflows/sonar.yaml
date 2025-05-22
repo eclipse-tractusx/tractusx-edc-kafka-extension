@@ -107,4 +107,4 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=$SONAR_TOKEN \
             -Dcheckstyle.skip=true -Dpmd.skip=true \
-            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
+            -Dsonar.coverage.jacoco.xmlReportPaths=${{ github.workspace }}/poc/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
