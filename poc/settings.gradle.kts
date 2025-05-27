@@ -18,7 +18,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-rootProject.name = "Poc"
+rootProject.name = "tractusx-edc-kafka-extension"
 include(":controlplane-local")
 include(":dataplane-local")
 include(":seed-vault")
