@@ -273,14 +273,14 @@ conformity to the
 Standard [CX-0018 Dataspace Connectivity v.3.1.0](https://catenax-ev.github.io/docs/standards/CX-0018-DataspaceConnectivity)
 for chapters 2.1, 2.3, 2.4 and 2.5.
 
-Since the Kafka PULL extension will introduce the new transfer type `Kafka-PULL` the standard has to be extended by this
+Since the Kafka PULL extension will introduce the new transfer type `KafkaBroker-PULL` the standard has to be extended by this
 new type once the extension exits POC state and is introduced as a proper Tractus-X EDC extension.
 
 An example for the extended standard could be:
 
-> 2.2.3 Kafka-PULL
+> 2.2.3 KafkaBroker-PULL
 >
-> A Consumer MUST send a `dspace:TransferRequestMessage` with `dct:format:dspace:Kafka-PULL`.
+> A Consumer MUST send a `dspace:TransferRequestMessage` with `dct:format:dspace:KafkaBroker-PULL`.
 >
 > A Provider MUST send a `dspace:TransferStartMessage` with sufficient information in the
 `dspace:dataAddress` property so that a client connection to the

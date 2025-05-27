@@ -36,10 +36,12 @@ public interface KafkaBrokerDataAddressSchema {
      */
     String TOPIC = EDC_NAMESPACE + "topic";
 
+    String KAFKA_PROPERTIES_PREFIX = EDC_NAMESPACE + "kafka.";
+    String TX_AUTH_NAMESPACE = "https://w3id.org/tractusx/auth/";
     /**
      * The kafka.bootstrap.servers property.
      */
-    String BOOTSTRAP_SERVERS = EDC_NAMESPACE + "kafka.bootstrap.servers";
+    String BOOTSTRAP_SERVERS = KAFKA_PROPERTIES_PREFIX + "bootstrap.servers";
 
     /**
      * The kafka.poll.duration property which specifies the duration of the consumer polling.
@@ -69,7 +71,7 @@ public interface KafkaBrokerDataAddressSchema {
     /**
      * The authentication token.
      */
-    String TOKEN = EDC_NAMESPACE + "token";
+    String TOKEN = EDC_NAMESPACE + "authorization";
 
     /**
      * The OAuth token URL for retrieving access tokens.

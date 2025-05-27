@@ -17,7 +17,7 @@ The extension consists of the following modules:
 
 ## Technical Implementation
 
-The extension implements the `DataFlowController` interface to handle the "Kafka-PULL" transfer type. The main
+The extension implements the `DataFlowController` interface to handle the "KafkaBroker-PULL" transfer type. The main
 controller class, `KafkaBrokerDataFlowController`, manages the following operations:
 
 1. **Start Transfer**: Creates OAuth2 credentials, generates tokens, and builds an Endpoint Data Reference (EDR) for the

@@ -41,6 +41,7 @@ edc-spi-validator = { module = "org.eclipse.edc:validator-spi", version.ref = "e
 edc-spi-token = { module = "org.eclipse.edc:token-spi", version.ref = "edc" }
 edc-spi-transfer = { module = "org.eclipse.edc:transfer-spi", version.ref = "edc" }
 edc-spi-dataplane = { module = "org.eclipse.edc:data-plane-spi", version.ref = "edc" }
+edc-control-plane-transfer = { module = "org.eclipse.edc:control-plane-transfer", version.ref = "edc" }
 
 # Upstream EDC - Core
 edc-core-connector = { module = "org.eclipse.edc:connector-core", version.ref = "edc" }
@@ -63,6 +64,7 @@ edc-data-plane-http-oauth2 = { module = "org.eclipse.edc:data-plane-http-oauth2"
 edc-vault-hashicorp = { module = "org.eclipse.edc:vault-hashicorp", version.ref = "edc" }
 edc-junit-base = { module = "org.eclipse.edc:junit-base", version.ref = "edc" }
 edc-transfer-data-plane-signaling = { module = "org.eclipse.edc:transfer-data-plane-signaling", version.ref = "edc" }
+edc-validator-lib = { module = "org.eclipse.edc:validator-lib", version.ref = "edc" }
 
 # Testing
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }

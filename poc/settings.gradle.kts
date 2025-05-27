@@ -28,6 +28,7 @@ include(":kafka-producer")
 include(":kafka-broker-extension")
 include(":data-address-kafka")
 include(":validator-data-address-kafka")
+include("kafka-pull:kafka-dataplane-extension")
 
 project(":controlplane-local").projectDir = file("runtimes/edc/controlplane-local")
 project(":dataplane-local").projectDir = file("runtimes/edc/dataplane-local")

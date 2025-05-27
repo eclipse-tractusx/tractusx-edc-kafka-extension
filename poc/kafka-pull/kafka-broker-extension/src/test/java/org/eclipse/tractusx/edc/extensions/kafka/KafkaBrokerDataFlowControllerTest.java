@@ -87,7 +87,7 @@ class KafkaBrokerDataFlowControllerTest {
 
         transferProcess = TransferProcess.Builder.newInstance()
                 .contentDataAddress(contentDataAddress)
-                .transferType("Kafka-PULL")
+                .transferType("KafkaBroker-PULL")
                 .contractId("contract")
                 .correlationId("correlation")
                 .id("transferProcessId").build();
@@ -131,7 +131,7 @@ class KafkaBrokerDataFlowControllerTest {
 
     @Test
     void canHandle_ShouldReturnFalse_WhenTransferTypeDoesNotMatch() {
-        transferProcess = TransferProcess.Builder.newInstance().contentDataAddress(contentDataAddress).transferType("Not-Kafka-PULL").build();
+        transferProcess = TransferProcess.Builder.newInstance().contentDataAddress(contentDataAddress).transferType("Not-KafkaBroker-PULL").build();
         boolean result = controller.canHandle(transferProcess);
         assertThat(result).isFalse();
     }
