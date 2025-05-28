@@ -18,6 +18,41 @@ The Kafka Extension offers comprehensive mechanisms for data providers to contro
 - **Access Control Lists (ACLs)**: OAuth scopes are mapped to Kafka ACLs to grant precise topic access.
 - **Token-Based Authorization**: OAuth tokens control Kafka topic access with clearly defined scopes and expiration times.
 
+```mermaid
+sequenceDiagram
+    actor Provider
+    participant ProviderCP as Provider Control Plane
+    participant OAuth2 as OAuth Service
+    participant Kafka as Kafka Service
+    participant ConsumerCP as Consumer Control Plane
+    actor Consumer
+
+    Note over ProviderCP, ConsumerCP: Contract Negotiation
+    Provider->>ProviderCP: Define usage policies for Kafka topics
+    Consumer->>ConsumerCP: Initiate contract negotiation
+    Consumer->>ConsumerCP: Request for EDR
+
+    ConsumerCP->>ProviderCP: Transfer request
+    Note over ProviderCP, OAuth2: Dynamic Credential Provisioning
+    ProviderCP->>OAuth2: Generate credentials
+
+    Note over OAuth2, Kafka: Access Control Lists (ACLs)
+    OAuth2->>Kafka: Map OAuth scopes to Kafka ACLs
+    
+    OAuth2-->>ProviderCP: Credentials created
+    ProviderCP-->>ConsumerCP: Transfer response with credentials
+    ConsumerCP-->>Consumer: Response with EDR
+
+    Note over Consumer, OAuth2: Token-Based Authorization
+    Consumer->>Kafka: Authentication with credentials
+    Kafka->>OAuth2: Validate token & scopes
+    OAuth2-->>Kafka: Authentication success
+    Kafka-->>Consumer: Authentication success
+
+    Consumer->>Kafka: Poll data (with valid token)
+    Kafka-->>Consumer: Polling data
+```
+
 ### 1.2 Access Revocation
 
 The procedure for revoking consumer access includes:
