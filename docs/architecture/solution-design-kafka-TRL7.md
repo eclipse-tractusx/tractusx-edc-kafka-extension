@@ -2,9 +2,8 @@
 
 ## 1. Business Case
 
-The Tractus-X EDC Kafka Extension enables policy-based, event-driven data exchange between sovereign partners via Apache
-Kafka. Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secure, interoperable, and
-production-ready streaming data plane component for Tractus-X.
+The Tractus-X EDC Kafka Extension enables policy-based, event-driven data exchange between sovereign partners via Apache Kafka. 
+Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secure, interoperable, and production-ready streaming data plane component for Tractus-X.
 
 ## 2. Requirements Analysis
 
@@ -57,10 +56,10 @@ production-ready streaming data plane component for Tractus-X.
 
 #### Non-Functional
 
-- Fault tolerance with retries, DLQs, and back-pressure support
-- Full observability: metrics, logging, distributed tracing
-- Secure identity and access control using OAuth2 and mTLS
-- Configurable deployment with HELM/Kustomize
+- Fault tolerance with retries, DLQs, and back-pressure support (? how far do we really need to go here?)
+- Full observability: metrics, logging
+- Secure identity and access control using OAuth2 and SSL
+- Configurable deployment with HELM
 
 #### Compliance
 
@@ -81,7 +80,7 @@ production-ready streaming data plane component for Tractus-X.
 
 - Functional PoC exists with basic Kafka-to-EDC integration
 - No Helm charts or Kubernetes-native configuration
-- Missing error handling, observability, and policy validation
+- Missing error handling and observability
 - Manual testing; lacks test automation and deployment reproducibility
 
 ### 3.2 Data
@@ -90,18 +89,17 @@ production-ready streaming data plane component for Tractus-X.
 
 - Kafka topics used for streaming messages
 - JSON payloads exchanged without schema enforcement
-- No schema registry integration to date
 
 #### 3.2.2 State Management
 
-- Data exchange lifecycle follows internal EDC state machine
+- Data exchange lifecycle follows the EDC state machine
 - Status: `NegotiationStarted`, `ContractAgreed`, `TransferStarted`, `TransferCompleted`
 
 #### 3.2.3 Protection & Risk
 
 - Current setup lacks topic-level access control
 - OAuth role mappings and token validation not tested
-- Kafka traffic not encrypted or isolated
+- Kafka traffic not encrypted (switch to SASL_SSL)
 
 ### 3.3 System
 
@@ -110,9 +108,8 @@ production-ready streaming data plane component for Tractus-X.
 System diagram includes:
 
 - EDC Core + Extensions
-- Kafka Broker + Schema Registry
+- Kafka Broker
 - OAuth2 Provider (Keycloak)
-- Policy Engine
 - Kafka Producer/Consumer apps
 
 #### 3.3.2 Interfaces
@@ -127,9 +124,9 @@ System diagram includes:
 
 #### 4.1.1 System Landscape
 
-- Full-stack deployment on Kubernetes using Helm
+- Full deployment on Kubernetes using Helm
 - Modular EDC Extension with isolated Kafka communication logic
-- Kafka and Schema Registry provisioned via Strimzi or compatible deployment
+- Kafka provisioned via Strimzi or compatible deployment
 
 #### 4.1.2 Component Breakdown
 
@@ -149,24 +146,22 @@ System diagram includes:
 
 - Extend `TransferStartMessage` to include `endpointProperties`
 - `DataAddress` must define Kafka broker URL via `endpoint` property
--
-Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1-RC1/#transfers-providerpid-start-post)
+- Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1-RC1/#transfers-providerpid-start-post)
 
 #### 4.2.3 Fault Tolerance
 
 - Retry/backoff mechanism for failed transfers
-- Support for idempotent processing
+- Support for idempotent processing (safely retry operations without unintended side effects)
 - Chaos tests for Kafka and Keycloak failure scenarios
 
 #### 4.2.4 Observability
 
-- Metrics via Prometheus (consumer lag, transfer time)
-- Logs via Loki and structured JSON logging
-- Distributed traces with OpenTelemetry
+- Metrics via [Micrometer](https://eclipse-edc.github.io/documentation/for-contributors/metrics/)
+- Logs via [EDC Logging](https://eclipse-edc.github.io/documentation/for-contributors/logging/)
 
 ### 4.3 Security Architecture
 
-- mTLS between Kafka and EDC
+- Switch Kafka Security Mechanism from SASL_PLAINTEXT to SASL_SSL
 - JWT/OAuth validation integrated into the Kafka flow
 - Kafka topic ACLs bound to OAuth roles
 - Enhanced test coverage for role-based access
@@ -178,7 +173,7 @@ Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protoc
 #### 5.1.1 Tooling Stack
 
 - GitHub Actions for building, testing, and image publishing
-- Docker and GitHub Container Registry
+- Docker Registry
 - ArgoCD for GitOps deployment
 - Helm for reproducible stack provisioning
 
@@ -207,7 +202,7 @@ Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protoc
 #### 6.1.2 Integration Testing
 
 - Testcontainers-based integration setup simulating real Kafka interaction
-- EDC-like Testcontainer orchestration for full message flow simulation
+- EDC-like Testcontainer orchestration for full message flow simulation https://eclipse-edc.github.io/documentation/for-contributors/testing/#4-integration-tests
 - Focus on resilience and failure handling
 
 #### 6.1.3 End-to-End Testing
@@ -249,13 +244,13 @@ Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protoc
 
 - Modular Helm charts:
     - `edc-core` (EDC + extension)
-    - `infrastructure` (Kafka, Keycloak, Schema Registry)
+    - `infrastructure` (Kafka, Keycloak)
     - `provider` and `consumer` setup split
-    - Optional: separate charts for Kafka Producer/Consumer
+    - Optional: separate charts for Kafka Producer/Consumer Apps
 
 ### 7.3 Documentation
 
-- Solution design + demonstrator architecture in Markdown
+- Solution design and demonstrator architecture in Markdown
 - Setup instructions and commissioning guide
 - EDC extension configuration examples
 
@@ -271,7 +266,7 @@ Reference: [DSP 10.2.3 Transfer Start Endpoint](https://eclipse-dataspace-protoc
 
 - Aligned with EDC conformance profiles
 - Tractus-X Release Guidelines (R25.12) satisfied
-- Kafka Data Transfer Profile to be reviewed (send to Arno Weiss)
+- Kafka Data Transfer Profile to be added (send to Arno Weiss)
 
   See: [DSP Data Transfer Profiles](https://github.com/eclipse-dataspace-protocol-base/dsp_best_practices/tree/main/profiling/data-transfer-profiles)
 
