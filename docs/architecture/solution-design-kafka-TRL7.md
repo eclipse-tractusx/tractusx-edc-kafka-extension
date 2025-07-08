@@ -3,7 +3,7 @@
 ## 1. Business Case
 
 The Tractus-X EDC Kafka Extension enables policy-based, event-driven data exchange between sovereign partners via Apache Kafka. 
-Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secure, interoperable, and production-ready streaming data plane component for Tractus-X.
+Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secure, interoperable, and end-to-end streaming data plane component for Tractus-X.
 
 ## 2. Requirements Analysis
 
@@ -73,15 +73,15 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 #### 3.1.1 Identified User Journeys
 
-- Provider publishes an asset → contract negotiation → consumer receives asset via Kafka
-- Consumer subscribes to Kafka topic → policy check via EDC → message delivery
+- Provider creates EDC asset for a topic → publishes messages to the topic
+- Consumer negotiates contract offer for a topic → subscribes to the topic → message delivery
 
 #### 3.1.2 Current System Capabilities
 
 - Functional PoC exists with basic Kafka-to-EDC integration
 - No Helm charts or Kubernetes-native configuration
 - Missing error handling and observability
-- Manual testing; lacks test automation and deployment reproducibility
+- Manual testing; lacks integration and end-to-end test automation and deployment reproducibility
 
 ### 3.2 Data
 
@@ -99,7 +99,7 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 - Current setup lacks topic-level access control
 - OAuth role mappings and token validation not tested
-- Kafka traffic not encrypted (switch to SASL_SSL)
+- Kafka traffic not encrypted (switch from SASL_PLAINTEXT to SASL_SSL)
 
 ### 3.3 System
 
@@ -243,10 +243,10 @@ System diagram includes:
 ### 7.2 Helm Deployment
 
 - Modular Helm charts:
-    - `edc-core` (EDC + extension)
-    - `infrastructure` (Kafka, Keycloak)
-    - `provider` and `consumer` setup split
-    - Optional: separate charts for Kafka Producer/Consumer Apps
+  - `edc-core` (EDC + extension)
+  - `infrastructure` (Kafka, Keycloak)
+  - `provider` and `consumer` setup split
+  - Optional: separate charts for Kafka Producer/Consumer Apps
 
 ### 7.3 Documentation
 
@@ -259,7 +259,8 @@ System diagram includes:
 ### 8.1 Open Source Compliance
 
 - SPDX headers in all source files
-- Apache 2.0 license included
+- Apache 2.0 license for Code included
+- CC-BY-4.0 license for non-Code included
 - 3rd-party dependency tracking (SBOM)
 
 ### 8.2 Conformance to Tractus-X Standards
@@ -275,3 +276,28 @@ System diagram includes:
 - Architecture Decision Records (ADRs)
 - API documentation (OpenAPI, JSON schema)
 - Testing and release documentation
+
+## 9. Project Management
+
+### 9.1 Stakeholder Analysis
+
+- Tractus-X release coordinators
+- Arno Weiss (reviewer for transfer profiles)
+- Lars Geyer-Blaumeiser (Lead Tractus-X EDC, TAP7.8 Lead)
+
+### 9.2 Open Items List and Decision Log
+
+- How will token expiration be handled in the EDR?
+- Do we need a schema registry?
+
+### 9.3 Risk List
+
+- Compatibility with evolving Tractus-X release guidelines (R25.12)
+
+## NOTICE
+
+This work is licensed under the [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/legalcode).
+
+* SPDX-License-Identifier: CC-BY-4.0
+* SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
+* Source URL: <https://github.com/eclipse-tractusx/tractus-x-umbrella>
