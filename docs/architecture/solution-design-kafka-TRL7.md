@@ -268,7 +268,6 @@ System diagram includes:
 - Aligned with EDC conformance profiles
 - Tractus-X Release Guidelines (R25.12) satisfied
 - Kafka Data Transfer Profile to be added (send to Arno Weiss)
-
   See: [DSP Data Transfer Profiles](https://github.com/eclipse-dataspace-protocol-base/dsp_best_practices/tree/main/profiling/data-transfer-profiles)
 
 ### 8.3 Documentation Assets
@@ -287,7 +286,6 @@ System diagram includes:
 
 ### 9.2 Open Items List and Decision Log
 
-- How will token expiration be handled in the EDR?
 - Do we need a schema registry?
 
 ### 9.3 Risk List
