@@ -153,30 +153,11 @@ flowchart LR
 
 - Full deployment on Kubernetes using Helm
 - Modular EDC Extension with isolated Kafka communication logic
-- Kafka provisioned via Strimzi or compatible deployment
-
-Managed Kafka Operator via 
-- [Strimzi](https://strimzi.io/) Helm Chart https://github.com/strimzi/strimzi-kafka-operator/tree/main/helm-charts/helm3/strimzi-kafka-operator 
-- Bitnami Kafka Helm Chart https://bitnami.com/stack/kafka/helm
+- Kafka Broker running on Kubernetes
 
 ##### Kafka on Kubernetes: Strimzi vs Bitnami Helm Chart
 
-| Feature                        | Strimzi (via Helm Chart)                           | Bitnami Kafka Helm Chart                     |
-|--------------------------------|----------------------------------------------------|----------------------------------------------|
-| **Type**                       | Operator-based                                     | Plain Helm Chart (no operator)               |
-| **Helm Usage**                 | Installs the Strimzi Operator                      | Direct Kafka deployment via Helm             |
-| **Kafka Lifecycle Management** | CRDs for Kafka, Topic, User, etc.                  | Manual configuration updates                 |
-| **Security Features**          | TLS, mTLS, OAuth2, SCRAM, ACLs                     | TLS, basic authentication, SASL, ACLs        |
-| **Scalability**                | Dynamic broker scaling via CRDs                    | Manual Helm upgrade or replica change        |
-| **Observability**              | Prometheus/Grafana, Cruise Control, Kafka Exporter | Prometheus/Grafana support                   |
-| **Kafka Connect, MirrorMaker** | Built-in CRDs                                      | Optional via subcharts or manual setup       |
-| **Rolling Updates**            | Automated                                          | Manual (via Helm upgrade)                    |
-| **Cloud Native Integration**   | Deep Kubernetes-native APIs (CRDs, RBAC)           | Kubernetes-native, but no CRDs               |
-| **Complexity**                 | Higher (learning curve for CRDs and Operator)      | Lower (standard Helm practices)              |
-| **Best For**                   | Production-grade, complex or dynamic environments  | Simpler, lightweight or dev/test deployments |
-| **License**                    | Apache 2.0                                         | Apache 2.0                                   |
-
-> ✅ **Recommendation**: Use **Strimzi** for production clusters requiring full lifecycle automation. Use **Bitnami** for simpler deployments or quick prototypes.
+See ADR [adr-kafka-on-kubernetes.md](../adr/adr-kafka-on-kubernetes.md)
 
 #### 4.1.2 Component Breakdown
 
