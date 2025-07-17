@@ -270,7 +270,7 @@ This way, the provider can choose how long a token will be valid with the potent
 
 #### Hybrid use of Kafka ACLs and OAuth2 roles
 
-TODO
+See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-security.md)
 
 ## 5. Implementation & Deployment
 
