@@ -42,7 +42,7 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 - Apache Kafka serves as the streaming backbone
 - Kubernetes is the target runtime (K3s, Kind, or cloud-native)
-- GitOps approach with ArgoCD; CI/CD managed via GitHub Actions
+- CI/CD managed via GitHub Actions
 - Open-source (Apache 2.0) with SPDX-compliant dependencies
 - Alignment with Eclipse Tractus-X and Catena-X
 
@@ -259,7 +259,6 @@ See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-se
 
 - GitHub Actions for building, testing, and image publishing
 - Docker Registry
-- ArgoCD for GitOps deployment
 - Helm for reproducible stack provisioning
 
 #### 5.1.2 Pipeline Enhancements
