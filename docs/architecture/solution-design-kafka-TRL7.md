@@ -50,9 +50,7 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 #### Functional
 
-- Stream messages over Kafka based on policy-negotiated contracts
-- Automate contract negotiation on event-based triggers
-- Support Kafka subscription and publishing as part of the EDC Data Plane
+- Stream messages over Kafka based on policy-negotiated contracts as part of the EDC
 
 #### Non-Functional
 
