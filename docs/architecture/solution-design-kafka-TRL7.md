@@ -253,7 +253,7 @@ The Kafka Extension consists of the following key components:
 - Retry/backoff mechanism for failed transfers
 - Support for idempotent processing (safely retry operations without unintended side effects)
 - Chaos tests for Kafka and Keycloak failure scenarios
-  - see chapter [6.1.4 Chaos & Load Testing](#614-chaos--load-testing)
+  - see chapter [6.1.4 Chaos & Load Testing](#614-chaos-testing)
 
 #### 4.2.4 Observability
 
@@ -293,7 +293,7 @@ This way, the provider can choose how long a token will be valid with the potent
 
 #### Hybrid use of Kafka ACLs and OAuth2 roles
 
-See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-security.md)
+See ADR [adr-hybrid-oauth2-kafka-acl-security.md](../adr/adr-hybrid-oauth2-kafka-acl-security.md)
 
 ## 5. Implementation & Deployment
 
