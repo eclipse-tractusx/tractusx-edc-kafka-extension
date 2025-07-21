@@ -24,7 +24,7 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 #### 2.1.3 EDC Streaming E2E Test
 
-- Identify and specify relevant user journeys (e.g. asset publishing, contract negotiation)
+- Identify and specify relevant user journeys (e.g., asset publishing, contract negotiation)
 - Derive and define test cases from the user journeys
 - Implement automated E2E tests based on the existing CI/CD pipeline
 - Set up the test environment using HELM charts (EDC, Kafka, Keycloak)
@@ -54,9 +54,8 @@ Advancing the current proof-of-concept (TRL 3) to TRL 7 will demonstrate a secur
 
 #### Non-Functional
 
-- Fault tolerance with retries, DLQs, and back-pressure support (? how far do we really need to go here?)
-- Full observability: metrics, logging
-- Secure identity and access control using OAuth2 and SSL
+- Observability: metrics, logging
+- Secure identity and access control using OAuth2, Kafka ACLs, and SSL
 - Configurable deployment with HELM
 
 #### Compliance
@@ -127,7 +126,8 @@ flowchart LR
         
         Producer --> |"Publishes data"| Kafka
         Producer --> |"Gets token"| Keycloak
-        EDC_Provider --> Kafka
+        Producer --> |"Creates EDC asset and contract"| EDC_Provider
+        EDC_Provider --> |"manage ACLs"| Kafka
         EDC_Provider --> |"Requests token"| Keycloak
     end
     
@@ -137,9 +137,53 @@ flowchart LR
     Kafka --> |"Delivers messages"| Consumer
 ```
 
-#### 3.3.2 Interfaces
+#### 3.3.2 Runtime View
 
-- REST APIs (EDC)
+```mermaid
+---
+config:
+    theme: dark
+---
+sequenceDiagram
+    autonumber
+    participant Producer as Kafka Producer App
+    participant EDC_Provider as EDC + Kafka Extension (Provider)
+    participant Keycloak as OAuth2 Provider (Keycloak)
+    participant Kafka as Kafka Broker
+    participant EDC_Consumer as EDC + Kafka Extension (Consumer)
+    participant Consumer as Kafka Consumer App
+
+    Note over Producer, Consumer: Setup Phase
+    Producer->>EDC_Provider: Creates EDC asset and contract for topic
+    Producer->>Keycloak: Gets authentication token
+    Producer->>Kafka: Publishes data to topic
+
+    Note over Producer, Consumer: Contract Negotiation Phase
+    EDC_Consumer->>EDC_Provider: Negotiates contract for data access
+    EDC_Provider->>Kafka: Manages ACLs for topic access
+    EDC_Provider->>Keycloak: Requests token for broker operations
+    EDC_Provider->>EDC_Consumer: Sends EDR (including token and endpoint)
+    EDC_Consumer-->>Consumer: Passes token from EDR
+
+    Note over Producer, Consumer: Data Consumption Phase
+    Consumer->>Kafka: Pulls data using provided token
+    Kafka->>Consumer: Delivers messages from topic
+```
+
+1. **Asset Creation**: The producer registers the Kafka topic as a data asset in the EDC, creating a contract offer for potential consumers
+2. **Producer Authentication**: The producer obtains an OAuth2 token from Keycloak for authenticating with the kafka broker
+3. **Data Publishing**: The producer application publishes business data to a Kafka topic that will be shared as a data asset
+4. **Contract Negotiation**: The consumer's EDC initiates contract negotiation with the provider to gain access to the desired data asset
+5. **ACL Management**: The provider's EDC extension configures Kafka Access Control Lists (ACLs) to manage who can access the topic
+6. **Provider Token Request**: The EDC provider requests authentication tokens from Keycloak for managing broker operations
+7. **EDR Delivery**: Upon successful negotiation, the provider sends an Endpoint Data Reference (EDR) containing access credentials and endpoint information
+8. **Token Passing**: The consumer EDC passes the authentication token from the EDR to the consumer application
+9. **Data Access**: The consumer application uses the provided token to authenticate and pull data directly from the Kafka broker
+10. **Message Delivery**: Kafka delivers the requested messages from the topic to the authenticated consumer
+
+#### 3.3.3 Interfaces
+
+- REST APIs (EDC, OAuth2 Token)
 - Kafka topics with custom messages
 - DataAddress definitions for Kafka endpoints
 
@@ -279,54 +323,101 @@ See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-se
 
 ### 6.1 Testing Strategy
 
+A comprehensive testing strategy is essential for advancing the Tractus-X EDC Kafka Extension from TRL 3 to TRL 7. 
+This strategy ensures that all components work correctly individually and together, security measures are properly implemented, and the system behaves as expected under various conditions. 
+The testing approach is designed to validate both functional and non-functional requirements, with a particular focus on the security, reliability, and interoperability aspects critical for data space implementations.
+
 #### 6.1.1 Unit Testing
 
-- Expand unit test coverage in EDC Kafka extension
-- Add edge cases and improve assertions
-- Introduce unit tests in the use case demonstrator apps
+Unit testing forms the foundation of our testing pyramid, focusing on validating individual components in isolation:
+
+- Expand unit test coverage in EDC Kafka extension to achieve >80% code coverage
+- Implement comprehensive test suites for all core components:
+  - Kafka Broker Extension
+  - Data Address Kafka
+  - Validator Data Address Kafka
+  - OAuth Service
+- Add edge cases and improve assertions to ensure robustness:
+  - Invalid configurations
+  - Malformed data addresses
+  - Token validation failures
+  - Error handling scenarios
+- Introduce unit tests in the use case demonstrator apps to validate business logic
+- Implement mocking strategies for external dependencies (Kafka, OAuth providers)
+- Use JUnit 5 and Mockito for test implementation
 
 #### 6.1.2 Integration Testing
 
-- Testcontainers-based integration setup simulating real Kafka interaction
-- EDC-like Testcontainer orchestration for full message flow simulation https://eclipse-edc.github.io/documentation/for-contributors/testing/#4-integration-tests
-- Focus on resilience and failure handling
+Integration testing validates the interaction between components and with external systems:
 
-- Is it possible to test role-based access on the integration level?
+- Implement Testcontainers-based integration setup simulating real Kafka interaction
+  - Use Bitnami Kafka container to match production deployment
+  - Configure with SASL_SSL security protocol to validate encryption
+- Set up EDC-like Testcontainer orchestration for full message flow simulation following [EDC integration testing guidelines](https://eclipse-edc.github.io/documentation/for-contributors/testing/#4-integration-tests)
+- Focus on resilience and failure handling:
+  - Connection failures
+  - Timeout scenarios
+  - Retry mechanisms
+  - Error propagation
+- Test the hybrid OAuth2 + Kafka ACL security model:
+  - Validate that OAuth2 tokens are correctly generated and validated
+  - Verify that Kafka ACLs are properly created and enforced
+  - Test the authentication flow on provider level
+  - Test the termination flow for revoking access
+- Implement integration tests for token refresh mechanisms
+- Validate correct behavior when token expiry occurs during active transfers
 
 #### 6.1.3 End-to-End Testing
 
-- Helm-based E2E tests in Kubernetes
+End-to-end testing validates the complete system behavior in a production-like environment:
+
+- Implement Helm-based E2E tests in Kubernetes using the Bitnami Kafka Helm chart
+- Set up automated test environments with all components:
+  - EDC with Kafka extension
+  - Kafka broker with SASL_SSL security
+  - Keycloak for OAuth2 authentication
+  - Producer and consumer applications
 - Validate complete asset negotiation and transfer via Kafka
-- Target: Participation in R25.12 E2E Testing Phase
+- Target: Participation in R25.12 E2E Testing Phase with fully automated test suite
 
 ##### Test Cases
 
 ###### Good Cases
 
-- provider creates an asset → provider publishes a message → consumer negotiates the topic → consumer consumes a message
-- provider creates an asset → provider publishes a message → consumer negotiates the topic → consumer consumes a message → consumer consumes until token expiry → consumer refreshes the transfer process → consumer continues to consumer messages
+- Provider creates an asset → provider publishes a message → consumer negotiates the topic → consumer consumes a message
+- Provider creates an asset → provider publishes a message → consumer negotiates the topic → consumer consumes a message → consumer consumes until token expiry → consumer refreshes the transfer process → consumer continues to consume messages
 
 ###### Bad Cases
 
-- provider creates an asset → provider publishes a faulty message → consumer negotiates the topic → consumer displays the correct error
-- provider creates asset → provider publishes a message → consumer negotiates the topic → negotiation fails
-- provider creates asset → provider publishes a message → consumer negotiates the topic → provider terminates contract → consumer tries to consume a message → consumption fails
-- provider creates asset → provider publishes a message → consumer negotiates the topic → consumer tries to access a different topic with token → access is denied
+- Provider creates an asset → provider publishes a faulty message → consumer negotiates the topic → consumer displays the correct error
+- Provider creates asset → provider publishes a message → consumer negotiates the topic → negotiation fails → consumer cannot access the topic
+- Provider creates asset → provider publishes a message → consumer negotiates the topic → provider terminates contract → consumer tries to consume a message → consumption fails due to revoked ACLs
+- Provider creates asset → provider publishes a message → consumer negotiates the topic → consumer tries to access a different topic with token → access is denied by Kafka ACLs
+- Provider creates asset → consumer negotiates successfully → token expires → consumer attempts to use expired token → access is denied
 
-#### 6.1.4 Chaos & Load Testing
+###### Security-Specific Cases
 
-- Simulate outages for Kafka and Keycloak
-- Determine the need and scope for load testing based on demonstrator results
+- Test the complete authentication flow as described in the hybrid OAuth2 + Kafka ACL security model
+- Validate that ACLs are correctly created when a transfer process starts
+- Verify that ACLs are properly revoked when a transfer process is terminated
+- Test that a consumer cannot access topics after contract termination, even with a valid token
+- Verify that token refresh works correctly and new tokens maintain the same access permissions
 
-##### Test Cases
+#### 6.1.4 Chaos Testing
 
-- Keycloak unavailable
-- Kafka Broker unavailable
+Chaos and load testing validate system behavior under stress and failure conditions:
+
+- Implement chaos testing  in Kubernetes
+- Simulate outages for critical components:
+  - Keycloak unavailable during token refresh
+  - Kafka Broker unavailable during message consumption
 
 #### 6.1.5 Test Data Management
 
-- Evaluate existing test data quality
-- Use pseudo-randomly generated semantic assets (e.g., semantic BOM)
+Effective test data management ensures reproducible and meaningful tests:
+
+- Evaluate existing test data quality and identify gaps
+- Use pseudo-randomly generated semantic assets (e.g. [GetProductionForecast](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shopfloor_information.get_production_forecast/1.0.0/gen/GetProductionForecast.json) and [GetProductionTracking](https://github.com/eclipse-tractusx/sldt-semantic-models/blob/main/io.catenax.shopfloor_information.get_production_tracking/1.0.0/gen/GetProductionTracking.json))
 - Define reproducible datasets for regression testing
 
 ### 6.2 TRL Roadmap
@@ -344,19 +435,26 @@ See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-se
 ### 7.1 Demonstrator Architecture
 
 - Clean, focused use-case with business relevance
-- Implemented via Spring Boot microservices (Kafka Producer & Consumer)
-- Consider publishing as Docker images for use in Helm
-- Do we need to complete the transfer processes once the token is expired? 
-  - Can this be done within the EDC?
-  - Is it possible to do this in the EdrTokenCallbackHandler of the Consumer App?
+- Docker images have to be published for use in the Helm Charts
+- (Optional) Refactor the implementation as Spring Boot microservices (Kafka Producer & Consumer) for easier containerization.
 
 ### 7.2 Helm Deployment
 
-- Modular Helm charts:
-  - `edc-core` (EDC + extension)
-  - `infrastructure` (Kafka, Keycloak)
-  - `provider` and `consumer` setup split
-  - Optional: separate charts for Kafka Producer/Consumer Apps
+#### Helm Chart structure
+
+```
+charts/
+ ├─ tractusx-edc-kafka/  # tractusx-edc with the kafka controlplane runtime image
+ ├─ consumer-app/        # simple helm chart for the kafka consumer 
+ ├─ producer-app/        # simple helm chart for the kafka producer 
+ └─ edc-kafka-demo/      # umbrella chart for testing
+     Chart.yaml          # declares deps: edc-kafka-extension, kafka, keycloak, consumer-app, producer-app
+```
+
+Only the `tractusx-edc-kafka` Chart will be published as Helm Chart. 
+The other charts are only intended for testing.
+
+Docker images are published for the edc-kafka-extension, consumer-app, and producer-app.
 
 ### 7.3 Documentation
 
@@ -390,22 +488,25 @@ See ADR [hybrid-oauth2-kafka-acl-security](../adr/adr-hybrid-oauth2-kafka-acl-se
 
 ### 9.1 Stakeholder Analysis
 
-- Tractus-X release coordinators
-- Arno Weiss (reviewer for transfer profiles)
-- Lars Geyer-Blaumeiser (Lead Tractus-X EDC, TAP7.8 Lead)
+- **Tractus-X Release Coordinators** - Responsible for R25.12 compliance and release integration
+- **Lars Geyer-Blaumeiser** - Tractus-X EDC Lead, TAP7.8 Lead
+  - Key decision maker for EDC architectural alignment
+  - Point of contact for TAP7.2 "Monitoring and Logging"
+- **Arno Weiss** - DSP Transfer Profiles reviewer
+  - Responsible for reviewing and approving the Kafka Data Transfer Profile
+ **Thomas Henn** - Dataspace concepts advisor
+  - Provides guidance on compatibility between push-based messaging patterns and dataspace need-to-know principles
+  - Critical for ensuring architectural decisions align with broader dataspace concepts
 
 ### 9.2 Open Items List and Decision Log
 
-- Do we need a schema registry?
-- Do we want to allow custom configurable token expiry?
-- Do we need Kafka ACLs tied to OAuth roles?
-- How much do we need to implement in terms of fault tolerance with retries, DLQs, and back-pressure support?
-  - Where would the right place for implementation be?
-  - Is this applicable for the EDC extension if we don't proxy any kafka traffic? 
-  - Do we need to implement this in the consumer/provider apps?
-- Do we want to publish the consumer/provider apps as part of this repo?
-  - should they be only used for testing?
-  - do we want dedicated helm charts for the apps?
+- **Schema Registry**: We do not need a schema registry, since this is part of the provider infrastructure and not of the kafka extension. The test data used is based on the already standardized semantic models.
+- **Token Expiry Configuration**: We do not need to allow customizable token expiry. The default of 5 minutes is sufficient.
+- **Kafka ACLs tied to OAuth roles**: Yes, we want to use this approach. If it gets too complex to implement this solution, we need to discuss this further.
+- **Fault tolerance with retries, DLQs, and back-pressure support**: Not relevant for this project. We only need to make sure that the implementation of the EDC extension is resilient towards OAuth2 and Kafka broker failures. The consumer/provider applications are responsible for their own fault tolerance implementation as needed.
+- **Publishing consumer/provider apps**: We need to publish the apps as docker images since we need them for the test setup, and without published docker images, automated testing is not possible. However, for the release only the EDC extension is relevant as the primary deliverable.
+- **Extension release strategy**: We keep it in this repository for now. The general process of how to publish extensions has to be clarified on a general level first. There were some discussions with different opinions on this matter in the past that are not yet resolved.
+- **OAuth flow requirements**: There were some more requirements regarding the OAuth flow. We need to address these concerns and evaluate what the better solution is. We take this discussion to the EDC weekly Tuesdays. We need to find a good middle ground between usability/acceptance and theoretical correctness. The solution has to be good enough to be accepted by the EDC team.
 
 ### 9.3 Risk List
 
