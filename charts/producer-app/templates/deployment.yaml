@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "producer-app.fullname" . }}
+  labels:
+    {{- include "producer-app.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "producer-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "producer-app.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "producer-app.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Kafka Configuration
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ tpl .Values.env.kafkaBootstrapServers . | quote }}
+            - name: KAFKA_PRODUCTION_FORECAST_TOPIC
+              value: {{ .Values.env.kafkaProductionForecastTopic | quote }}
+            - name: KAFKA_PRODUCTION_TRACKING_TOPIC
+              value: {{ .Values.env.kafkaProductionTrackingTopic | quote }}
+            - name: KAFKA_STREAM_TOPIC
+              value: {{ .Values.env.kafkaStreamTopic | quote }}
+            # Keycloak/OAuth Configuration
+            - name: KEYCLOAK_CLIENT_ID
+              value: {{ .Values.env.keycloakClientId | quote }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "producer-app.secretName" . }}
+                  key: {{ .Values.secrets.keys.keycloakClientSecret }}
+            - name: KEYCLOAK_TOKEN_URL
+              value: {{ tpl .Values.env.keycloakTokenUrl . | quote }}
+            - name: KEYCLOAK_REVOKE_URL
+              value: {{ tpl .Values.env.keycloakRevokeUrl . | quote }}
+            - name: VAULT_CLIENT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "producer-app.secretName" . }}
+                  key: {{ .Values.secrets.keys.vaultClientSecretKey }}
+            # EDC Configuration
+            - name: ASSET_ID
+              value: {{ .Values.env.assetId | quote }}
+            - name: FORECAST_ASSET_ID
+              value: {{ .Values.env.forecastAssetId | quote }}
+            - name: TRACKING_ASSET_ID
+              value: {{ .Values.env.trackingAssetId | quote }}
+            - name: EDC_API_AUTH_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "producer-app.secretName" . }}
+                  key: {{ .Values.secrets.keys.edcApiAuthKey }}
+            - name: EDC_MANAGEMENT_URL
+              value: {{ tpl .Values.env.edcManagementUrl . | quote }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ .Values.restartPolicy }}

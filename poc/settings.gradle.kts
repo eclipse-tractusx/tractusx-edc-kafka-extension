@@ -20,6 +20,7 @@
 
 rootProject.name = "tractusx-edc-kafka-extension"
 include(":controlplane-local")
+include(":controlplane-test")
 include(":dataplane-local")
 include(":seed-vault")
 include(":local-services")
@@ -30,6 +31,7 @@ include(":data-address-kafka")
 include(":validator-data-address-kafka")
 
 project(":controlplane-local").projectDir = file("runtimes/edc/controlplane-local")
+project(":controlplane-test").projectDir = file("runtimes/edc/controlplane-test")
 project(":dataplane-local").projectDir = file("runtimes/edc/dataplane-local")
 project(":seed-vault").projectDir = file("runtimes/edc/seed-in-memory-vault")
 project(":local-services").projectDir = file("runtimes/edc/local-services")

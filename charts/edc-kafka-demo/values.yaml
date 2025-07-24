@@ -1,0 +1,191 @@
+kafka:
+  enabled: true
+
+  # ─── Single‑pod KRaft cluster ────────────────────────────────────────────
+  clusterId: "hNz3ciwPTzig3iL9jqyQ9w"
+  kraftVersion: 1
+  controller:
+    replicaCount: 1
+    persistence:
+      enabled: false
+
+  # ─── Listener matrix ─────────────────────────────────────────────────────
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    external:
+      protocol: SASL_PLAINTEXT
+      containerPort: 9095
+
+  externalAccess:
+    enabled: true
+    controller:
+      service:
+        type: LoadBalancer
+        ports:
+          external: 9095
+        loadBalancerNames:
+          - "demo-kafka.demo.svc.cluster.local"
+
+  # ─── SASL / OAUTHBEARER ──────────────────────────────────────────────────
+  sasl:
+    enabledMechanisms: OAUTHBEARER,PLAIN
+    interBrokerMechanism: PLAIN
+    controllerMechanism: PLAIN
+    oauthbearer:
+      jwksEndpointUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/certs"
+      tokenEndpointUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token"
+      expectedAudience: "account"
+
+  # ─── Extra broker properties ─────────────────────────────────────────────
+  overrideConfiguration:
+    # broker‑side validator for JWTs (chart does not add this one)
+    listener.name.external.oauthbearer.sasl.server.callback.handler.class: |
+      org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallbackHandler
+    # single‑node replication tweaks
+    offsets.topic.replication.factor: "1"
+    transaction.state.log.replication.factor: "1"
+    transaction.state.log.min.isr: "1"
+
+  extraEnvVars:
+    - name: KAFKA_OPTS
+      value: |
+        -Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/certs,http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token
+
+keycloak:
+  enabled: true
+  auth:
+    adminUser: admin
+    adminPassword: admin
+  extraEnvVars:
+    - name: KEYCLOAK_EXTRA_ARGS
+      value: "--import-realm"
+  extraVolumes:
+    - name: realm
+      configMap:
+        name: "{{ .Release.Name }}-keycloak-realm-config"
+  extraVolumeMounts:
+      - name: realm
+        mountPath: /opt/bitnami/keycloak/data/import
+        readOnly: true
+  postgresql:
+    auth:
+      postgresPassword: "test"
+      username: bn_keycloak
+      password: "test"
+      database: bitnami_keycloak
+    primary:
+      persistence:
+        enabled: false
+
+consumer-app:
+  enabled: false
+
+producer-app:
+  enabled: true
+  env:
+    # Kafka Configuration
+    kafkaBootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
+    kafkaProductionForecastTopic: "kafka-production-forecast-topic"
+    kafkaProductionTrackingTopic: "kafka-production-tracking-topic"
+    kafkaStreamTopic: "kafka-stream-topic"
+
+    # Keycloak/OAuth Configuration
+    keycloakClientId: "myclient"
+    keycloakClientSecret: "mysecret"
+    keycloakTokenUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token"
+    keycloakRevokeUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/revoke"
+    vaultClientSecretKey: "secretKey"
+
+    # EDC Configuration
+    assetId: "kafka-stream-asset"
+    forecastAssetId: "kafka-forecast-asset"
+    trackingAssetId: "kafka-tracking-asset"
+    edcApiAuthKey: "password"
+    edcManagementUrl: "http://{{ .Release.Name }}-tractusx-connector-controlplane:8081/management"
+
+tractusx-edc-kafka:
+  enabled: true
+  tractusx-connector:
+    postgresql:
+      nameOverride: edc-posgresql
+      jdbcUrl: "jdbc:postgresql://{{ .Release.Name }}-edc-posgresql:5432/edc"
+    participant:
+      id: "BPNLCHANGEME"
+    iatp:
+      id: "did:web:changeme"
+      trustedIssuers: []
+      sts:
+        dim:
+          url: http://test.local
+        oauth:
+          token_url: http://test.local
+          client:
+            id: clientId
+            secret_alias: clientSecretAlias
+    controlplane:
+      image:
+        # override the edc docker image with the kafka extension image
+        repository: "tractusx/edc-controlplane-kafka"
+        pullPolicy: IfNotPresent
+        tag: "test"
+      endpoints:
+        management:
+          authKey: "password"
+      bdrs:
+        server:
+          url: http://test.local
+    dataplane:
+      token:
+        signer:
+          privatekey_alias: privatekey_alias
+        verifier:
+          publickey_alias: publickey_alias
+#    vault:
+#      server:
+#        postStart:
+#          - /bin/sh
+#          - -c
+#          - |
+#            #!/usr/bin/env sh
+#            set -euo pipefail
+#
+#            echo "[postStart] Waiting for Vault to become ready …"
+#            # Wait until Vault is reachable
+#            until vault status >/dev/null 2>&1; do
+#              sleep 2
+#            done
+#
+#            # Wait until the server is unsealed
+#            until vault status -format=json | jq -e '.sealed == false' >/dev/null 2>&1; do
+#              echo "[postStart] Vault still sealed – waiting …"
+#              sleep 2
+#            done
+#            echo "[postStart] Vault is unsealed – writing initial secrets"
+#
+#            # ------------------------------------------------------------------
+#            # 1) OAuth client secret
+#            vault kv put secret/clientSecretAlias content="keycloakClientSecret"
+#
+#            # 2) Private key used by the Data Plane token signer
+#            vault kv put secret/privatekey_alias content="{{ .Values.dataplane.privateKey }}"
+#
+#            # 3) Public key used by the Data Plane token verifier
+#            vault kv put secret/publickey_alias \
+#              content="{{ .Values.dataplane.publicKey }}"
+#
+#            echo "[postStart] Secrets successfully written"
+
+dataplane:
+  privateKey: |-
+    -----BEGIN PRIVATE KEY-----
+    YOUR-PRIVATE-KEY-HERE
+    -----END PRIVATE KEY-----
+  publicKey: |-
+    -----BEGIN PUBLIC KEY-----
+    YOUR-PUBLIC-KEY-HERE
+    -----END PUBLIC KEY-----

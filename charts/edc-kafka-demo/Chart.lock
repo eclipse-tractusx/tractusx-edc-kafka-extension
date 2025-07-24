@@ -1,0 +1,18 @@
+dependencies:
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  version: 32.3.7
+- name: keycloak
+  repository: https://charts.bitnami.com/bitnami
+  version: 24.8.0
+- name: producer-app
+  repository: file://../producer-app
+  version: 0.1.0
+- name: consumer-app
+  repository: file://../consumer-app
+  version: 0.1.0
+- name: tractusx-edc-kafka
+  repository: file://../tractusx-edc-kafka
+  version: 0.1.0
+digest: sha256:8a1c63889b2f1fde67cbe4b7ef108161e9d5a5a6e348410e23603535c43dcead
+generated: "2025-07-23T17:55:10.8814096+02:00"
