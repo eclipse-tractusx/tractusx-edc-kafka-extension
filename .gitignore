@@ -131,3 +131,8 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 /.idea/git_toolbox_prj.xml
+
+### Helm template
+# Chart dependencies
+**/charts/*.tgz
+
