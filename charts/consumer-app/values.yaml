@@ -1,4 +1,4 @@
-# Default values for producer-app.
+# Default values for consumer-app.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -7,7 +7,7 @@ replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: kafka-producer
+  repository: kafka-consumer
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
@@ -21,21 +21,6 @@ fullnameOverride: ""
 
 # Application configuration organized by logical groups
 application:
-  # Kafka Configuration
-  kafka:
-    bootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
-    topics:
-      productionForecast: "kafka-production-forecast-topic"
-      productionTracking: "kafka-production-tracking-topic"
-      stream: "kafka-stream-topic"
-  
-  # Authentication Configuration
-  authentication:
-    oauth2:
-      clientId: "myclient"
-      tokenUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token"
-      revokeUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/revoke"
-  
   # EDC Configuration
   edc:
     managementUrl: "http://{{ .Release.Name }}-edc:8081/management"
@@ -43,6 +28,11 @@ application:
       stream: "kafka-stream-asset"
       forecast: "kafka-forecast-asset"
       tracking: "kafka-tracking-asset"
+  
+  # Provider Configuration
+  provider:
+    id: "BPNL00000003AZQP"
+    protocolUrl: "http://{{ .Release.Name }}-control-plane-alice:8084/api/v1/dsp"
 
 # Secrets configuration for sensitive data
 # When secrets.create is true, sensitive values will be stored in Kubernetes secrets
@@ -52,7 +42,7 @@ secrets:
   create: true
 
   # External secret name - defaults to chart-created name but can be overridden
-  # Empty = use default: {{ include "producer-app.fullname" . }}-secrets
+  # Empty = use default: {{ include "consumer-app.fullname" . }}-secrets
   # For external secrets: specify the external secret name and set create: false
   # 
   # Examples:
@@ -63,21 +53,19 @@ secrets:
   # External secrets (managed outside this chart):
   #   secretName: "my-external-secret"
   #   create: false
-  #   Note: External secret must contain keys: oauth2-client-secret, client-secret-vault-key, edc-api-auth-key
+  #   Note: External secret must contain key: edc-api-key
   secretName: ""
 
   # Sensitive configuration values (will be base64 encoded in the secret)
   # Only used when create: true
-  oauth2ClientSecret: "mysecret"
-  clientSecretVaultKey: "secretKey"
-  edcApiAuthKey: "password"
+  edcApiKey: "password"
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
   # Automatically mount a ServiceAccount's API credentials?
-  # Set to false for security hardening as producer-app doesn't need K8s API access
+  # Set to false for security hardening as consumer-app doesn't need K8s API access
   automount: false
   # Annotations to add to the service account
   annotations: {}
@@ -92,21 +80,36 @@ podAnnotations: {}
 # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
 podLabels: {}
 
+# Security hardening - Pod security context
 podSecurityContext:
+  # Run as non-root group
   fsGroup: 10100
+  # Ensure the filesystem group is applied to all volumes
+  fsGroupChangePolicy: "OnRootMismatch"
+  # Drop all capabilities at pod level
+  seccompProfile:
+    type: RuntimeDefault
 
+# Security hardening - Container security context
 securityContext:
+  # Drop all Linux capabilities
   capabilities:
     drop:
       - ALL
+  # Make root filesystem read-only
   readOnlyRootFilesystem: true
+  # Run as non-root user
   runAsNonRoot: true
   runAsUser: 10100
   runAsGroup: 10100
+  # Prevent privilege escalation
   allowPrivilegeEscalation: false
+  # Use runtime default seccomp profile
+  seccompProfile:
+    type: RuntimeDefault
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
-# Note: producer-app doesn't expose HTTP endpoints, so service is optional
+# Note: consumer-app doesn't expose HTTP endpoints, so service is disabled by default
 service:
   enabled: false
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
@@ -115,20 +118,22 @@ service:
   port: 8080
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-# Note: producer-app doesn't expose HTTP endpoints, so ingress is not needed
+# Note: consumer-app doesn't expose HTTP endpoints, so ingress is not needed
 ingress:
   enabled: false
 
+# Resource limits and requests for security and performance
 resources:
   limits:
-    cpu: 150m
-    memory: 512Mi
+    cpu: 200m
+    memory: 768Mi
   requests:
-    cpu: 50m
-    memory: 256Mi
+    cpu: 100m
+    memory: 512Mi
 
-# Health checks are disabled since producer-app doesn't expose HTTP endpoints
-# The application runs continuously and produces messages to Kafka
+# Health checks are disabled since consumer-app doesn't expose HTTP endpoints
+# The application runs continuously and consumes messages from Kafka
+# Container will be restarted if it exits unexpectedly
 livenessProbe:
   enabled: false
 
@@ -136,6 +141,7 @@ readinessProbe:
   enabled: false
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
+# Disabled by default as consumer apps typically don't need horizontal scaling
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -143,24 +149,35 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# Node selection constraints
 nodeSelector: {}
 
+# Tolerations for pod assignment
 tolerations: []
 
+# Affinity rules for pod assignment
 affinity: {}
 
 # Restart policy for the deployment
 restartPolicy: Always
 
 # Additional volumes on the output Deployment definition.
-volumes: []
-# - name: foo
-#   secret:
-#     secretName: mysecret
-#     optional: false
+volumes:
+  # Add temporary volume for writable directories since root filesystem is read-only
+  - name: tmp
+    emptyDir:
+      sizeLimit: 100Mi
+  - name: logs
+    emptyDir:
+      sizeLimit: 500Mi
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
-# - name: foo
-#   mountPath: "/etc/foo"
-#   readOnly: true
+volumeMounts:
+  # Mount temporary directories for application use
+  - name: tmp
+    mountPath: "/tmp"
+    readOnly: false
+  - name: logs
+    mountPath: "/var/log"
+    readOnly: false
+

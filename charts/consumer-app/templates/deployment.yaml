@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "producer-app.fullname" . }}
+  name: {{ include "consumer-app.fullname" . }}
   labels:
-    {{- include "producer-app.labels" . | nindent 4 }}
+    {{- include "consumer-app.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "producer-app.selectorLabels" . | nindent 6 }}
+      {{- include "consumer-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "producer-app.labels" . | nindent 8 }}
+        {{- include "consumer-app.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +27,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "producer-app.serviceAccountName" . }}
+      serviceAccountName: {{ include "consumer-app.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -41,32 +41,6 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            # Kafka Configuration
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              value: {{ tpl .Values.application.kafka.bootstrapServers . | quote }}
-            - name: KAFKA_PRODUCTION_FORECAST_TOPIC
-              value: {{ .Values.application.kafka.topics.productionForecast | quote }}
-            - name: KAFKA_PRODUCTION_TRACKING_TOPIC
-              value: {{ .Values.application.kafka.topics.productionTracking | quote }}
-            - name: KAFKA_STREAM_TOPIC
-              value: {{ .Values.application.kafka.topics.stream | quote }}
-            # Authentication Configuration
-            - name: AUTH_OAUTH2_CLIENT_ID
-              value: {{ .Values.application.authentication.oauth2.clientId | quote }}
-            - name: AUTH_OAUTH2_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "producer-app.secretName" . }}
-                  key: oauth2-client-secret
-            - name: AUTH_OAUTH2_TOKEN_URL
-              value: {{ tpl .Values.application.authentication.oauth2.tokenUrl . | quote }}
-            - name: AUTH_OAUTH2_REVOKE_URL
-              value: {{ tpl .Values.application.authentication.oauth2.revokeUrl . | quote }}
-            - name: AUTH_CLIENT_SECRET_VAULT_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "producer-app.secretName" . }}
-                  key: client-secret-vault-key
             # EDC Configuration
             - name: EDC_ASSET_STREAM_ID
               value: {{ .Values.application.edc.assets.stream | quote }}
@@ -74,13 +48,18 @@ spec:
               value: {{ .Values.application.edc.assets.forecast | quote }}
             - name: EDC_ASSET_TRACKING_ID
               value: {{ .Values.application.edc.assets.tracking | quote }}
-            - name: EDC_API_AUTH_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "producer-app.secretName" . }}
-                  key: edc-api-auth-key
             - name: EDC_MANAGEMENT_URL
               value: {{ tpl .Values.application.edc.managementUrl . | quote }}
+            - name: EDC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "consumer-app.secretName" . }}
+                  key: edc-api-key
+            # Provider Configuration
+            - name: EDC_PROVIDER_ID
+              value: {{ .Values.application.provider.id | quote }}
+            - name: EDC_PROVIDER_PROTOCOL_URL
+              value: {{ tpl .Values.application.provider.protocolUrl . | quote }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}

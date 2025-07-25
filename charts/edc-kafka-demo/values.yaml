@@ -83,39 +83,60 @@ keycloak:
         enabled: false
 
 consumer-app:
-  enabled: false
+  enabled: true
+  secrets:
+    edcApiKey: "password"
+  application:
+    # EDC Configuration
+    edc:
+      managementUrl: "http://{{ .Release.Name }}-consumer-edc-controlplane:8081/management"
+      assets:
+        stream: "kafka-stream-asset"
+        forecast: "kafka-forecast-asset"
+        tracking: "kafka-tracking-asset"
+
+    # Provider Configuration
+    provider:
+      id: "BPNL000000000B02"
+      protocolUrl: "http://{{ .Release.Name }}-producer-edc-controlplane:8084/api/v1/dsp"
 
 producer-app:
   enabled: true
-  env:
-    # Kafka Configuration
-    kafkaBootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
-    kafkaProductionForecastTopic: "kafka-production-forecast-topic"
-    kafkaProductionTrackingTopic: "kafka-production-tracking-topic"
-    kafkaStreamTopic: "kafka-stream-topic"
+  application:
+    kafka:
+      bootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
+      topics:
+        productionForecast: "kafka-production-forecast-topic"
+        productionTracking: "kafka-production-tracking-topic"
+        stream: "kafka-stream-topic"
 
-    # Keycloak/OAuth Configuration
-    keycloakClientId: "myclient"
-    keycloakClientSecret: "mysecret"
-    keycloakTokenUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token"
-    keycloakRevokeUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/revoke"
-    vaultClientSecretKey: "secretKey"
+    authentication:
+      oauth2:
+        clientId: "myclient"
+        tokenUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token"
+        revokeUrl: "http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/revoke"
 
-    # EDC Configuration
-    assetId: "kafka-stream-asset"
-    forecastAssetId: "kafka-forecast-asset"
-    trackingAssetId: "kafka-tracking-asset"
+    edc:
+      managementUrl: "http://{{ .Release.Name }}-producer-edc-controlplane:8081/management"
+      assets:
+        stream: "kafka-stream-asset"
+        forecast: "kafka-forecast-asset"
+        tracking: "kafka-tracking-asset"
+
+  secrets:
+    oauth2ClientSecret: "mysecret"
+    clientSecretVaultKey: "secretKey"
     edcApiAuthKey: "password"
-    edcManagementUrl: "http://{{ .Release.Name }}-tractusx-connector-controlplane:8081/management"
 
-tractusx-edc-kafka:
+producer-edc:
   enabled: true
   tractusx-connector:
+    nameOverride: producer-edc
     postgresql:
-      nameOverride: edc-posgresql
-      jdbcUrl: "jdbc:postgresql://{{ .Release.Name }}-edc-posgresql:5432/edc"
+      nameOverride: producer-edc-posgresql
+      jdbcUrl: "jdbc:postgresql://{{ .Release.Name }}-producer-edc-posgresql:5432/edc"
     participant:
-      id: "BPNLCHANGEME"
+      id: "BPNL000000000B02"
     iatp:
       id: "did:web:changeme"
       trustedIssuers: []
@@ -142,50 +163,47 @@ tractusx-edc-kafka:
     dataplane:
       token:
         signer:
-          privatekey_alias: privatekey_alias
+          privatekey_alias: tokenSignerPrivateKey
         verifier:
-          publickey_alias: publickey_alias
-#    vault:
-#      server:
-#        postStart:
-#          - /bin/sh
-#          - -c
-#          - |
-#            #!/usr/bin/env sh
-#            set -euo pipefail
-#
-#            echo "[postStart] Waiting for Vault to become ready …"
-#            # Wait until Vault is reachable
-#            until vault status >/dev/null 2>&1; do
-#              sleep 2
-#            done
-#
-#            # Wait until the server is unsealed
-#            until vault status -format=json | jq -e '.sealed == false' >/dev/null 2>&1; do
-#              echo "[postStart] Vault still sealed – waiting …"
-#              sleep 2
-#            done
-#            echo "[postStart] Vault is unsealed – writing initial secrets"
-#
-#            # ------------------------------------------------------------------
-#            # 1) OAuth client secret
-#            vault kv put secret/clientSecretAlias content="keycloakClientSecret"
-#
-#            # 2) Private key used by the Data Plane token signer
-#            vault kv put secret/privatekey_alias content="{{ .Values.dataplane.privateKey }}"
-#
-#            # 3) Public key used by the Data Plane token verifier
-#            vault kv put secret/publickey_alias \
-#              content="{{ .Values.dataplane.publicKey }}"
-#
-#            echo "[postStart] Secrets successfully written"
+          publickey_alias: tokenSignerPublicKey
 
-dataplane:
-  privateKey: |-
-    -----BEGIN PRIVATE KEY-----
-    YOUR-PRIVATE-KEY-HERE
-    -----END PRIVATE KEY-----
-  publicKey: |-
-    -----BEGIN PUBLIC KEY-----
-    YOUR-PUBLIC-KEY-HERE
-    -----END PUBLIC KEY-----
+consumer-edc:
+  enabled: true
+  tractusx-connector:
+    install:
+      vault: false
+    nameOverride: consumer-edc
+    postgresql:
+      nameOverride: consumer-edc-posgresql
+      jdbcUrl: "jdbc:postgresql://{{ .Release.Name }}-consumer-edc-posgresql:5432/edc"
+    participant:
+      id: "BPNL000000000A01"
+    iatp:
+      id: "did:web:changeme"
+      trustedIssuers: []
+      sts:
+        dim:
+          url: http://test.local
+        oauth:
+          token_url: http://test.local
+          client:
+            id: clientId
+            secret_alias: clientSecretAlias
+    controlplane:
+      image:
+        # override the edc docker image with the kafka extension image
+        repository: "tractusx/edc-controlplane-kafka"
+        pullPolicy: IfNotPresent
+        tag: "test"
+      endpoints:
+        management:
+          authKey: "password"
+      bdrs:
+        server:
+          url: http://test.local
+    dataplane:
+      token:
+        signer:
+          privatekey_alias: tokenSignerPrivateKey
+        verifier:
+          publickey_alias: tokenSignerPublicKey

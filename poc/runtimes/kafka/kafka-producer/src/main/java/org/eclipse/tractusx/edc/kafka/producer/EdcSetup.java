@@ -52,10 +52,10 @@ public class EdcSetup {
     void setupEdcOffer() {
         log.info("Setting up EDC offer...");
         try {
-            createAsset(FORECAST_ASSET_ID,  KAFKA_PRODUCTION_FORECAST_TOPIC);
-            createAsset(TRACKING_ASSET_ID,  KAFKA_PRODUCTION_TRACKING_TOPIC);
+            createAsset(EDC_ASSET_FORECAST_ID,  KAFKA_PRODUCTION_FORECAST_TOPIC);
+            createAsset(EDC_ASSET_TRACKING_ID,  KAFKA_PRODUCTION_TRACKING_TOPIC);
             // Default AssetID, Default Topic
-            createAsset(ASSET_ID, KAFKA_STREAM_TOPIC);
+            createAsset(EDC_ASSET_STREAM_ID, KAFKA_STREAM_TOPIC);
             createPolicyDefinition();
             createContractDefinition();
         } catch (final IOException e) {
@@ -128,7 +128,7 @@ public class EdcSetup {
                         "clientSecretKey": "%s"
                       }
                     }
-                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, AUTH_OAUTH2_TOKEN_URL, AUTH_OAUTH2_REVOKE_URL, AUTH_OAUTH2_CLIENT_ID, AUTH_CLIENT_SECRET_VAULT_KEY);
         }
 
         static String getPolicyDefinitionJson() {

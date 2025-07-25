@@ -35,6 +35,9 @@ RUN addgroup --system "$APP_USER" && \
 
 COPY build/libs/controlplane-test.jar /app/application.jar
 
+COPY configuration.properties /app/configuration.properties
+COPY vault.properties /app/vault.properties
+
 USER "$APP_USER"
 
 ENTRYPOINT [ \

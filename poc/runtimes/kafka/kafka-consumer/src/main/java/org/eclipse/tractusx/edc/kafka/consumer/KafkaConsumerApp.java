@@ -36,13 +36,16 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaConsumerApp {
-    public static final String FORECAST_ASSET_ID = System.getenv().getOrDefault("FORECAST_ASSET_ID", "kafka-forecast-asset");
-    public static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
-    static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
-    static final String PROVIDER_ID = System.getenv().getOrDefault("PROVIDER_ID", "BPNL00000003AZQP");
-    static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
+    // EDC Configuration
+    static final String EDC_ASSET_STREAM_ID = System.getenv().getOrDefault("EDC_ASSET_STREAM_ID", "kafka-stream-asset");
+    public static final String EDC_ASSET_FORECAST_ID = System.getenv().getOrDefault("EDC_ASSET_FORECAST_ID", "kafka-forecast-asset");
+    public static final String EDC_ASSET_TRACKING_ID = System.getenv().getOrDefault("EDC_ASSET_TRACKING_ID", "kafka-tracking-asset");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
+    
+    // Provider Configuration
+    static final String EDC_PROVIDER_ID = System.getenv().getOrDefault("EDC_PROVIDER_ID", "BPNL00000003AZQP");
+    static final String EDC_PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("EDC_PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
 
     public static void main(final String[] args) {
         try {
@@ -61,8 +64,8 @@ public class KafkaConsumerApp {
     private static List<EDRData> fetchAllEdrData() throws IOException, InterruptedException {
         final DataTransferClient client = new DataTransferClient();
         return List.of(
-                client.executeDataTransferWorkflow(FORECAST_ASSET_ID),
-                client.executeDataTransferWorkflow(TRACKING_ASSET_ID)
+                client.executeDataTransferWorkflow(EDC_ASSET_FORECAST_ID),
+                client.executeDataTransferWorkflow(EDC_ASSET_TRACKING_ID)
         );
     }
 
