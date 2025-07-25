@@ -34,3 +34,9 @@ Once all pods are started, inspect the consumer-app logs to see the dataflow in 
 ```bash
 kubectl logs deployment/demo-consumer-app -n demo --max-log-requests=1 -f
 ```
+
+### Uninstall
+
+```bash
+helm uninstall demo -n demo
+```
