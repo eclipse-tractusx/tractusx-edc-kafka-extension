@@ -5,8 +5,12 @@
 Build the edc runtimes:
 
 ```bash
-docker build poc/runtimes/edc/dataplane-local -t tractusx/edc-dataplane-kafka:test
-docker build poc/runtimes/edc/controlplane-local -t tractusx/edc-controlplane-kafka:test
+cd poc/
+
+./gradlew build
+
+docker build runtimes/edc/dataplane-local -t tractusx/edc-dataplane-kafka:test
+docker build runtimes/edc/controlplane-local -t tractusx/edc-controlplane-kafka:test
 ```
 
 Update the chart dependencies:
