@@ -161,6 +161,11 @@ producer-edc:
         server:
           url: http://test.local
     dataplane:
+      image:
+        # override the edc docker image with the kafka extension image
+        repository: "tractusx/edc-dataplane-kafka"
+        pullPolicy: IfNotPresent
+        tag: "test"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey
@@ -202,6 +207,11 @@ consumer-edc:
         server:
           url: http://test.local
     dataplane:
+      image:
+        # override the edc docker image with the kafka extension image
+        repository: "tractusx/edc-dataplane-kafka"
+        pullPolicy: IfNotPresent
+        tag: "test"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey
