@@ -239,7 +239,7 @@ The Kafka Extension consists of the following key components:
 - **Asset Registration**: Providers register Kafka topics containing valuable business data as assets in the EDC
 - **Contract-Based Access**: Consumers gain access to these topic-based assets through the standard EDC contract negotiation process
 - **Secure Data Exchange**: Upon successful contract negotiation, consumers receive secure access credentials (OAuth tokens) to consume data from the specific Kafka topics
-- **Data Flow Traceability**: All data exchanges are tracked in the EDC with metadata including contractId, assetId, and timestamps to ensure auditability and compliance ℹ️ TBD how much of this is actually audited in the EDC
+- **Data Flow Traceability**: All data exchanges are tracked in the EDC with metadata including contractId, assetId, and timestamps to ensure auditability and compliance
 
 #### 4.2.2 Interface & Schema Definitions
 
@@ -288,8 +288,7 @@ To limit the risk of unauthorized access to topics, the default Token TTL is set
 
 It is technically possible to verify if a token was revoked, but this requires a custom LoginCallbackHandler, which is only possible by building a custom Docker image for the Kafka Broker. This is not recommended.
 
-**Question: Do we want to allow a configurable Token Expiry – either via EDC configuration or via the Asset?**
-This way, the provider can choose how long a token will be valid with the potential of a higher load on the identity provider due to more token issuance
+There is no need to allow customizable token expiry. The default of 5 minutes is sufficient.
 
 #### Hybrid use of Kafka ACLs and OAuth2 roles
 
@@ -488,13 +487,14 @@ Docker images are published for the edc-kafka-extension, consumer-app, and produ
 
 ### 9.1 Stakeholder Analysis
 
-- **Tractus-X Release Coordinators** - Responsible for R25.12 compliance and release integration
-- **Lars Geyer-Blaumeiser** - Tractus-X EDC Lead, TAP7.8 Lead
+- Tractus-X Release Coordinators 
+  - Responsible for R25.12 compliance and release integration
+- Tractus-X EDC Lead, TAP7.8 Lead
   - Key decision maker for EDC architectural alignment
   - Point of contact for TAP7.2 "Monitoring and Logging"
-- **Arno Weiss** - DSP Transfer Profiles reviewer
+- DSP Expert
   - Responsible for reviewing and approving the Kafka Data Transfer Profile
- **Thomas Henn** - Dataspace concepts advisor
+- Dataspace concepts advisor
   - Provides guidance on compatibility between push-based messaging patterns and dataspace need-to-know principles
   - Critical for ensuring architectural decisions align with broader dataspace concepts
 
