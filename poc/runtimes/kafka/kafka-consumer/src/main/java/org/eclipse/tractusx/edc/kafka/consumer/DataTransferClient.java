@@ -96,7 +96,7 @@ public class DataTransferClient {
      * the consumer management URL, provider ID, and provider protocol URL.
      */
     public DataTransferClient() {
-        this(KafkaConsumerApp.EDC_MANAGEMENT_URL, KafkaConsumerApp.PROVIDER_ID, KafkaConsumerApp.PROVIDER_PROTOCOL_URL);
+        this(KafkaConsumerApp.EDC_MANAGEMENT_URL, KafkaConsumerApp.EDC_PROVIDER_ID, KafkaConsumerApp.EDC_PROVIDER_PROTOCOL_URL);
     }
 
     /**
