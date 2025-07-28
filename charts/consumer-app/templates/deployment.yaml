@@ -60,11 +60,11 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             # EDC Configuration
-            - name: EDC_ASSET_STREAM_ID
+            - name: ASSET_ID
               value: {{ .Values.application.edc.assets.stream | quote }}
-            - name: EDC_ASSET_FORECAST_ID
+            - name: FORECAST_ASSET_ID
               value: {{ .Values.application.edc.assets.forecast | quote }}
-            - name: EDC_ASSET_TRACKING_ID
+            - name: TRACKING_ASSET_ID
               value: {{ .Values.application.edc.assets.tracking | quote }}
             - name: EDC_MANAGEMENT_URL
               value: {{ tpl .Values.application.edc.managementUrl . | quote }}
@@ -74,9 +74,9 @@ spec:
                   name: {{ include "consumer-app.secretName" . }}
                   key: edc-api-key
             # Provider Configuration
-            - name: EDC_PROVIDER_ID
+            - name: PROVIDER_ID
               value: {{ .Values.application.provider.id | quote }}
-            - name: EDC_PROVIDER_PROTOCOL_URL
+            - name: PROVIDER_PROTOCOL_URL
               value: {{ tpl .Values.application.provider.protocolUrl . | quote }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:

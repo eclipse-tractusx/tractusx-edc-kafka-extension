@@ -40,23 +40,18 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
 
 @Slf4j
 public class KafkaProducerApp {
-    // Kafka Configuration
-    static final String KAFKA_BOOTSTRAP_SERVERS = System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
     static final String KAFKA_PRODUCTION_FORECAST_TOPIC = System.getenv().getOrDefault("KAFKA_PRODUCTION_FORECAST_TOPIC", "kafka-production-forecast-topic");
     static final String KAFKA_PRODUCTION_TRACKING_TOPIC = System.getenv().getOrDefault("KAFKA_PRODUCTION_TRACKING_TOPIC", "kafka-production-tracking-topic");
     static final String KAFKA_STREAM_TOPIC = System.getenv().getOrDefault("KAFKA_STREAM_TOPIC", "kafka-stream-topic");
-    
-    // Authentication Configuration
-    static final String AUTH_OAUTH2_CLIENT_ID = System.getenv().getOrDefault("AUTH_OAUTH2_CLIENT_ID", "myclient");
-    static final String AUTH_OAUTH2_CLIENT_SECRET = System.getenv().getOrDefault("AUTH_OAUTH2_CLIENT_SECRET", "mysecret");
-    static final String AUTH_OAUTH2_TOKEN_URL = System.getenv().getOrDefault("AUTH_OAUTH2_TOKEN_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/token");
-    static final String AUTH_OAUTH2_REVOKE_URL = System.getenv().getOrDefault("AUTH_OAUTH2_REVOKE_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/revoke");
-    static final String AUTH_CLIENT_SECRET_VAULT_KEY = System.getenv().getOrDefault("AUTH_CLIENT_SECRET_VAULT_KEY", "secretKey");
-    
-    // EDC Configuration
-    static final String EDC_ASSET_STREAM_ID = System.getenv().getOrDefault("EDC_ASSET_STREAM_ID", "kafka-stream-asset");
-    static final String EDC_ASSET_FORECAST_ID = System.getenv().getOrDefault("EDC_ASSET_FORECAST_ID", "kafka-forecast-asset");
-    static final String EDC_ASSET_TRACKING_ID = System.getenv().getOrDefault("EDC_ASSET_TRACKING_ID", "kafka-tracking-asset");
+    static final String KEYCLOAK_CLIENT_ID = System.getenv().getOrDefault("KEYCLOAK_CLIENT_ID", "default");
+    static final String KEYCLOAK_CLIENT_SECRET = System.getenv().getOrDefault("KEYCLOAK_CLIENT_SECRET", "mysecret");
+    static final String VAULT_CLIENT_SECRET_KEY = System.getenv().getOrDefault("VAULT_CLIENT_SECRET_KEY", "secretKey");
+    static final String KEYCLOAK_TOKEN_URL = System.getenv().getOrDefault("KEYCLOAK_TOKEN_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/token");
+    static final String KEYCLOAK_REVOKE_URL = System.getenv().getOrDefault("KEYCLOAK_REVOKE_URL", "http://localhost:8080/realms/kafka/protocol/openid-connect/revoke");
+    static final String KAFKA_BOOTSTRAP_SERVERS = System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
+    static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
+    static final String FORECAST_ASSET_ID = System.getenv().getOrDefault("FORECAST_ASSET_ID", "kafka-forecast-asset");
+    static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
     static final String EDC_API_AUTH_KEY = System.getenv().getOrDefault("EDC_API_AUTH_KEY", "password");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
 
@@ -179,17 +174,17 @@ public class KafkaProducerApp {
         props.put(SASL_MECHANISM, "OAUTHBEARER");
 
         // OAuth properties
-        props.put(SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL, AUTH_OAUTH2_TOKEN_URL);
-        props.put("sasl.oauthbearer.client.id", AUTH_OAUTH2_CLIENT_ID);
-        props.put("sasl.oauthbearer.client.secret", AUTH_OAUTH2_CLIENT_SECRET);
+        props.put(SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL, KEYCLOAK_TOKEN_URL);
+        props.put("sasl.oauthbearer.client.id", KEYCLOAK_CLIENT_ID);
+        props.put("sasl.oauthbearer.client.secret", KEYCLOAK_CLIENT_SECRET);
         props.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS,
                 "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler");
 
         // JAAS configuration for OAuth2
         props.put(SASL_JAAS_CONFIG,
                 "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
-                        "clientId=\"" + AUTH_OAUTH2_CLIENT_ID + "\" " +
-                        "clientSecret=\"" + AUTH_OAUTH2_CLIENT_SECRET + "\";"
+                        "clientId=\"" + KEYCLOAK_CLIENT_ID + "\" " +
+                        "clientSecret=\"" + KEYCLOAK_CLIENT_SECRET + "\";"
         );
 
         return new KafkaProducer<>(props);

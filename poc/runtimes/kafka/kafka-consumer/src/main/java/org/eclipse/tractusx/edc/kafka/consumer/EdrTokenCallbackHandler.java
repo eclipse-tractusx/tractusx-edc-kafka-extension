@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.kafka.common.config.SaslConfigs.SASL_OAUTHBEARER_SCOPE_CLAIM_NAME;
-import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.EDC_ASSET_STREAM_ID;
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.ASSET_ID;
 
 /**
  * Callback handler that retrieves an OAuth bearer token from EDRData and converts it to
@@ -178,7 +178,7 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
 
         @Override
         public EDRData getEdrData() throws IOException, InterruptedException {
-            return new DataTransferClient().executeDataTransferWorkflow(EDC_ASSET_STREAM_ID);
+            return new DataTransferClient().executeDataTransferWorkflow(ASSET_ID);
         }
     }
 }

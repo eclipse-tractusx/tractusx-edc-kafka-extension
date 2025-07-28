@@ -69,28 +69,28 @@ spec:
             - name: KAFKA_STREAM_TOPIC
               value: {{ .Values.application.kafka.topics.stream | quote }}
             # Authentication Configuration
-            - name: AUTH_OAUTH2_CLIENT_ID
+            - name: KEYCLOAK_CLIENT_ID
               value: {{ .Values.application.authentication.oauth2.clientId | quote }}
-            - name: AUTH_OAUTH2_CLIENT_SECRET
+            - name: KEYCLOAK_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "producer-app.secretName" . }}
                   key: oauth2-client-secret
-            - name: AUTH_OAUTH2_TOKEN_URL
+            - name: KEYCLOAK_TOKEN_URL
               value: {{ tpl .Values.application.authentication.oauth2.tokenUrl . | quote }}
-            - name: AUTH_OAUTH2_REVOKE_URL
+            - name: KEYCLOAK_REVOKE_URL
               value: {{ tpl .Values.application.authentication.oauth2.revokeUrl . | quote }}
-            - name: AUTH_CLIENT_SECRET_VAULT_KEY
+            - name: VAULT_CLIENT_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "producer-app.secretName" . }}
                   key: client-secret-vault-key
             # EDC Configuration
-            - name: EDC_ASSET_STREAM_ID
+            - name: ASSET_ID
               value: {{ .Values.application.edc.assets.stream | quote }}
-            - name: EDC_ASSET_FORECAST_ID
+            - name: FORECAST_ASSET_ID
               value: {{ .Values.application.edc.assets.forecast | quote }}
-            - name: EDC_ASSET_TRACKING_ID
+            - name: TRACKING_ASSET_ID
               value: {{ .Values.application.edc.assets.tracking | quote }}
             - name: EDC_API_AUTH_KEY
               valueFrom:
