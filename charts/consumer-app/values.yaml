@@ -132,11 +132,6 @@ service:
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 8080
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-# Note: consumer-app doesn't expose HTTP endpoints, so ingress is not needed
-ingress:
-  enabled: false
-
 # Resource limits and requests for security and performance
 resources:
   limits:
@@ -155,15 +150,6 @@ livenessProbe:
 readinessProbe:
   enabled: false
 
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-# Disabled by default as consumer apps typically don't need horizontal scaling
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
 # Node selection constraints
 nodeSelector: {}
 
@@ -177,22 +163,14 @@ affinity: {}
 restartPolicy: Always
 
 # Additional volumes on the output Deployment definition.
-volumes:
-  # Add temporary volume for writable directories since root filesystem is read-only
-  - name: tmp
-    emptyDir:
-      sizeLimit: 100Mi
-  - name: logs
-    emptyDir:
-      sizeLimit: 500Mi
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
 
 # Additional volumeMounts on the output Deployment definition.
-volumeMounts:
-  # Mount temporary directories for application use
-  - name: tmp
-    mountPath: "/tmp"
-    readOnly: false
-  - name: logs
-    mountPath: "/var/log"
-    readOnly: false
-
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true

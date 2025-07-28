@@ -129,11 +129,6 @@ service:
   # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 8080
 
-# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
-# Note: producer-app doesn't expose HTTP endpoints, so ingress is not needed
-ingress:
-  enabled: false
-
 resources:
   limits:
     cpu: 150m
@@ -149,14 +144,6 @@ livenessProbe:
 
 readinessProbe:
   enabled: false
-
-# This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

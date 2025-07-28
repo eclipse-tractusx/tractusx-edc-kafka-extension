@@ -48,6 +48,7 @@ kafka:
         ports:
           external: 9095
         loadBalancerNames:
+          # cannot be templated so has to be adjusted manually when using a different release name and/or namespace
           - "demo-kafka.demo.svc.cluster.local"
 
   # ─── SASL / OAUTHBEARER ──────────────────────────────────────────────────
@@ -62,7 +63,7 @@ kafka:
 
   # ─── Extra broker properties ─────────────────────────────────────────────
   overrideConfiguration:
-    # broker‑side validator for JWTs (chart does not add this one)
+    # broker‑side validator for JWTs
     listener.name.external.oauthbearer.sasl.server.callback.handler.class: |
       org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallbackHandler
     # single‑node replication tweaks
@@ -100,6 +101,16 @@ keycloak:
     primary:
       persistence:
         enabled: false
+  livenessProbe:
+    initialDelaySeconds: 120
+    periodSeconds: 1
+    timeoutSeconds: 5
+    failureThreshold: 10
+  readinessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+    timeoutSeconds: 1
+    failureThreshold: 10
 
 consumer-app:
   enabled: true
