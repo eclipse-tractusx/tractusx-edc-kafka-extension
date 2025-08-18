@@ -41,7 +41,6 @@ import org.eclipse.edc.spi.types.domain.transfer.FlowType;
 import org.eclipse.edc.spi.types.domain.transfer.TransferType;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -170,26 +169,10 @@ class KafkaBrokerDataFlowControllerTest {
     }
 
     @Test
-    @Disabled
-    void suspend_ShouldReturnFailure_WhenMissedSecret() {
-        StatusResult<?> result = controller.suspend(transferProcess);
-        assertThat(result.fatalError()).isTrue();
-        assertThat(SUSPEND_FAILED + SECRET_NOT_DEFINED.formatted(NOT_DEFINED_SECRET_KEY)).isEqualTo(result.getFailureDetail());
-    }
-
-    @Test
     void terminate_ShouldReturnSuccess_WhenOperationSucceeds() {
         when(vault.resolveSecret(any())).thenReturn(SECRET_KEY);
         StatusResult<?> result = controller.terminate(transferProcess);
         assertThat(result.succeeded()).isTrue();
-    }
-
-    @Test
-    @Disabled
-    void terminate_ShouldReturnFailure_WhenMissedSecret() {
-        StatusResult<?> result = controller.terminate(transferProcess);
-        assertThat(result.fatalError()).isTrue();
-        assertThat(TERMINATE_FAILED + SECRET_NOT_DEFINED.formatted(NOT_DEFINED_SECRET_KEY)).isEqualTo(result.getFailureDetail());
     }
 }
 

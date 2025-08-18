@@ -20,6 +20,7 @@ package org.eclipse.tractusx.edc.extensions.kafka.auth;
 
 import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
 import org.eclipse.edc.iam.oauth2.spi.client.SharedSecretOauth2CredentialsRequest;
+import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.iam.TokenRepresentation;
 import org.eclipse.edc.spi.result.Result;
 
@@ -38,6 +39,7 @@ public class KafkaOAuthServiceImpl implements KafkaOAuthService {
     /**
      * Always performs a client_credentials flow and returns a fresh token.
      */
+    @Override
     public TokenRepresentation getAccessToken(final OAuthCredentials creds) {
         var request = SharedSecretOauth2CredentialsRequest.Builder.newInstance()
                 .clientId(creds.clientId())
@@ -47,7 +49,7 @@ public class KafkaOAuthServiceImpl implements KafkaOAuthService {
                 .build();
         Result<TokenRepresentation> result = oauth2Client.requestToken(request);
         if (result.failed()) {
-            throw new RuntimeException("Failed to obtain OAuth2 token: " + result.getFailureDetail());
+            throw new EdcException("Failed to obtain OAuth2 token: " + result.getFailureDetail());
         }
         return result.getContent();
     }

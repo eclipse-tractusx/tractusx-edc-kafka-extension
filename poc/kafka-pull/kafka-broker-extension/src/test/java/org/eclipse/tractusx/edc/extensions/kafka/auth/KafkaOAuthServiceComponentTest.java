@@ -25,6 +25,7 @@ import org.eclipse.edc.http.spi.EdcHttpClient;
 import org.eclipse.edc.iam.oauth2.client.Oauth2ClientImpl;
 import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
 import org.eclipse.edc.json.JacksonTypeManager;
+import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.iam.TokenRepresentation;
 import org.eclipse.edc.spi.result.Result;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,7 +127,7 @@ class KafkaOAuthServiceComponentTest {
 
         // Act & Assert
         assertThatThrownBy(() -> oauthService.getAccessToken(credentials))
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(EdcException.class)
                 .hasMessageContaining("Failed to obtain OAuth2 token:");
         verify(mockHttpClient, times(1)).execute(any(Request.class), any(List.class), any(Function.class));
     }

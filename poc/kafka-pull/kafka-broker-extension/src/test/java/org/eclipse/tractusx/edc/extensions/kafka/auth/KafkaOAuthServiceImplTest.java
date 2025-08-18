@@ -19,6 +19,7 @@
 package org.eclipse.tractusx.edc.extensions.kafka.auth;
 
 import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
+import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.iam.TokenRepresentation;
 import org.eclipse.edc.spi.result.Result;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,7 +71,7 @@ class KafkaOAuthServiceImplTest {
             when(mockOauth2Client.requestToken(any())).thenReturn(Result.failure("Reason"));
 
             // Act & Assert
-            RuntimeException exception = assertThrows(RuntimeException.class,
+            RuntimeException exception = assertThrows(EdcException.class,
                     () -> oauthService.getAccessToken(oauthCredentials()));
             assertEquals("Failed to obtain OAuth2 token: Reason", exception.getMessage());
             verify(mockOauth2Client, times(1)).requestToken(any());
