@@ -7,7 +7,7 @@ edc = "0.10.1"
 junit = "5.11.3"
 assertj = "3.26.3"
 mockito = "5.18.0"
-testcontainers = "1.20.3"
+testcontainers = "1.21.3"
 failsafe = "3.3.2"
 shadow = "8.3.5"
 kafka = "3.7.0"
@@ -73,6 +73,7 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-vault = { module = "org.testcontainers:vault", version.ref = "testcontainers" }
 

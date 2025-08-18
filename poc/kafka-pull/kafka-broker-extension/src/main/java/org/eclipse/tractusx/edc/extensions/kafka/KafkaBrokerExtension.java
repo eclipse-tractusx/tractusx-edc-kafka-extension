@@ -22,14 +22,13 @@ package org.eclipse.tractusx.edc.extensions.kafka;
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowManager;
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.DataFlowPropertiesProvider;
 import org.eclipse.edc.connector.controlplane.transfer.spi.flow.TransferTypeParser;
-import org.eclipse.edc.http.spi.EdcHttpClient;
+import org.eclipse.edc.iam.oauth2.spi.client.Oauth2Client;
 import org.eclipse.edc.runtime.metamodel.annotation.Extension;
 import org.eclipse.edc.runtime.metamodel.annotation.Inject;
 import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
-import org.eclipse.edc.spi.types.TypeManager;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
 
 import java.util.Map;
@@ -49,10 +48,7 @@ public class KafkaBrokerExtension implements ServiceExtension {
     private Vault vault;
 
     @Inject
-    private TypeManager typeManager;
-
-    @Inject
-    private EdcHttpClient httpClient;
+    private Oauth2Client oauth2Client;
 
     @Inject(required = false)
     private DataFlowPropertiesProvider propertiesProvider;
@@ -63,7 +59,7 @@ public class KafkaBrokerExtension implements ServiceExtension {
 
     @Override
     public void initialize(final ServiceExtensionContext context) {
-        var kafkaOAuthService = new KafkaOAuthServiceImpl(httpClient, typeManager.getMapper());
+        var kafkaOAuthService = new KafkaOAuthServiceImpl(oauth2Client);
         var controller = new KafkaBrokerDataFlowController(vault, kafkaOAuthService, transferTypeParser, getPropertiesProvider());
         dataFlowManager.register(controller);
     }

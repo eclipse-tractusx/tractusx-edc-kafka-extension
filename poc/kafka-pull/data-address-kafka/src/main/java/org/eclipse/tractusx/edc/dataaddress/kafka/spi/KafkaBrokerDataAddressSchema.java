@@ -26,6 +26,12 @@ import static org.eclipse.edc.spi.constants.CoreConstants.EDC_NAMESPACE;
  */
 public interface KafkaBrokerDataAddressSchema {
 
+    String KAFKA_BOOTSTRAP_SERVERS_PROPERTY = "bootstrap.servers";
+    String KAFKA_SECURITY_PROTOCOL_PROPERTY = "security.protocol";
+    String KAFKA_SASL_MECHANISM_PROPERTY = "sasl.mechanism";
+
+    String KAFKA_PROPERTIES_PREFIX = EDC_NAMESPACE + "kafka.";
+
     /**
      * The transfer type.
      */
@@ -36,12 +42,10 @@ public interface KafkaBrokerDataAddressSchema {
      */
     String TOPIC = EDC_NAMESPACE + "topic";
 
-    String KAFKA_PROPERTIES_PREFIX = EDC_NAMESPACE + "kafka.";
-    String TX_AUTH_NAMESPACE = "https://w3id.org/tractusx/auth/";
     /**
      * The kafka.bootstrap.servers property.
      */
-    String BOOTSTRAP_SERVERS = KAFKA_PROPERTIES_PREFIX + "bootstrap.servers";
+    String BOOTSTRAP_SERVERS = KAFKA_PROPERTIES_PREFIX + KAFKA_BOOTSTRAP_SERVERS_PROPERTY;
 
     /**
      * The kafka.poll.duration property which specifies the duration of the consumer polling.
@@ -51,25 +55,25 @@ public interface KafkaBrokerDataAddressSchema {
      *
      * @see java.time.Duration#parse(CharSequence) for ISO-8601 duration format
      */
-    String POLL_DURATION = EDC_NAMESPACE + "kafka.poll.duration";
+    String POLL_DURATION = KAFKA_PROPERTIES_PREFIX + "poll.duration";
 
     /**
      * The kafka.group.prefix that will be allowed to use for the consumer.
      */
-    String GROUP_PREFIX = EDC_NAMESPACE + "kafka.group.prefix";
+    String GROUP_PREFIX = KAFKA_PROPERTIES_PREFIX + "group.prefix";
 
     /**
      * The security.protocol property.
      */
-    String PROTOCOL = EDC_NAMESPACE + "kafka.security.protocol";
+    String PROTOCOL = KAFKA_PROPERTIES_PREFIX + KAFKA_SECURITY_PROTOCOL_PROPERTY;
 
     /**
      * The sasl.mechanism property.
      */
-    String MECHANISM = EDC_NAMESPACE + "kafka.sasl.mechanism";
+    String MECHANISM = KAFKA_PROPERTIES_PREFIX + KAFKA_SASL_MECHANISM_PROPERTY;
 
     /**
-     * The authentication token.
+     * The authorization token.
      */
     String TOKEN = EDC_NAMESPACE + "authorization";
 
@@ -77,11 +81,6 @@ public interface KafkaBrokerDataAddressSchema {
      * The OAuth token URL for retrieving access tokens.
      */
     String OAUTH_TOKEN_URL = EDC_NAMESPACE + "tokenUrl";
-
-    /**
-     * The OAuth revoke URL for invalidating tokens.
-     */
-    String OAUTH_REVOKE_URL = EDC_NAMESPACE + "revokeUrl";
 
     /**
      * The OAuth client ID.

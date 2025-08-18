@@ -41,7 +41,6 @@ class KafkaBrokerDataAddressValidatorTest {
                 .property(MECHANISM, "OAUTHBEARER")
                 .property(PROTOCOL, "SASL_PLAINTEXT")
                 .property(OAUTH_TOKEN_URL, "http://keycloak/token")
-                .property(OAUTH_REVOKE_URL, "http://keycloak/revoke")
                 .property(OAUTH_CLIENT_ID, "client-id")
                 .property(OAUTH_CLIENT_SECRET_KEY, "clientSecretKey")
                 .build();
@@ -62,6 +61,6 @@ class KafkaBrokerDataAddressValidatorTest {
         assertThat(result).isFailed().extracting(ValidationFailure::getViolations)
                 .satisfies(violations -> assertThat(violations).extracting(Violation::path)
                         .containsExactlyInAnyOrder(TOPIC, BOOTSTRAP_SERVERS, MECHANISM, PROTOCOL, OAUTH_TOKEN_URL,
-                                OAUTH_REVOKE_URL, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET_KEY));
+                                OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET_KEY));
     }
 }

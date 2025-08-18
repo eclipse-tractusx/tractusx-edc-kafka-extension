@@ -28,7 +28,6 @@ include(":kafka-producer")
 include(":kafka-broker-extension")
 include(":data-address-kafka")
 include(":validator-data-address-kafka")
-include("kafka-pull:kafka-dataplane-extension")
 
 project(":controlplane-local").projectDir = file("runtimes/edc/controlplane-local")
 project(":dataplane-local").projectDir = file("runtimes/edc/dataplane-local")
@@ -39,4 +38,3 @@ project(":kafka-producer").projectDir = file("runtimes/kafka/kafka-producer")
 project(":kafka-broker-extension").projectDir = file("kafka-pull/kafka-broker-extension")
 project(":data-address-kafka").projectDir = file("kafka-pull/data-address-kafka")
 project(":validator-data-address-kafka").projectDir = file("kafka-pull/validator-data-address-kafka")
-

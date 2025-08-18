@@ -27,6 +27,7 @@ import org.eclipse.edc.connector.controlplane.transfer.spi.types.DataFlowRespons
 import org.eclipse.edc.connector.controlplane.transfer.spi.types.TransferProcess;
 import org.eclipse.edc.policy.model.Policy;
 import org.eclipse.edc.spi.EdcException;
+import org.eclipse.edc.spi.iam.TokenRepresentation;
 import org.eclipse.edc.spi.response.ResponseStatus;
 import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
@@ -90,14 +91,14 @@ class KafkaBrokerDataFlowController implements DataFlowController {
 
         var contentDataAddress = transferProcess.getContentDataAddress();
 
-        String token;
+        TokenRepresentation token;
         try {
             OAuthCredentials creds = extractOAuthCredentials(contentDataAddress);
             token = oauthService.getAccessToken(creds);
         } catch (EdcException e) {
             return StatusResult.failure(ResponseStatus.FATAL_ERROR, START_FAILED + e.getMessage());
         }
-        vault.storeSecret(transferProcess.getId(), token);
+        vault.storeSecret(transferProcess.getId(), token.getToken());
 
         var pollDuration = Optional.ofNullable(contentDataAddress.getStringProperty(POLL_DURATION)).orElse(DEFAULT_POLL_DURATION);
 
@@ -109,12 +110,12 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         return StatusResult.success(dataFlowResponse);
     }
 
-    private DataAddress buildDataAddress(Policy policy, String token, DataAddress contentDataAddress, String pollDuration) {
+    private DataAddress buildDataAddress(Policy policy, TokenRepresentation token, DataAddress contentDataAddress, String pollDuration) {
         return DataAddress.Builder.newInstance()
                 .type(KAFKA_DATA_TYPE)
                 .property(EDC_NAMESPACE + "endpointType", KAFKA_DATA_TYPE)
                 .property(EDC_NAMESPACE + "flowType", "PULL")
-                .property(EDC_NAMESPACE + "authorization", token)
+                .property(EDC_NAMESPACE + "authorization", token.getToken())
                 .property(EDC_NAMESPACE + "transferTypeDestination", "KafkaBroker")
                 .property(EDC_NAMESPACE + "endpoint", contentDataAddress.getStringProperty(BOOTSTRAP_SERVERS))
                 .property(TOPIC, contentDataAddress.getStringProperty(TOPIC))
@@ -122,17 +123,16 @@ class KafkaBrokerDataFlowController implements DataFlowController {
                 .property(MECHANISM, contentDataAddress.getStringProperty(MECHANISM))
                 .property(GROUP_PREFIX, policy.getAssignee())
                 .property(POLL_DURATION, pollDuration)
-                .property(TX_AUTH_NAMESPACE + "expiresIn", "300")
+                .property(TX_AUTH_NAMESPACE + "expiresIn", token.getExpiresIn().toString())
                 .build();
     }
 
     private OAuthCredentials extractOAuthCredentials(final DataAddress contentDataAddress) {
         var tokenUrl = contentDataAddress.getStringProperty(OAUTH_TOKEN_URL);
-        var revokeUrl = Optional.ofNullable(contentDataAddress.getStringProperty(OAUTH_REVOKE_URL));
         var clientId = contentDataAddress.getStringProperty(OAUTH_CLIENT_ID);
         var clientSecret = getSecret(contentDataAddress.getStringProperty(OAUTH_CLIENT_SECRET_KEY));
 
-        return new OAuthCredentials(tokenUrl, revokeUrl, clientId, clientSecret);
+        return new OAuthCredentials(tokenUrl, clientId, clientSecret);
     }
 
     @Override
@@ -156,13 +156,9 @@ class KafkaBrokerDataFlowController implements DataFlowController {
 
     private StatusResult<Void> deleteCredentialsAndRevokeAccess(final TransferProcess transferProcess, final String error) {
         try {
-            var contentDataAddress = transferProcess.getContentDataAddress();
             var transferProcessId = transferProcess.getId();
 
-            OAuthCredentials creds = extractOAuthCredentials(contentDataAddress);
-            String token = getSecret(transferProcessId);
 
-            oauthService.revokeToken(creds, token);
             vault.deleteSecret(transferProcessId);
 
             return StatusResult.success();
