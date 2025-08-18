@@ -23,7 +23,6 @@ import org.eclipse.edc.spi.EdcException;
 import org.eclipse.edc.spi.iam.TokenRepresentation;
 import org.eclipse.edc.spi.result.Result;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,41 +39,39 @@ class KafkaOAuthServiceImplTest {
     private Oauth2Client mockOauth2Client;
     private KafkaOAuthServiceImpl oauthService;
 
+    private static OAuthCredentials oauthCredentials() {
+        return new OAuthCredentials(TOKEN_URL, CLIENT_ID, CLIENT_SECRET);
+    }
+
     @BeforeEach
     void setUp() {
         mockOauth2Client = mock(Oauth2Client.class);
         oauthService = new KafkaOAuthServiceImpl(mockOauth2Client);
     }
 
-    @Nested
-    class GetAccessTokenTests {
-        private static OAuthCredentials oauthCredentials() {
-            return new OAuthCredentials(TOKEN_URL, CLIENT_ID, CLIENT_SECRET);
-        }
+    @Test
+    void shouldReturnAccessToken_whenResponseIsSuccessful() {
+        // Arrange
+        when(mockOauth2Client.requestToken(any())).thenReturn(Result.success(TokenRepresentation.Builder.newInstance().token(TEST_TOKEN).build()));
 
-        @Test
-        void shouldReturnAccessToken_whenResponseIsSuccessful() {
-            // Arrange
-            when(mockOauth2Client.requestToken(any())).thenReturn(Result.success(TokenRepresentation.Builder.newInstance().token(TEST_TOKEN).build()));
+        // Act
+        TokenRepresentation accessToken = oauthService.getAccessToken(oauthCredentials());
 
-            // Act
-            TokenRepresentation accessToken = oauthService.getAccessToken(oauthCredentials());
+        // Assert
+        assertEquals(TEST_TOKEN, accessToken.getToken());
+        verify(mockOauth2Client, times(1)).requestToken(any());
+    }
 
-            // Assert
-            assertEquals(TEST_TOKEN, accessToken.getToken());
-            verify(mockOauth2Client, times(1)).requestToken(any());
-        }
+    @Test
+    void shouldThrowException_whenResponseIsNotSuccessful() {
+        // Arrange
+        when(mockOauth2Client.requestToken(any())).thenReturn(Result.failure("Reason"));
+        OAuthCredentials creds = oauthCredentials();
 
-        @Test
-        void shouldThrowException_whenResponseIsNotSuccessful() {
-            // Arrange
-            when(mockOauth2Client.requestToken(any())).thenReturn(Result.failure("Reason"));
-
-            // Act & Assert
-            RuntimeException exception = assertThrows(EdcException.class,
-                    () -> oauthService.getAccessToken(oauthCredentials()));
-            assertEquals("Failed to obtain OAuth2 token: Reason", exception.getMessage());
-            verify(mockOauth2Client, times(1)).requestToken(any());
-        }
+        // Act & Assert
+        RuntimeException exception = assertThrows(EdcException.class,
+                () -> oauthService.getAccessToken(creds));
+        assertEquals("Failed to obtain OAuth2 token: Reason", exception.getMessage());
+        verify(mockOauth2Client, times(1)).requestToken(any());
     }
 }
