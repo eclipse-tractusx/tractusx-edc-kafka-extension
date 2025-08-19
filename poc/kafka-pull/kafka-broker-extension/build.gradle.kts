@@ -23,6 +23,7 @@ plugins {
 }
 
 dependencies {
+   implementation(libs.tx.edc.core.utils)
    implementation(libs.edc.spi.transfer)
    implementation(libs.edc.spi.validator)
    implementation(libs.kafka.clients)
@@ -39,8 +40,10 @@ dependencies {
    testImplementation(libs.mockito.core)
    testImplementation(libs.testcontainers)
    testImplementation(libs.testcontainers.junit)
+   testImplementation(libs.testcontainers.kafka)
 }
 
 tasks.test {
    useJUnitPlatform()
+   systemProperty("testcontainers.enabled", "true")
 }
