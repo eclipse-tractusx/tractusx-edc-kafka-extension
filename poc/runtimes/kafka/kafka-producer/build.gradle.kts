@@ -29,13 +29,23 @@ dependencies {
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
-    // SLF4J API
+
     implementation("org.slf4j:slf4j-api:1.7.36")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
-    // Logback Classic provides a concrete implementation for SLF4J
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
+    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.assertj)
+    testImplementation("org.mockito:mockito-core:5.5.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+    testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }
@@ -48,6 +58,10 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     dependsOn("distTar", "distZip")
     mergeServiceFiles()
     archiveFileName.set("kafka-producer.jar")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 description = "kafka-producer"
