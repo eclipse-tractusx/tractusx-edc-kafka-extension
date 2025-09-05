@@ -37,14 +37,14 @@ public class KafkaProducerApp {
 
         KafkaConfig kafkaConfigService = new KafkaConfig(config);
         var edcSetup = new EdcSetup(httpClient(), config);
+        edcSetup.setupEdcOffer();
+
         var kafkaProducerAppService = new KafkaProducerService(
-            kafkaConfigService.createKafkaProducer(), 
-            messageLoader(objectMapper()), 
-            objectMapper(), 
+            kafkaConfigService.createKafkaProducer(),
+            messageLoader(objectMapper()),
+            objectMapper(),
             config
         );
-
-        edcSetup.setupEdcOffer();
 
         log.info("Starting producer...");
         kafkaProducerAppService.runProducer();

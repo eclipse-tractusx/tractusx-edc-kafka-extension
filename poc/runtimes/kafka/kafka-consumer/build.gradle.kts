@@ -31,9 +31,7 @@ dependencies {
     annotationProcessor(libs.lombok)
 
     implementation("com.auth0:java-jwt:4.5.0")
-    // SLF4J API
     implementation("org.slf4j:slf4j-api:1.7.36")
-    // Logback Classic provides a concrete implementation for SLF4J
     runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
     testImplementation(libs.junit.jupiter)
@@ -41,6 +39,12 @@ dependencies {
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
     testImplementation(libs.assertj)
+    testImplementation("org.mockito:mockito-core:5.5.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
+    testImplementation("org.awaitility:awaitility:4.2.0")
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }
