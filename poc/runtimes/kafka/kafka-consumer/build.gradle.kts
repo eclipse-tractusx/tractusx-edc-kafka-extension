@@ -53,6 +53,10 @@ application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
+
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     dependsOn("distTar", "distZip")
     mergeServiceFiles()
