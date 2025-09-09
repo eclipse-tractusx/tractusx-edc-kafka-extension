@@ -29,8 +29,10 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.acl.AclBindingFilter;
+import org.apache.kafka.common.acl.AclOperation;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.errors.TopicAuthorizationException;
+import org.apache.kafka.common.resource.ResourceType;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.security.plain.internals.PlainSaslServer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -48,7 +50,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
@@ -57,15 +59,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Testcontainers
 class KafkaAclServiceImplTestcontainersTest {
+
     public static final String GROUP_ID = "groupId";
     private static final String TEST_TOPIC = "test-topic";
+    private static final TopicPartition TEST_PARTITION = new TopicPartition(TEST_TOPIC, 0);
+    private static final Duration POLL_TIMEOUT = Duration.ofSeconds(2);
     private static final String TEST_OAUTH_SUBJECT = "test-user";
     private static final String TEST_TRANSFER_PROCESS_ID = "transfer-process-123";
     private static final String UNAUTHORIZED_USER = "unauthorized-user";
+
     private static final String ADMIN_LOGIN_MODULE = "org.apache.kafka.common.security.plain.PlainLoginModule required " +
             "username=\"admin\" password=\"password\";";
+
     @Container
-    static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"))
+    static final KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("apache/kafka:4.0.0"))
             .withEnv("KAFKA_AUTHORIZER_CLASS_NAME", "org.apache.kafka.metadata.authorizer.StandardAuthorizer")
             .withEnv("KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND", "false")
             .withEnv("KAFKA_SUPER_USERS", "User:admin;User:ANONYMOUS")
@@ -83,26 +90,28 @@ class KafkaAclServiceImplTestcontainersTest {
 
     @BeforeEach
     void setUp() throws ExecutionException, InterruptedException {
-        Properties kafkaProperties = new Properties();
-        kafkaProperties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        kafkaProperties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_PLAINTEXT.name());
-        kafkaProperties.put(SaslConfigs.SASL_MECHANISM, PlainSaslServer.PLAIN_MECHANISM);
-        kafkaProperties.put(SaslConfigs.SASL_JAAS_CONFIG, ADMIN_LOGIN_MODULE);
-        adminClient = Admin.create(kafkaProperties);
+        Properties adminProperties = new Properties();
+        adminProperties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+        adminProperties.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_PLAINTEXT.name());
+        adminProperties.put(SaslConfigs.SASL_MECHANISM, PlainSaslServer.PLAIN_MECHANISM);
+        adminProperties.put(SaslConfigs.SASL_JAAS_CONFIG, ADMIN_LOGIN_MODULE);
+
+        adminClient = Admin.create(adminProperties);
 
         Monitor monitor = new ConsoleMonitor();
-        aclService = new KafkaAclServiceImpl(kafkaProperties, monitor);
+        aclService = new KafkaAclServiceImpl(adminProperties, monitor);
 
         // Create the test topic
         NewTopic newTopic = new NewTopic(TEST_TOPIC, 1, (short) 1);
-        CreateTopicsResult createResult = adminClient.createTopics(Collections.singletonList(newTopic));
+        CreateTopicsResult createResult = adminClient.createTopics(List.of(newTopic));
         createResult.all().get();
     }
 
     @AfterEach
     void tearDown() {
-        adminClient.deleteTopics(Collections.singleton(TEST_TOPIC));
         if (adminClient != null) {
+            adminClient.deleteTopics(List.of(TEST_TOPIC));
+            adminClient.deleteAcls(List.of(AclBindingFilter.ANY));
             adminClient.close();
         }
     }
@@ -125,18 +134,18 @@ class KafkaAclServiceImplTestcontainersTest {
         boolean hasTopicReadAcl = aclBindings.stream()
                 .anyMatch(acl -> acl.pattern().name().equals(TEST_TOPIC) &&
                         acl.entry().principal().equals("User:" + TEST_OAUTH_SUBJECT) &&
-                        acl.entry().operation().name().equals("READ"));
+                        acl.entry().operation().equals(AclOperation.READ));
 
         boolean hasTopicDescribeAcl = aclBindings.stream()
                 .anyMatch(acl -> acl.pattern().name().equals(TEST_TOPIC) &&
                         acl.entry().principal().equals("User:" + TEST_OAUTH_SUBJECT) &&
-                        acl.entry().operation().name().equals("DESCRIBE"));
+                        acl.entry().operation().equals(AclOperation.DESCRIBE));
 
         boolean hasGroupReadAcl = aclBindings.stream()
                 .anyMatch(acl -> acl.pattern().name().equals(TEST_OAUTH_SUBJECT) &&
                         acl.entry().principal().equals("User:" + TEST_OAUTH_SUBJECT) &&
-                        acl.entry().operation().name().equals("READ") &&
-                        acl.pattern().resourceType().name().equals("GROUP"));
+                        acl.entry().operation().equals(AclOperation.READ) &&
+                                acl.pattern().resourceType().equals(ResourceType.GROUP));
 
         assertThat(hasTopicReadAcl).isTrue();
         assertThat(hasTopicDescribeAcl).isTrue();
@@ -155,10 +164,10 @@ class KafkaAclServiceImplTestcontainersTest {
         Properties consumerProps = createConsumerProperties(TEST_OAUTH_SUBJECT);
 
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps)) {
-            consumer.assign(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
-            consumer.seekToBeginning(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
+            consumer.assign(List.of(TEST_PARTITION));
+            consumer.seekToBeginning(List.of(TEST_PARTITION));
 
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(10));
+            ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
 
             // Assert
             assertThat(records.count()).isEqualTo(1);
@@ -176,9 +185,8 @@ class KafkaAclServiceImplTestcontainersTest {
         Properties consumerProps = createConsumerProperties(UNAUTHORIZED_USER);
 
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps)) {
-            consumer.assign(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
-
-            assertThatThrownBy(() -> consumer.poll(Duration.ofSeconds(5))).isInstanceOf(TopicAuthorizationException.class);
+            consumer.assign(List.of(TEST_PARTITION));
+            assertThatThrownBy(() -> consumer.poll(POLL_TIMEOUT)).isInstanceOf(TopicAuthorizationException.class);
         }
     }
 
@@ -190,7 +198,6 @@ class KafkaAclServiceImplTestcontainersTest {
 
         DescribeAclsResult describeResult = adminClient.describeAcls(AclBindingFilter.ANY);
         Collection<AclBinding> aclsBeforeRevoke = describeResult.values().get();
-        long aclCountBefore = aclsBeforeRevoke.size();
 
         // Act
         Result<Void> revokeResult = aclService.revokeAclsForTransferProcess(TEST_TRANSFER_PROCESS_ID);
@@ -201,11 +208,9 @@ class KafkaAclServiceImplTestcontainersTest {
         // Verify ACLs were removed
         DescribeAclsResult describeAfterRevoke = adminClient.describeAcls(AclBindingFilter.ANY);
         Collection<AclBinding> aclsAfterRevoke = describeAfterRevoke.values().get();
-        long aclCountAfter = aclsAfterRevoke.size();
 
-        // Should have fewer ACLs after revocation (exactly 3 less - READ topic, DESCRIBE topic, READ group)
-        assertThat(aclCountAfter).isLessThan(aclCountBefore);
-        assertThat(aclCountBefore - aclCountAfter).isEqualTo(3);
+        assertThat(aclsBeforeRevoke).hasSize(3);
+        assertThat(aclsAfterRevoke).hasSize(0);
     }
 
     @Test
@@ -216,7 +221,6 @@ class KafkaAclServiceImplTestcontainersTest {
 
         DescribeAclsResult describeResult = adminClient.describeAcls(AclBindingFilter.ANY);
         Collection<AclBinding> aclsBeforeRevoke = describeResult.values().get();
-        long aclCountBefore = aclsBeforeRevoke.size();
 
         // Act
         Result<Void> revokeResult = aclService.revokeAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC);
@@ -226,10 +230,9 @@ class KafkaAclServiceImplTestcontainersTest {
 
         DescribeAclsResult describeAfterRevoke = adminClient.describeAcls(AclBindingFilter.ANY);
         Collection<AclBinding> aclsAfterRevoke = describeAfterRevoke.values().get();
-        long aclCountAfter = aclsAfterRevoke.size();
 
-        assertThat(aclCountAfter).isLessThan(aclCountBefore);
-        assertThat(aclCountBefore - aclCountAfter).isEqualTo(3);
+        assertThat(aclsBeforeRevoke).hasSize(3);
+        assertThat(aclsAfterRevoke).hasSize(0);
     }
 
     @Test
@@ -242,10 +245,10 @@ class KafkaAclServiceImplTestcontainersTest {
 
         Properties consumerProps = createConsumerProperties(TEST_OAUTH_SUBJECT);
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps)) {
-            consumer.assign(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
-            consumer.seekToBeginning(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
-            assertThat(records.count()).isGreaterThan(0);
+            consumer.assign(List.of(TEST_PARTITION));
+            consumer.seekToBeginning(List.of(TEST_PARTITION));
+            ConsumerRecords<String, String> records = consumer.poll(POLL_TIMEOUT);
+            assertThat(records.count()).isEqualTo(1);
         }
 
         // Act
@@ -254,9 +257,8 @@ class KafkaAclServiceImplTestcontainersTest {
 
         // Assert
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(consumerProps)) {
-            consumer.assign(Collections.singletonList(new TopicPartition(TEST_TOPIC, 0)));
-
-            assertThatThrownBy(() -> consumer.poll(Duration.ofSeconds(5))).isInstanceOf(TopicAuthorizationException.class);
+            consumer.assign(List.of(TEST_PARTITION));
+            assertThatThrownBy(() -> consumer.poll(POLL_TIMEOUT)).isInstanceOf(TopicAuthorizationException.class);
         }
     }
 
