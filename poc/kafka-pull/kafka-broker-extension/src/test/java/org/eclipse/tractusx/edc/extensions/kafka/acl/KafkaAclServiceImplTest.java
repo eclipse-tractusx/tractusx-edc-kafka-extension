@@ -18,107 +18,284 @@
  */
 package org.eclipse.tractusx.edc.extensions.kafka.acl;
 
-import org.eclipse.edc.spi.monitor.ConsoleMonitor;
+import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.admin.CreateAclsResult;
+import org.apache.kafka.clients.admin.DeleteAclsResult;
+import org.apache.kafka.common.KafkaFuture;
+import org.apache.kafka.common.acl.AclBinding;
 import org.eclipse.edc.spi.monitor.Monitor;
 import org.eclipse.edc.spi.result.Result;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for {@link KafkaAclServiceImpl}.
- * Note: These tests verify the service logic without requiring an actual Kafka cluster.
- * Integration tests with a real Kafka cluster should be implemented separately.
- */
 class KafkaAclServiceImplTest {
 
-    private Monitor monitor;
+    private static final String TEST_OAUTH_SUBJECT = "test-oauth-subject";
+    private static final String TEST_TOPIC_NAME = "test-topic";
+    private static final String TEST_TRANSFER_PROCESS_ID = "test-transfer-process-id";
 
+    private Monitor monitor;
     private KafkaAclServiceImpl aclService;
     private Properties kafkaProperties;
+    private Admin mockAdmin;
+    private AdminClientFactory mockAdminClientFactory;
 
     @BeforeEach
     void setUp() {
-        monitor = spy(new ConsoleMonitor());
-        
+        monitor = mock(Monitor.class);
         kafkaProperties = new Properties();
         kafkaProperties.put("bootstrap.servers", "localhost:9092");
         kafkaProperties.put("security.protocol", "PLAINTEXT");
-        
-        aclService = new KafkaAclServiceImpl(kafkaProperties, monitor);
+
+        mockAdmin = mock(Admin.class);
+        mockAdminClientFactory = mock(AdminClientFactory.class);
+
+        when(mockAdminClientFactory.createAdmin(any(Properties.class))).thenReturn(mockAdmin);
+
+        aclService = new KafkaAclServiceImpl(kafkaProperties, monitor, mockAdminClientFactory);
     }
 
     @Test
-    void createAclsForSubject_shouldLogDebugMessage() {
-        // Given
-        String oauthSubject = "test-subject";
-        String topicName = "test-topic";
-        String transferProcessId = "test-process-id";
+    void createAclsForSubject_shouldCreateAclsSuccessfully() throws ExecutionException, InterruptedException {
+        // Arrange
+        CreateAclsResult mockCreateResult = mock(CreateAclsResult.class);
+        KafkaFuture<Void> mockFuture = mock(KafkaFuture.class);
 
-        // When - This will fail with connection error, but we can verify debug logging
-        Result<Void> result = aclService.createAclsForSubject(oauthSubject, topicName, transferProcessId);
+        when(mockAdmin.createAcls(anyCollection())).thenReturn(mockCreateResult);
+        when(mockCreateResult.all()).thenReturn(mockFuture);
+        when(mockFuture.get()).thenReturn(null);
 
-        // Then
+        // Act
+        Result<Void> result = aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        // Assert
+        assertThat(result.succeeded()).isTrue();
+        verify(mockAdminClientFactory).createAdmin(kafkaProperties);
+        verify(mockAdmin).createAcls(anyCollection());
+        verify(mockCreateResult).all();
+        verify(mockFuture).get();
+        verify(monitor).debug("Creating ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME +
+                ", transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
+        verify(monitor).debug("Successfully created ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT +
+                ", topic: " + TEST_TOPIC_NAME + ", transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
+
+        // Verify that ACLs are tracked
+        assertThat(getTransferProcessAclsCount()).isEqualTo(1);
+    }
+
+    @Test
+    void createAclsForSubject_shouldHandleExecutionException() throws ExecutionException, InterruptedException {
+        // Arrange
+        CreateAclsResult mockCreateResult = mock(CreateAclsResult.class);
+        KafkaFuture<Void> mockFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.createAcls(anyCollection())).thenReturn(mockCreateResult);
+        when(mockCreateResult.all()).thenReturn(mockFuture);
+        when(mockFuture.get()).thenThrow(new ExecutionException("Test exception", new RuntimeException()));
+
+        // Act
+        Result<Void> result = aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        // Assert
         assertThat(result.failed()).isTrue();
-        verify(monitor).debug("Creating ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName + 
-                             ", transferProcessId: " + transferProcessId);
-        verify(monitor).severe(anyString(), org.mockito.ArgumentMatchers.any(Exception.class));
+        assertThat(result.getFailureDetail()).contains("Failed to create ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT);
+        verify(monitor).severe(anyString(), any(Exception.class));
+
+        // Verify that ACLs are not tracked when creation fails
+        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+    }
+
+    @Test
+    void revokeAclsForTransferProcess_shouldRevokeAclsSuccessfully() throws Exception {
+        // Arrange - First create ACLs to track
+        setupSuccessfulCreateAcls();
+        aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        DeleteAclsResult mockDeleteResult = mock(DeleteAclsResult.class);
+        KafkaFuture<Collection<AclBinding>> mockDeleteFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.deleteAcls(anyCollection())).thenReturn(mockDeleteResult);
+        when(mockDeleteResult.all()).thenReturn(mockDeleteFuture);
+        when(mockDeleteFuture.get()).thenReturn(java.util.Collections.emptyList());
+
+        // Act
+        Result<Void> result = aclService.revokeAclsForTransferProcess(TEST_TRANSFER_PROCESS_ID);
+
+        // Assert
+        assertThat(result.succeeded()).isTrue();
+        verify(mockAdminClientFactory, times(2)).createAdmin(kafkaProperties);
+        verify(mockAdmin).deleteAcls(anyCollection());
+        verify(mockDeleteResult).all();
+        verify(mockDeleteFuture).get();
+        verify(monitor).debug("Revoking ACLs for transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
+        verify(monitor).debug("Successfully revoked ACLs for transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
+
+        // Verify that ACLs are no longer tracked
+        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+    }
+
+    @Test
+    void revokeAclsForTransferProcess_shouldHandleExecutionException() throws Exception {
+        // Arrange
+        setupSuccessfulCreateAcls();
+        aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        DeleteAclsResult mockDeleteResult = mock(DeleteAclsResult.class);
+        KafkaFuture<Collection<AclBinding>> mockDeleteFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.deleteAcls(anyCollection())).thenReturn(mockDeleteResult);
+        when(mockDeleteResult.all()).thenReturn(mockDeleteFuture);
+        when(mockDeleteFuture.get()).thenThrow(new ExecutionException("Test exception", new RuntimeException()));
+
+        // Act
+        Result<Void> result = aclService.revokeAclsForTransferProcess(TEST_TRANSFER_PROCESS_ID);
+
+        // Assert
+        assertThat(result.failed()).isTrue();
+        assertThat(result.getFailureDetail()).contains("Failed to revoke ACLs for transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
+        verify(monitor).severe(anyString(), any(Exception.class));
+    }
+
+    @Test
+    void revokeAclsForSubject_shouldRevokeAclsSuccessfully() throws ExecutionException, InterruptedException {
+        // Arrange
+        DeleteAclsResult mockDeleteResult = mock(DeleteAclsResult.class);
+
+        KafkaFuture<Collection<AclBinding>> mockDeleteFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.deleteAcls(anyCollection())).thenReturn(mockDeleteResult);
+        when(mockDeleteResult.all()).thenReturn(mockDeleteFuture);
+        when(mockDeleteFuture.get()).thenReturn(java.util.Collections.emptyList());
+
+        // Act
+        Result<Void> result = aclService.revokeAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME);
+
+        // Assert
+        assertThat(result.succeeded()).isTrue();
+        verify(mockAdminClientFactory).createAdmin(kafkaProperties);
+        verify(mockAdmin).deleteAcls(anyCollection());
+        verify(mockDeleteResult).all();
+        verify(mockDeleteFuture).get();
+        verify(monitor).debug("Revoking ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME);
+        verify(monitor).info("Successfully revoked ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME);
     }
 
     @Test
     void revokeAclsForTransferProcess_withNonExistentId_shouldSucceed() {
-        // Given
-        String transferProcessId = "non-existent-id";
+        // Arrange
+        String nonExistentTransferProcessId = "non-existent-id";
 
-        // When
-        Result<Void> result = aclService.revokeAclsForTransferProcess(transferProcessId);
+        // Act
+        Result<Void> result = aclService.revokeAclsForTransferProcess(nonExistentTransferProcessId);
 
-        // Then
+        // Assert
         assertThat(result.succeeded()).isTrue();
-        verify(monitor).debug("Revoking ACLs for transferProcessId: " + transferProcessId);
-        verify(monitor).debug("No ACLs found for transferProcessId: " + transferProcessId);
+        verify(monitor).debug("Revoking ACLs for transferProcessId: " + nonExistentTransferProcessId);
+        verify(monitor).debug("No ACLs found for transferProcessId: " + nonExistentTransferProcessId);
+
+        // Verify no AdminClient operations were performed
+        verifyNoInteractions(mockAdmin);
+        verify(mockAdminClientFactory, never()).createAdmin(any());
     }
 
     @Test
-    void revokeAclsForSubject_shouldLogDebugMessage() {
-        // Given
-        String oauthSubject = "test-subject";
-        String topicName = "test-topic";
+    void createAclsForSubject_shouldVerifyCorrectAclBindings() throws ExecutionException, InterruptedException {
+        // Arrange
+        CreateAclsResult mockCreateResult = mock(CreateAclsResult.class);
+        KafkaFuture<Void> mockFuture = mock(KafkaFuture.class);
 
-        // When - This will fail with connection error, but we can verify debug logging
-        Result<Void> result = aclService.revokeAclsForSubject(oauthSubject, topicName);
+        when(mockAdmin.createAcls(anyCollection())).thenReturn(mockCreateResult);
+        when(mockCreateResult.all()).thenReturn(mockFuture);
+        when(mockFuture.get()).thenReturn(null);
 
-        // Then
-        assertThat(result.failed()).isTrue();
-        verify(monitor).debug("Revoking ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName);
-        verify(monitor).severe(anyString(), org.mockito.ArgumentMatchers.any(Exception.class));
+        // Act
+        Result<Void> result = aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        // Assert
+        assertThat(result.succeeded()).isTrue();
+
+        // Verify that createAcls was called with the correct number of ACL bindings
+        verify(mockAdmin).createAcls(argThat(aclBindings -> {
+            return aclBindings.size() == 3; // Should have 3 ACL bindings (READ topic, DESCRIBE topic, READ group)
+        }));
     }
 
     @Test
-    void createAclsForSubject_withInvalidBootstrapServers_shouldFail() {
-        // Given
-        Properties invalidProps = new Properties();
-        invalidProps.put("bootstrap.servers", "invalid:9999");
-        invalidProps.put("security.protocol", "PLAINTEXT");
-        
-        KafkaAclServiceImpl invalidAclService = new KafkaAclServiceImpl(invalidProps, monitor);
-        
-        String oauthSubject = "test-subject";
-        String topicName = "test-topic";
-        String transferProcessId = "test-process-id";
+    void transferProcessAcls_shouldBeTrackedAndRemovedCorrectly() throws Exception {
+        // Arrange
+        setupSuccessfulCreateAcls();
+        setupSuccessfulDeleteAcls();
 
-        // When
-        Result<Void> result = invalidAclService.createAclsForSubject(oauthSubject, topicName, transferProcessId);
+        // Act - Create ACLs
+        Result<Void> createResult = aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
 
-        // Then
-        assertThat(result.failed()).isTrue();
-        assertThat(result.getFailureDetail()).contains("Failed to create ACLs for OAuth subject: " + oauthSubject);
-        verify(monitor).severe(anyString(), org.mockito.ArgumentMatchers.any(Exception.class));
+        // Assert - ACLs should be tracked
+        assertThat(createResult.succeeded()).isTrue();
+        assertThat(getTransferProcessAclsCount()).isEqualTo(1);
+
+        // Act - Revoke ACLs
+        Result<Void> revokeResult = aclService.revokeAclsForTransferProcess(TEST_TRANSFER_PROCESS_ID);
+
+        // Assert - ACLs should be removed from tracking
+        assertThat(revokeResult.succeeded()).isTrue();
+        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+    }
+
+    @Test
+    void adminClientFactory_shouldBeCalledWithCorrectProperties() throws Exception {
+        // Arrange
+        setupSuccessfulCreateAcls();
+        setupSuccessfulDeleteAcls();
+
+        // Act - Test create operation
+        aclService.createAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME, TEST_TRANSFER_PROCESS_ID);
+
+        // Act - Test revoke operation
+        aclService.revokeAclsForTransferProcess(TEST_TRANSFER_PROCESS_ID);
+
+        // Act - Test subject revoke operation
+        aclService.revokeAclsForSubject(TEST_OAUTH_SUBJECT, TEST_TOPIC_NAME);
+
+        // Assert - Verify factory was called with correct properties
+        verify(mockAdminClientFactory, times(3)).createAdmin(kafkaProperties);
+    }
+
+    private void setupSuccessfulCreateAcls() throws ExecutionException, InterruptedException {
+        CreateAclsResult mockCreateResult = mock(CreateAclsResult.class);
+        KafkaFuture<Void> mockFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.createAcls(anyCollection())).thenReturn(mockCreateResult);
+        when(mockCreateResult.all()).thenReturn(mockFuture);
+        when(mockFuture.get()).thenReturn(null);
+    }
+
+    private void setupSuccessfulDeleteAcls() throws ExecutionException, InterruptedException {
+        DeleteAclsResult mockDeleteResult = mock(DeleteAclsResult.class);
+        KafkaFuture<Collection<AclBinding>> mockDeleteFuture = mock(KafkaFuture.class);
+
+        when(mockAdmin.deleteAcls(anyCollection())).thenReturn(mockDeleteResult);
+        when(mockDeleteResult.all()).thenReturn(mockDeleteFuture);
+        when(mockDeleteFuture.get()).thenReturn(java.util.Collections.emptyList());
+    }
+
+    private int getTransferProcessAclsCount() {
+        try {
+            Field transferProcessAclsField = KafkaAclServiceImpl.class.getDeclaredField("transferProcessAcls");
+            transferProcessAclsField.setAccessible(true);
+            Map<?, ?> transferProcessAcls = (Map<?, ?>) transferProcessAclsField.get(aclService);
+            return transferProcessAcls.size();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to access transferProcessAcls field", e);
+        }
     }
 }

@@ -19,7 +19,6 @@
 package org.eclipse.tractusx.edc.extensions.kafka.acl;
 
 import org.apache.kafka.clients.admin.Admin;
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.CreateAclsResult;
 import org.apache.kafka.clients.admin.DeleteAclsResult;
 import org.apache.kafka.common.acl.*;
@@ -46,11 +45,17 @@ public class KafkaAclServiceImpl implements KafkaAclService {
 
     private final Properties kafkaProperties;
     private final Monitor monitor;
+    private final AdminClientFactory adminClientFactory;
     private final Map<String, AclTrackingInfo> transferProcessAcls = new ConcurrentHashMap<>();
 
     public KafkaAclServiceImpl(Properties kafkaProperties, Monitor monitor) {
+        this(kafkaProperties, monitor, new DefaultAdminClientFactory());
+    }
+
+    public KafkaAclServiceImpl(Properties kafkaProperties, Monitor monitor, AdminClientFactory adminClientFactory) {
         this.kafkaProperties = kafkaProperties;
         this.monitor = monitor;
+        this.adminClientFactory = adminClientFactory;
     }
 
     private static @NotNull String createUserPrincipal(String oauthSubject) {
@@ -62,7 +67,7 @@ public class KafkaAclServiceImpl implements KafkaAclService {
         monitor.debug("Creating ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName +
                 ", transferProcessId: " + transferProcessId);
 
-        try (Admin adminClient = Admin.create(kafkaProperties)) {
+        try (Admin adminClient = adminClientFactory.createAdmin(kafkaProperties)) {
             Collection<AclBinding> aclBindings = buildAclBindings(oauthSubject, topicName);
             CreateAclsResult result = adminClient.createAcls(aclBindings);
             result.all().get(); // Wait for completion
@@ -96,7 +101,7 @@ public class KafkaAclServiceImpl implements KafkaAclService {
             return Result.success(); // Nothing to revoke
         }
 
-        try (AdminClient adminClient = AdminClient.create(kafkaProperties)) {
+        try (Admin adminClient = adminClientFactory.createAdmin(kafkaProperties)) {
             Collection<AclBindingFilter> aclFilters = convertToAclBindingFilters(aclInfo.aclBindings());
             DeleteAclsResult result = adminClient.deleteAcls(aclFilters);
             result.all().get();
@@ -120,7 +125,7 @@ public class KafkaAclServiceImpl implements KafkaAclService {
     public Result<Void> revokeAclsForSubject(String oauthSubject, String topicName) {
         monitor.debug("Revoking ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName);
 
-        try (AdminClient adminClient = AdminClient.create(kafkaProperties)) {
+        try (Admin adminClient = adminClientFactory.createAdmin(kafkaProperties)) {
             Collection<AclBinding> aclBindings = buildAclBindings(oauthSubject, topicName);
             Collection<AclBindingFilter> aclFilters = convertToAclBindingFilters(aclBindings);
 
