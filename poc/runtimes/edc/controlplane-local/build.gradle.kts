@@ -37,14 +37,6 @@ dependencies {
 
         // BDRS
         exclude(group = "org.eclipse.tractusx.edc", module = "bdrs-client")
-
-        // Azure
-        exclude(group = "org.eclipse.tractusx.edc", module = "azblob-provisioner")
-
-        // Federated Catalog
-        exclude(group = "org.eclipse.edc", module = "federated-catalog-core")
-        exclude(group = "org.eclipse.edc", module = "federated-catalog-api")
-        exclude(group = "org.eclipse.tractusx.edc", module = "federated-catalog")
     }
 
     implementation(libs.edc.iam.mock)

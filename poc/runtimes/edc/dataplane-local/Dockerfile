@@ -34,6 +34,9 @@ RUN addgroup --system "$APP_USER" && \
 
 COPY build/libs/dataplane-local.jar /app/application.jar
 
+COPY configuration.properties /app/configuration.properties
+COPY vault.properties /app/vault.properties
+
 USER "$APP_USER"
 
 ENTRYPOINT [ \
@@ -41,5 +44,4 @@ ENTRYPOINT [ \
      "-Dedc.fs.config=/app/configuration.properties", \
      "-Djava.security.egd=file:/dev/urandom", \
      "-jar", \
-     "/app/application.jar", \
-     "--log-level=DEBUG"]
+     "/app/application.jar"]
