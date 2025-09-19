@@ -33,6 +33,7 @@ import java.util.Properties;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
+import static org.apache.kafka.common.config.SslConfigs.*;
 
 @Slf4j
 public class KafkaConsumerApp {
@@ -43,6 +44,9 @@ public class KafkaConsumerApp {
     static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
+    static final String KAFKA_SSL_TRUSTSTORE_LOCATION = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_LOCATION", "");
+    static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = System.getenv().getOrDefault("KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM", "");
+    static final String KAFKA_SSL_TRUSTSTORE_TYPE = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_TYPE", "");
 
     public static void main(final String[] args) {
         try {
@@ -110,6 +114,11 @@ public class KafkaConsumerApp {
         props.put(SASL_LOGIN_REFRESH_MIN_PERIOD_SECONDS, "30"); // Don't refresh more than once per 30 seconds
         props.put(SASL_LOGIN_REFRESH_WINDOW_FACTOR, "0.8"); // Refresh at 80% of token lifetime
         props.put(SASL_LOGIN_REFRESH_WINDOW_JITTER, "0.05"); // Add small random jitter
+
+        // SSL configuration for development with self-signed certificates
+        props.put(SSL_TRUSTSTORE_LOCATION_CONFIG, KAFKA_SSL_TRUSTSTORE_LOCATION);
+        props.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM);
+        props.put(SSL_TRUSTSTORE_TYPE_CONFIG, KAFKA_SSL_TRUSTSTORE_TYPE);
 
         return new KafkaConsumer<>(props);
     }

@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
+import static org.apache.kafka.common.config.SslConfigs.*;
 
 @Slf4j
 public class KafkaProducerApp {
@@ -54,6 +55,10 @@ public class KafkaProducerApp {
     static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
     static final String EDC_API_AUTH_KEY = System.getenv().getOrDefault("EDC_API_AUTH_KEY", "password");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
+    static final String KAFKA_SSL_TRUSTSTORE_LOCATION = System.getenv().getOrDefault("SSL_TRUSTSTORE_LOCATION", "/opt/java/openjdk/lib/security/cacerts");
+    static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = System.getenv().getOrDefault("SSL_ENDPOINT_IDENTIFICATION_ALGORITHM", "");
+    static final String KAFKA_SSL_TRUSTSTORE_TYPE = System.getenv().getOrDefault("SSL_TRUSTSTORE_TYPE", "JKS");
+    public static final String KAFKA_SECURITY_PROTOCOL = System.getenv().getOrDefault("SECURITY_PROTOCOL", "SASL_PLAINTEXT");
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
     private static final long MESSAGE_INTERVAL_MS = 5000;
@@ -170,7 +175,7 @@ public class KafkaProducerApp {
         props.put(VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
         // Security settings for SASL/OAUTHBEARER
-        props.put(SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        props.put(SECURITY_PROTOCOL_CONFIG, KAFKA_SECURITY_PROTOCOL);
         props.put(SASL_MECHANISM, "OAUTHBEARER");
 
         // OAuth properties
@@ -186,6 +191,11 @@ public class KafkaProducerApp {
                         "clientId=\"" + KEYCLOAK_CLIENT_ID + "\" " +
                         "clientSecret=\"" + KEYCLOAK_CLIENT_SECRET + "\";"
         );
+
+        // SSL configuration for development with self-signed certificates
+        props.put(SSL_TRUSTSTORE_LOCATION_CONFIG, KAFKA_SSL_TRUSTSTORE_LOCATION);
+        props.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM);
+        props.put(SSL_TRUSTSTORE_TYPE_CONFIG, KAFKA_SSL_TRUSTSTORE_TYPE);
 
         return new KafkaProducer<>(props);
     }

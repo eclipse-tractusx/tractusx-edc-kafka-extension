@@ -18,4 +18,4 @@ dependencies:
   repository: file://../tractusx-edc-kafka
   version: 0.1.0
 digest: sha256:537734b5103d5799049328b03632fced7bcdaf33a824e3c519fb6d97b0ab8aac
-generated: "2025-07-25T09:20:12.5597408+02:00"
+generated: "2025-09-18T10:25:43.038592+02:00"
