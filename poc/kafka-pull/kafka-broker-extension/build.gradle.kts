@@ -20,6 +20,7 @@
 
 plugins {
    jacoco
+    `java-library`
 }
 
 dependencies {
@@ -34,7 +35,7 @@ dependencies {
    implementation(libs.edc.transfer.data.plane.signaling)
    implementation(libs.edc.auth.oauth2.client)
 
-   testImplementation(libs.junit.jupiter)
+//   testImplementation(libs.junit.jupiter)
    testImplementation(libs.assertj)
    testImplementation(libs.edc.junit)
    testImplementation(libs.mockito.core)

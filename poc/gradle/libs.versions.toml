@@ -2,8 +2,8 @@
 format.version = "1.1"
 
 [versions]
-tractusx = "0.9.0"
-edc = "0.10.1"
+tractusx = "0.10.0"
+edc = "0.13.0"
 junit = "5.11.3"
 assertj = "3.26.3"
 mockito = "5.18.0"
@@ -69,10 +69,10 @@ edc-validator-lib = { module = "org.eclipse.edc:validator-lib", version.ref = "e
 
 # Testing
 assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
-junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+#junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+#junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+#junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+#junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
