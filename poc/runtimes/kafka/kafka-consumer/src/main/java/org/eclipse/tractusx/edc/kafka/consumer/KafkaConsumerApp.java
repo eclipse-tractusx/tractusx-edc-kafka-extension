@@ -59,7 +59,7 @@ public class KafkaConsumerApp {
             consumptionService.startConsumption(edrDataList);
         } catch (final Exception e) {
             log.error("Fatal error in KafkaConsumerApp", e);
-            throw new RuntimeException("Application failed to start", e);
+            throw new KafkaConsumerException("Application failed to start", e);
         }
     }
 }

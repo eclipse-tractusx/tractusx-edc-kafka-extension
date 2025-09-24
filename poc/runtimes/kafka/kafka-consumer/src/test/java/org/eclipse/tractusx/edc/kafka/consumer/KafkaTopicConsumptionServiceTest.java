@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -60,6 +61,13 @@ class KafkaTopicConsumptionServiceTest {
 
     private KafkaTopicConsumptionService consumptionService;
 
+    static Stream<Arguments> invalidEdrDataListProvider() {
+        return Stream.of(
+                Arguments.of((List<EDRData>) null),
+                Arguments.of(Collections.emptyList())
+        );
+    }
+
     @BeforeEach
     void setUp() {
         consumptionService = new KafkaTopicConsumptionService(consumerFactory, messageHandler);
@@ -74,13 +82,6 @@ class KafkaTopicConsumptionServiceTest {
                 .hasMessage("EDR data list cannot be null or empty");
     }
 
-    static Stream<Arguments> invalidEdrDataListProvider() {
-        return Stream.of(
-                Arguments.of((List<EDRData>) null),
-                Arguments.of(Collections.emptyList())
-        );
-    }
-
     @Test
     void shouldSubscribeToTopicsAndConsumeMessages() throws Exception {
         // Arrange
@@ -89,23 +90,23 @@ class KafkaTopicConsumptionServiceTest {
         EDRData edrData2 = createEdrData("topic2");
         List<EDRData> edrDataList = List.of(edrData1, edrData2);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("topic1", 0, 0L, "key1", "value1");
-        ConsumerRecords<String, String> records = createConsumerRecords(record);
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("topic1", 0, 0L, "key1", "value1");
+        ConsumerRecords<String, String> records = createConsumerRecords(consumerRecord);
 
         when(kafkaConsumer.poll(any(Duration.class))).thenReturn(records, new ConsumerRecords<>(Collections.emptyMap()));
 
         // Act - run consumption in separate thread and stop after a short delay
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumptionService.startConsumption(edrDataList));
-        
-        Thread.sleep(100); // Allow some time for consumption to start
+
+        wait(100);
         consumptionService.stop();
-        
+
         future.get(1, TimeUnit.SECONDS);
 
         // Assert
         verify(kafkaConsumer).subscribe(List.of("topic1", "topic2"));
         verify(kafkaConsumer, atLeastOnce()).poll(any(Duration.class));
-        verify(messageHandler).accept(record);
+        verify(messageHandler).accept(consumerRecord);
         verify(kafkaConsumer).close();
     }
 
@@ -117,14 +118,9 @@ class KafkaTopicConsumptionServiceTest {
 
         // Act
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumptionService.startConsumption(edrDataList));
-        
+
         // Allow some time for the service to process
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
+        wait(50);
         consumptionService.stop();
 
         // Assert - should return early without subscribing
@@ -143,18 +139,13 @@ class KafkaTopicConsumptionServiceTest {
 
         // Act
         assertThat(consumptionService.isRunning()).isFalse();
-        
+
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumptionService.startConsumption(edrDataList));
-        
+
         // Wait a bit for consumption to start
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        
+        wait(50);
         consumptionService.stop();
-        
+
         // Assert
         assertThat(future).succeedsWithin(Duration.ofSeconds(1));
         assertThat(consumptionService.isRunning()).isFalse();
@@ -168,17 +159,17 @@ class KafkaTopicConsumptionServiceTest {
         EDRData edrData = createEdrData("test-topic");
         List<EDRData> edrDataList = List.of(edrData);
 
-        ConsumerRecord<String, String> record = new ConsumerRecord<>("test-topic", 0, 0L, "key", "value");
-        ConsumerRecords<String, String> records = createConsumerRecords(record);
+        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0L, "key", "value");
+        ConsumerRecords<String, String> records = createConsumerRecords(consumerRecord);
 
         when(kafkaConsumer.poll(any(Duration.class))).thenReturn(records, new ConsumerRecords<>(Collections.emptyMap()));
 
         // Act
         CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumptionService.startConsumption(edrDataList));
-        
-        Thread.sleep(100);
+
+        wait(100);
         consumptionService.stop();
-        
+
         future.get(1, TimeUnit.SECONDS);
 
         // Assert - should not throw exception and should process the record
@@ -207,10 +198,16 @@ class KafkaTopicConsumptionServiceTest {
                 .build();
     }
 
-    private ConsumerRecords<String, String> createConsumerRecords(ConsumerRecord<String, String> record) {
-        TopicPartition topicPartition = new TopicPartition(record.topic(), record.partition());
+    private ConsumerRecords<String, String> createConsumerRecords(ConsumerRecord<String, String> consumerRecord) {
+        TopicPartition topicPartition = new TopicPartition(consumerRecord.topic(), consumerRecord.partition());
         List<ConsumerRecord<String, String>> recordList = new ArrayList<>();
-        recordList.add(record);
+        recordList.add(consumerRecord);
         return new ConsumerRecords<>(Collections.singletonMap(topicPartition, recordList));
+    }
+
+    private void wait(int millis) {
+        await()
+                .pollDelay(Duration.ofMillis(millis))
+                .until(() -> true);
     }
 }

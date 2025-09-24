@@ -35,7 +35,6 @@ import org.eclipse.tractusx.edc.kafka.producer.messages.MessageLoader;
 import org.eclipse.tractusx.edc.kafka.producer.messages.TrackingMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.kafka.KafkaContainer;
@@ -115,7 +114,7 @@ class KafkaProducerIntegrationTest {
         var sendAck = future.get();
         assertThat(sendAck.metadata()).isNotNull();
         assertThat(sendAck.metadata().topic()).isEqualTo(TEST_TOPIC);
-        assertThat(sendAck.record()).isNotNull();
+        assertThat(sendAck.producerRecord()).isNotNull();
     }
 
     @Test
@@ -144,16 +143,6 @@ class KafkaProducerIntegrationTest {
 
     @Test
     void shouldHandleInvalidBootstrapServers() {
-        // Arrange
-        when(config.getBootstrapServers()).thenReturn(INVALID_SERVER);
-        Properties props = basicKafkaProperties();
-
-        // Act & Assert
-        assertThatThrownBy(() -> kafkaProducer(props)).isInstanceOfAny(KafkaException.class);
-    }
-
-    @Test
-    void shouldHandleDnsResolutionFailure() {
         // Arrange
         when(config.getBootstrapServers()).thenReturn(INVALID_SERVER);
         Properties props = basicKafkaProperties();
@@ -203,10 +192,10 @@ class KafkaProducerIntegrationTest {
             assertThat(records.count()).isEqualTo(messageCount);
 
             int messageIndex = 0;
-            for (ConsumerRecord<String, String> record : records) {
-                assertThat(record.topic()).isEqualTo(TEST_TOPIC);
-                assertThat(record.key()).isEqualTo(TEST_KEY + messageIndex);
-                assertThat(record.value()).startsWith(TEST_VALUE + messageIndex);
+            for (ConsumerRecord<String, String> consumerRecord : records) {
+                assertThat(consumerRecord.topic()).isEqualTo(TEST_TOPIC);
+                assertThat(consumerRecord.key()).isEqualTo(TEST_KEY + messageIndex);
+                assertThat(consumerRecord.value()).startsWith(TEST_VALUE + messageIndex);
                 messageIndex++;
             }
         }

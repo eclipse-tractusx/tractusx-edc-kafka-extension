@@ -17,10 +17,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.eclipse.tractusx.edc.kafka.producer;
+package org.eclipse.tractusx.edc.kafka.consumer;
 
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
+public class KafkaConsumerException extends RuntimeException {
 
-public record SendAck<K, V>(ProducerRecord<K, V> producerRecord, RecordMetadata metadata) {
+    public KafkaConsumerException(String message, Exception e) {
+        super(message, e);
+    }
 }

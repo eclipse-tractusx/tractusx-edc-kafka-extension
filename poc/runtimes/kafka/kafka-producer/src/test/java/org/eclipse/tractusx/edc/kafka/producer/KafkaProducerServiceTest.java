@@ -77,7 +77,6 @@ class KafkaProducerServiceTest {
         Message testMessage = mock(Message.class);
         String topic = "test-topic";
         String expectedPayload = "{\"test\":\"data\"}";
-        String expectedKey = "Message-123456789";
 
         when(mockObjectMapper.writeValueAsString(testMessage)).thenReturn(expectedPayload);
 
@@ -151,7 +150,7 @@ class KafkaProducerServiceTest {
         assertThat(capturedRecord.value()).isEqualTo(message);
 
         SendAck<String, String> result = future.get();
-        assertThat(result.record()).isEqualTo(capturedRecord);
+        assertThat(result.producerRecord()).isEqualTo(capturedRecord);
         assertThat(result.metadata()).isEqualTo(mockRecordMetadata);
     }
 

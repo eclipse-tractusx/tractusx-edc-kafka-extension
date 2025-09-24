@@ -72,32 +72,34 @@ public class KafkaTopicConsumptionService {
                     primaryEdrData.getKafkaSaslMechanism());
             
             while (running.get()) {
-                try {
-                    Duration pollDuration = parsePollDuration(primaryEdrData.getKafkaPollDuration());
-                    ConsumerRecords<String, String> records = consumer.poll(pollDuration);
-                    
-                    for (ConsumerRecord<String, String> record : records) {
-                        if (!running.get()) {
-                            break;
-                        }
-                        messageHandler.accept(record);
-                    }
-                } catch (Exception e) {
-                    if (running.get()) {
-                        log.error("Error during message consumption", e);
-                        // Continue running unless explicitly stopped
-                    }
-                }
+                consumeMessages(primaryEdrData, consumer);
             }
         } catch (Exception e) {
-            log.error("Fatal error in topic consumption", e);
-            throw new RuntimeException("Failed to consume topics", e);
+            throw new KafkaConsumerException("Failed to consume topics", e);
         } finally {
             running.set(false);
             log.info("Kafka topic consumption stopped");
         }
     }
-    
+
+    private void consumeMessages(EDRData primaryEdrData, KafkaConsumer<String, String> consumer) {
+        try {
+            Duration pollDuration = parsePollDuration(primaryEdrData.getKafkaPollDuration());
+            ConsumerRecords<String, String> records = consumer.poll(pollDuration);
+
+            for (ConsumerRecord<String, String> consumerRecord : records) {
+                if (!running.get()) {
+                    break;
+                }
+                messageHandler.accept(consumerRecord);
+            }
+        } catch (Exception e) {
+            if (running.get()) {
+                log.error("Error during message consumption", e);
+            }
+        }
+    }
+
     /**
      * Stops the consumption loop gracefully.
      */
@@ -129,8 +131,8 @@ public class KafkaTopicConsumptionService {
         }
     }
     
-    private void defaultMessageHandler(ConsumerRecord<String, String> record) {
+    private void defaultMessageHandler(ConsumerRecord<String, String> consumerRecord) {
         log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",
-                record.topic(), record.key(), record.value(), record.partition(), record.offset());
+                consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
     }
 }

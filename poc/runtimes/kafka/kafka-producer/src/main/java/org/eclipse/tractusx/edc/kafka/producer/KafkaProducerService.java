@@ -75,7 +75,7 @@ public class KafkaProducerService {
         final String key = extractKey(message);
         sendMessage(topic, key, payload).whenComplete((sendAck, e) -> {
             if (e == null) {
-                log.info("Sent record(topic={} key={} message={}) meta(partition={}, offset={})", sendAck.record().topic(), sendAck.record().key(), sendAck.record().value(), sendAck.metadata().partition(), sendAck.metadata().offset());
+                log.info("Sent record(topic={} key={} message={}) meta(partition={}, offset={})", sendAck.producerRecord().topic(), sendAck.producerRecord().key(), sendAck.producerRecord().value(), sendAck.metadata().partition(), sendAck.metadata().offset());
             } else {
                 log.error("Failed to send record: {}", e.getMessage(), e);
             }

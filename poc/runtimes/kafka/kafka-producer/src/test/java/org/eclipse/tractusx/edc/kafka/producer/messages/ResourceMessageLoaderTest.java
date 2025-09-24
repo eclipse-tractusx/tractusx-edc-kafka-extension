@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for the ResourceMessageLoader class that actually test the functionality
  * of loading messages from real resource files on the classpath.
  */
-public class ResourceMessageLoaderTest {
+class ResourceMessageLoaderTest {
 
     private ObjectMapper objectMapper;
     private ResourceMessageLoader loader;
@@ -56,7 +56,7 @@ public class ResourceMessageLoaderTest {
         assertEquals(10, messages.size()); // Based on the production-forecast.json content
 
         // Verify the structure of the first message
-        ForecastMessage firstMessage = messages.get(0);
+        ForecastMessage firstMessage = messages.getFirst();
         assertNotNull(firstMessage);
         assertNotNull(firstMessage.getRequest());
         assertNotNull(firstMessage.getHeader());
@@ -91,7 +91,7 @@ public class ResourceMessageLoaderTest {
         assertThat(messages).isNotEmpty();
 
         // Verify the structure of the first message
-        TrackingMessage firstMessage = messages.get(0);
+        TrackingMessage firstMessage = messages.getFirst();
         assertNotNull(firstMessage);
         assertNotNull(firstMessage.getRequest());
         assertNotNull(firstMessage.getHeader());
