@@ -187,7 +187,7 @@ class KafkaAclServiceImplTest {
         verify(mockDeleteResult).all();
         verify(mockDeleteFuture).get();
         verify(monitor).debug("Revoking ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME);
-        verify(monitor).info("Successfully revoked ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME);
+        verify(monitor).debug("Successfully revoked ACLs for OAuth subject: " + TEST_OAUTH_SUBJECT + ", topic: " + TEST_TOPIC_NAME);
     }
 
     @Test
