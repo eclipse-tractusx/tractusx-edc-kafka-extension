@@ -9,6 +9,8 @@ cd poc/
 
 ./gradlew build
 
+docker build runtimes/kafka/kafka-consumer -t kafka-consumer:local
+docker build runtimes/kafka/kafka-producer -t kafka-producer:local
 docker build runtimes/edc/dataplane-local -t tractusx/edc-dataplane-kafka:test
 docker build runtimes/edc/controlplane-local -t tractusx/edc-controlplane-kafka:test
 ```

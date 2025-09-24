@@ -39,7 +39,7 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     condition: kafka.enabled
   - name: keycloak
-    version: 24.8.0
+    version: 25.2.0
     repository: https://charts.bitnami.com/bitnami
     condition: keycloak.enabled
   - name: producer-app
@@ -50,7 +50,7 @@ dependencies:
     alias: producer-edc
     version: 0.1.0
     repository: file://../tractusx-edc-kafka
-    condition: tractusx-edc-kafka.enabled
+    condition: producer-edc.enabled
   # Consumer Side
   - name: consumer-app
     version: 0.1.0
@@ -60,4 +60,4 @@ dependencies:
     alias: consumer-edc
     version: 0.1.0
     repository: file://../tractusx-edc-kafka
-    condition: tractusx-edc-kafka.enabled
+    condition: consumer-edc.enabled
