@@ -64,8 +64,8 @@ public class KafkaAclServiceImpl implements KafkaAclService {
 
     @Override
     public Result<Void> createAclsForSubject(String oauthSubject, String topicName, String transferProcessId) {
-        monitor.debug("Creating ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName +
-                ", transferProcessId: " + transferProcessId);
+        monitor.debug("Creating ACLs for OAuth subject: %s, topic: %s, transferProcessId: %s"
+                .formatted(oauthSubject, topicName, transferProcessId));
 
         try (Admin adminClient = adminClientFactory.createAdmin(kafkaProperties)) {
             Collection<AclBinding> aclBindings = buildAclBindings(oauthSubject, topicName);
@@ -75,29 +75,29 @@ public class KafkaAclServiceImpl implements KafkaAclService {
             // Track the ACLs for later revocation
             transferProcessAcls.put(transferProcessId, new AclTrackingInfo(oauthSubject, topicName, aclBindings));
 
-            monitor.debug("Successfully created ACLs for OAuth subject: " + oauthSubject +
-                    ", topic: " + topicName + ", transferProcessId: " + transferProcessId);
+            monitor.debug("Successfully created ACLs for OAuth subject: %s, topic: %s, transferProcessId: %s"
+                    .formatted(oauthSubject, topicName, transferProcessId));
             return Result.success();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            String message = "Interrupted while creating ACLs for subject: " + oauthSubject;
+            String message = "Interrupted while creating ACLs for subject: %s".formatted(oauthSubject);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         } catch (ExecutionException e) {
-            String message = "Failed to create ACLs for OAuth subject: " + oauthSubject;
+            String message = "Failed to create ACLs for OAuth subject: %s".formatted(oauthSubject);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         }
     }
 
     @Override
     public Result<Void> revokeAclsForTransferProcess(String transferProcessId) {
-        monitor.debug("Revoking ACLs for transferProcessId: " + transferProcessId);
+        monitor.debug("Revoking ACLs for transferProcessId: %s".formatted(transferProcessId));
 
         AclTrackingInfo aclInfo = transferProcessAcls.remove(transferProcessId);
         if (aclInfo == null) {
-            monitor.debug("No ACLs found for transferProcessId: " + transferProcessId);
+            monitor.debug("No ACLs found for transferProcessId: %s".formatted(transferProcessId));
             return Result.success(); // Nothing to revoke
         }
 
@@ -106,24 +106,24 @@ public class KafkaAclServiceImpl implements KafkaAclService {
             DeleteAclsResult result = adminClient.deleteAcls(aclFilters);
             result.all().get();
 
-            monitor.debug("Successfully revoked ACLs for transferProcessId: " + transferProcessId);
+            monitor.debug("Successfully revoked ACLs for transferProcessId: %s".formatted(transferProcessId));
             return Result.success();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            String message = "Interrupted while revoking ACLs for transferProcessId: " + transferProcessId;
+            String message = "Interrupted while revoking ACLs for transferProcessId: %s".formatted(transferProcessId);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         } catch (ExecutionException e) {
-            String message = "Failed to revoke ACLs for transferProcessId: " + transferProcessId;
+            String message = "Failed to revoke ACLs for transferProcessId: %s".formatted(transferProcessId);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         }
     }
 
     @Override
     public Result<Void> revokeAclsForSubject(String oauthSubject, String topicName) {
-        monitor.debug("Revoking ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName);
+        monitor.debug("Revoking ACLs for OAuth subject: %s, topic: %s".formatted(oauthSubject, topicName));
 
         try (Admin adminClient = adminClientFactory.createAdmin(kafkaProperties)) {
             Collection<AclBinding> aclBindings = buildAclBindings(oauthSubject, topicName);
@@ -132,19 +132,23 @@ public class KafkaAclServiceImpl implements KafkaAclService {
             DeleteAclsResult result = adminClient.deleteAcls(aclFilters);
             result.all().get(); // Wait for completion
 
-            monitor.info("Successfully revoked ACLs for OAuth subject: " + oauthSubject + ", topic: " + topicName);
+            monitor.debug("Successfully revoked ACLs for OAuth subject: %s, topic: %s".formatted(oauthSubject, topicName));
             return Result.success();
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            String message = "Interrupted while revoking ACLs for subject: " + oauthSubject;
+            String message = "Interrupted while revoking ACLs for subject: %s".formatted(oauthSubject);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         } catch (ExecutionException e) {
-            String message = "Failed to revoke ACLs for OAuth subject: " + oauthSubject;
+            String message = "Failed to revoke ACLs for OAuth subject: %s".formatted(oauthSubject);
             monitor.severe(message, e);
-            return Result.failure(message + ": " + e.getMessage());
+            return createFailureResult(message, e);
         }
+    }
+
+    private static @NotNull Result<Void> createFailureResult(String message, Exception e) {
+        return Result.failure("%s: %s".formatted(message, e.getMessage()));
     }
 
     /**

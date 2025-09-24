@@ -112,7 +112,7 @@ class KafkaAclServiceImplTest {
         verify(monitor).severe(anyString(), any(Exception.class));
 
         // Verify that ACLs are not tracked when creation fails
-        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+        assertThat(getTransferProcessAclsCount()).isZero();
     }
 
     @Test
@@ -141,7 +141,7 @@ class KafkaAclServiceImplTest {
         verify(monitor).debug("Successfully revoked ACLs for transferProcessId: " + TEST_TRANSFER_PROCESS_ID);
 
         // Verify that ACLs are no longer tracked
-        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+        assertThat(getTransferProcessAclsCount()).isZero();
     }
 
     @Test
@@ -248,7 +248,7 @@ class KafkaAclServiceImplTest {
 
         // Assert - ACLs should be removed from tracking
         assertThat(revokeResult.succeeded()).isTrue();
-        assertThat(getTransferProcessAclsCount()).isEqualTo(0);
+        assertThat(getTransferProcessAclsCount()).isZero();
     }
 
     @Test

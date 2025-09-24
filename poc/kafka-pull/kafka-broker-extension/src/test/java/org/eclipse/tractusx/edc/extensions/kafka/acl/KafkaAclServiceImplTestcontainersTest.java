@@ -210,7 +210,7 @@ class KafkaAclServiceImplTestcontainersTest {
         Collection<AclBinding> aclsAfterRevoke = describeAfterRevoke.values().get();
 
         assertThat(aclsBeforeRevoke).hasSize(3);
-        assertThat(aclsAfterRevoke).hasSize(0);
+        assertThat(aclsAfterRevoke).isEmpty();
     }
 
     @Test
@@ -232,7 +232,7 @@ class KafkaAclServiceImplTestcontainersTest {
         Collection<AclBinding> aclsAfterRevoke = describeAfterRevoke.values().get();
 
         assertThat(aclsBeforeRevoke).hasSize(3);
-        assertThat(aclsAfterRevoke).hasSize(0);
+        assertThat(aclsAfterRevoke).isEmpty();
     }
 
     @Test
@@ -334,8 +334,8 @@ class KafkaAclServiceImplTestcontainersTest {
         producerProps.put(SaslConfigs.SASL_JAAS_CONFIG, ADMIN_LOGIN_MODULE);
 
         try (KafkaProducer<String, String> producer = new KafkaProducer<>(producerProps)) {
-            ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
-            producer.send(record).get();
+            ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topic, key, value);
+            producer.send(producerRecord).get();
             producer.flush();
         }
     }
