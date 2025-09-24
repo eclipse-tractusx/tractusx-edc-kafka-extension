@@ -76,16 +76,16 @@ public class KafkaBrokerExtension implements ServiceExtension {
     public static final String KAFKA_ADMIN_SCOPE = "edc.kafka.admin.scope";
 
     // SSL Configuration properties for AdminClient
-    @Setting(description = "SSL truststore location for Kafka AdminClient", required = false)
+    @Setting(value = "SSL truststore location for Kafka AdminClient")
     public static final String KAFKA_SSL_TRUSTSTORE_LOCATION = "edc.kafka.ssl.truststore.location";
 
-    @Setting(description = "SSL truststore password for Kafka AdminClient", required = false)
+    @Setting(value = "SSL truststore password for Kafka AdminClient")
     public static final String KAFKA_SSL_TRUSTSTORE_PASSWORD = "edc.kafka.ssl.truststore.password";
 
-    @Setting(description = "SSL endpoint identification algorithm for Kafka AdminClient", required = false)
+    @Setting(value = "SSL endpoint identification algorithm for Kafka AdminClient")
     public static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = "edc.kafka.ssl.endpoint.identification.algorithm";
 
-    @Setting(description = "The file format of the trust store file for Kafka AdminClient", required = false)
+    @Setting(value = "The file format of the trust store file for Kafka AdminClient")
     public static final String KAFKA_SSL_TRUSTSTORE_TYPE_CONFIG = "edc.kafka.ssl.truststore.type";
 
     @Inject
