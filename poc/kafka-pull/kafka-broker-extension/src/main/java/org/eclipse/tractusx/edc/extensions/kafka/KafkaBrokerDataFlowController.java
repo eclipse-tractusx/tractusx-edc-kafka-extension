@@ -69,7 +69,7 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     private final DataFlowPropertiesProvider propertiesProvider;
 
     public KafkaBrokerDataFlowController(final Vault vault, final KafkaOAuthService oauthService,
-                                         final KafkaAclService aclService, TransferTypeParser transferTypeParser, 
+                                         final KafkaAclService aclService, TransferTypeParser transferTypeParser,
                                          DataFlowPropertiesProvider propertiesProvider) {
         this.vault = vault;
         this.oauthService = oauthService;
@@ -157,28 +157,28 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     private String extractOAuthSubject(TokenRepresentation token) {
         try {
             String jwtToken = token.getToken();
-            
+
             // JWT tokens have three parts separated by dots: header.payload.signature
             String[] parts = jwtToken.split("\\.");
             if (parts.length != 3) {
                 throw new EdcException("Invalid JWT token format");
             }
-            
+
             // Decode the payload (second part)
             String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
-            
+
             // Parse the JSON payload
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode payloadNode = objectMapper.readTree(payload);
-            
+
             // Extract the subject claim
             JsonNode subNode = payloadNode.get("sub");
             if (subNode == null || subNode.isNull()) {
                 throw new EdcException("No 'sub' claim found in JWT token");
             }
-            
+
             return subNode.asText();
-            
+
         } catch (Exception e) {
             throw new EdcException("Failed to extract OAuth subject from token: " + e.getMessage(), e);
         }
