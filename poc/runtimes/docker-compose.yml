@@ -120,8 +120,6 @@ services:
       KAFKA_SASL_ENABLED_MECHANISMS: "OAUTHBEARER"
       KAFKA_SASL_OAUTHBEARER_JWKS_ENDPOINT_URL: "http://keycloak:8080/realms/kafka/protocol/openid-connect/certs"
       KAFKA_SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL: "http://keycloak:8080/realms/kafka/protocol/openid-connect/token"
-      KAFKA_SASL_OAUTHBEARER_CLIENT_ID: "myclient"
-      KAFKA_SASL_OAUTHBEARER_CLIENT_SECRET: "mysecret"
       KAFKA_SASL_OAUTHBEARER_EXPECTED_AUDIENCE: "account"
       ## ─── JAAS Config ───────────────────────────────────────────────────────
       KAFKA_OPTS: |
