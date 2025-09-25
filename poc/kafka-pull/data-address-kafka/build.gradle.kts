@@ -25,9 +25,4 @@ plugins {
 
 dependencies {
     implementation(libs.edc.spi.core)
-    testImplementation(libs.edc.junit)
-}
-
-tasks.test {
-//    useJUnitPlatform()
 }
