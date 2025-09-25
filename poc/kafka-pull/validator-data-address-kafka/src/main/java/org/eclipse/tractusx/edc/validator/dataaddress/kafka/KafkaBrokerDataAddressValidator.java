@@ -41,7 +41,6 @@ public class KafkaBrokerDataAddressValidator implements Validator<DataAddress> {
                 MECHANISM,
                 PROTOCOL,
                 OAUTH_TOKEN_URL,
-                OAUTH_REVOKE_URL,
                 OAUTH_CLIENT_ID,
                 OAUTH_CLIENT_SECRET_KEY
         ).map((final String it) -> {

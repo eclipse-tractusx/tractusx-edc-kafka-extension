@@ -38,4 +38,3 @@ project(":kafka-producer").projectDir = file("runtimes/kafka/kafka-producer")
 project(":kafka-broker-extension").projectDir = file("kafka-pull/kafka-broker-extension")
 project(":data-address-kafka").projectDir = file("kafka-pull/data-address-kafka")
 project(":validator-data-address-kafka").projectDir = file("kafka-pull/validator-data-address-kafka")
-

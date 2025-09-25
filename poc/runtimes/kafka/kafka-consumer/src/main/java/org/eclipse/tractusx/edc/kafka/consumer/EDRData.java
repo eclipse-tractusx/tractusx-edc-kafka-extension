@@ -45,7 +45,7 @@ public class EDRData {
     private String topic;
     private String authKey;
     private String authCode;
-    private String token;
+    private String authorization;
 
     @JsonProperty(KAFKA_POLL_DURATION)
     private String kafkaPollDuration;

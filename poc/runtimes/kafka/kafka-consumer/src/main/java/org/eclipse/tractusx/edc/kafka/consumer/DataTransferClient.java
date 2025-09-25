@@ -49,7 +49,7 @@ public class DataTransferClient {
     private static final String EDR_DATA_PATH_TEMPLATE = "/v3/edrs/%s/dataaddress";
 
     // Protocol Constants
-    private static final String TRANSFER_TYPE = "Kafka-PULL";
+    private static final String TRANSFER_TYPE = "KafkaBroker-PULL";
     private static final String KAFKA_BROKER_TYPE = "KafkaBroker";
     private static final String DATASPACE_PROTOCOL = "dataspace-protocol-http";
 
