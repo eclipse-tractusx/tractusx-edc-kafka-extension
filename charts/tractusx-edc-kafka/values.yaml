@@ -21,7 +21,12 @@ tractusx-connector:
   install:
     postgresql: true
     vault: true
-
+#  customCaCerts:
+#    test.pem: |
+#      -----BEGIN CERTIFICATE-----
+#      MIICuzCCAaMCAQAwMzELMAkGA1UEBhMCREUxEDAOBgNVBAgMB0JhdmFyaWExEjAQ
+#      ...
+#      -----END CERTIFICATE-----
   participant:
     id: "BPNLCHANGEME"
 

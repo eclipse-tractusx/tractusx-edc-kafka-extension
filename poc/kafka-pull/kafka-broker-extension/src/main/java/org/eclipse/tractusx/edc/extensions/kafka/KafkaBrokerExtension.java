@@ -38,6 +38,7 @@ import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.apache.kafka.common.config.SslConfigs.*;
 import static org.eclipse.tractusx.edc.core.utils.ConfigUtil.missingMandatoryProperty;
 
 /**
@@ -73,6 +74,19 @@ public class KafkaBrokerExtension implements ServiceExtension {
     public static final String DEFAULT_KAFKA_ADMIN_SCOPE = "kafka-admin";
     @Setting(value = "OAuth scope for Kafka AdminClient authentication", defaultValue = DEFAULT_KAFKA_ADMIN_SCOPE)
     public static final String KAFKA_ADMIN_SCOPE = "edc.kafka.admin.scope";
+
+    // SSL Configuration properties for AdminClient
+    @Setting(value = "SSL truststore location for Kafka AdminClient")
+    public static final String KAFKA_SSL_TRUSTSTORE_LOCATION = "edc.kafka.ssl.truststore.location";
+
+    @Setting(value = "SSL truststore password for Kafka AdminClient")
+    public static final String KAFKA_SSL_TRUSTSTORE_PASSWORD = "edc.kafka.ssl.truststore.password";
+
+    @Setting(value = "SSL endpoint identification algorithm for Kafka AdminClient")
+    public static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = "edc.kafka.ssl.endpoint.identification.algorithm";
+
+    @Setting(value = "The file format of the trust store file for Kafka AdminClient")
+    public static final String KAFKA_SSL_TRUSTSTORE_TYPE_CONFIG = "edc.kafka.ssl.truststore.type";
 
     @Inject
     private DataFlowManager dataFlowManager;
@@ -146,6 +160,28 @@ public class KafkaBrokerExtension implements ServiceExtension {
             }
         } else {
             monitor.info("Kafka AdminClient authentication not fully configured. Using basic connection properties only.");
+        }
+
+        // SSL Configuration
+        String truststoreLocation = context.getSetting(KAFKA_SSL_TRUSTSTORE_LOCATION, null);
+        String truststorePassword = context.getSetting(KAFKA_SSL_TRUSTSTORE_PASSWORD, null);
+        String endpointIdentificationAlgorithm = context.getSetting(KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM, null);
+        String truststoreType = context.getSetting(KAFKA_SSL_TRUSTSTORE_TYPE_CONFIG, null);
+
+        if (truststoreLocation != null) {
+            properties.put(SSL_TRUSTSTORE_LOCATION_CONFIG, truststoreLocation);
+        }
+
+        if (truststorePassword != null) {
+            properties.put(SSL_TRUSTSTORE_PASSWORD_CONFIG, truststorePassword);
+        }
+
+        if (endpointIdentificationAlgorithm != null) {
+            properties.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, endpointIdentificationAlgorithm);
+        }
+
+        if (truststoreType != null) {
+            properties.put(SSL_TRUSTSTORE_TYPE_CONFIG, truststoreType);
         }
 
         return properties;

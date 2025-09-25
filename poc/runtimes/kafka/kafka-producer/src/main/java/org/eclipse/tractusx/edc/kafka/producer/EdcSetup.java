@@ -109,14 +109,14 @@ public class EdcSetup {
                     "topic": "%s",
                     "kafka.poll.duration": "PT10S",
                     "kafka.sasl.mechanism": "OAUTHBEARER",
-                    "kafka.security.protocol": "SASL_PLAINTEXT",
+                    "kafka.security.protocol": "%s",
                     "tokenUrl": "%s",
                     "revokeUrl": "%s",
                     "clientId": "%s",
                     "clientSecretKey": "%s"
                   }
                 }
-                """.formatted(assetId, config.getBootstrapServers(), topic, config.getTokenUrl(), config.getRevokeUrl(), config.getClientId(), config.getVaultClientSecretKey());
+                """.formatted(assetId, config.getBootstrapServers(), topic, KAFKA_SECURITY_PROTOCOL, config.getTokenUrl(), config.getRevokeUrl(), config.getClientId(), config.getVaultClientSecretKey());
     }
 
     private String getPolicyDefinitionJson() {

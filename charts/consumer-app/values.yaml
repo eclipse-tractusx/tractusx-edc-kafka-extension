@@ -44,7 +44,16 @@ application:
       stream: "kafka-stream-asset"
       forecast: "kafka-forecast-asset"
       tracking: "kafka-tracking-asset"
-  
+  # Add Kafka SSL configuration (used for env vars in the deployment)
+  kafka:
+    ssl:
+      # Path to the truststore file inside the container (e.g., when using mounted cacerts)
+      truststoreLocation: "/opt/java/openjdk/lib/security/cacerts"
+      # Kafka SSL endpoint identification algorithm (set to "" to disable host name verification in dev)
+      endpointIdentificationAlgorithm: ""
+      # Truststore type (e.g., JKS or PKCS12). Leave empty to use JVM default.
+      truststoreType: "JSK"
+
   # Provider Configuration
   provider:
     id: "BPNL00000003AZQP"
@@ -175,3 +184,8 @@ volumeMounts: []
 # - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
+
+customCACerts:
+  enabled: false
+  secretName: kafka-pem
+  emptyDirSize: 1Mi
