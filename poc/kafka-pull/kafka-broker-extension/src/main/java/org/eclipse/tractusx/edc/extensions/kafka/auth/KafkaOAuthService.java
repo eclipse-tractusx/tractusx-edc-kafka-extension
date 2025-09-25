@@ -18,6 +18,8 @@
  */
 package org.eclipse.tractusx.edc.extensions.kafka.auth;
 
+import org.eclipse.edc.spi.iam.TokenRepresentation;
+
 /**
  * Interface for services that handle OAuth2 access token operations for Kafka authentication.
  * Defines methods to fetch and revoke OAuth2 access tokens using the Client Credentials flow.
@@ -30,13 +32,6 @@ public interface KafkaOAuthService {
      * @param creds The OAuth credentials to use for token acquisition
      * @return The acquired access token as a string
      */
-    String getAccessToken(OAuthCredentials creds);
+    TokenRepresentation getAccessToken(OAuthCredentials creds);
 
-    /**
-     * Revokes the given token.
-     *
-     * @param creds The OAuth credentials used for token revocation
-     * @param token The token to revoke
-     */
-    void revokeToken(OAuthCredentials creds, String token);
 }

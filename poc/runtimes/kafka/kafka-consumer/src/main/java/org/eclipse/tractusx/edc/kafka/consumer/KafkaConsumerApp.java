@@ -88,7 +88,7 @@ public class KafkaConsumerApp {
         Objects.requireNonNull(edrData, "EDR data cannot be null");
 
         final Properties props = new Properties();
-        props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getKafkaBootstrapServers());
+        props.put(BOOTSTRAP_SERVERS_CONFIG, edrData.getEndpoint());
         props.put(GROUP_ID_CONFIG, edrData.getKafkaGroupPrefix());
         props.put(ENABLE_AUTO_COMMIT_CONFIG, "true"); // Automatically commit offsets
         props.put(AUTO_OFFSET_RESET_CONFIG, "earliest"); // Automatically reset the offset to the earliest offset

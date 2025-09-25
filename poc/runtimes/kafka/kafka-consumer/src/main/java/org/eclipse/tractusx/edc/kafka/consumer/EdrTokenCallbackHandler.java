@@ -140,7 +140,7 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
             throw new IOException("No EDR data found");
         }
 
-        String token = edrData.getToken();
+        String token = edrData.getAuthorization();
         if (token == null || token.isEmpty()) {
             throw new IOException("EDR data contains no token");
         }
