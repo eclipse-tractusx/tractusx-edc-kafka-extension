@@ -27,6 +27,7 @@ tx-edc-dataplane-hashicorp = { module = "org.eclipse.tractusx.edc:edc-dataplane-
 
 # Tractus-X EDC - Misc
 tx-edc-spi-bdrs-client = { module = "org.eclipse.tractusx.edc:bdrs-client-spi", version.ref = "tractusx" }
+tx-edc-core-utils = { module = "org.eclipse.tractusx.edc:core-utils", version.ref = "tractusx" }
 
 # Upstream EDC - SPI
 edc-spi-asset = { module = "org.eclipse.edc:asset-spi", version.ref = "edc" }
@@ -75,6 +76,7 @@ junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", vers
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-kafka = { module = "org.testcontainers:kafka", version.ref = "testcontainers" }
 testcontainers-vault = { module = "org.testcontainers:vault", version.ref = "testcontainers" }
 
 # Other
