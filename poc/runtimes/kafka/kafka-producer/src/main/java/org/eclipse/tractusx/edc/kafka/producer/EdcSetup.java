@@ -121,14 +121,14 @@ public class EdcSetup {
                         "kafka.bootstrap.servers": "%s",
                         "topic": "%s",
                         "kafka.sasl.mechanism": "OAUTHBEARER",
-                        "kafka.security.protocol": "SASL_PLAINTEXT",
+                        "kafka.security.protocol": "%s",
                         "tokenUrl": "%s",
                         "revokeUrl": "%s",
                         "clientId": "%s",
                         "clientSecretKey": "%s"
                       }
                     }
-                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
+                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KAFKA_SECURITY_PROTOCOL, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
         }
 
         static String getPolicyDefinitionJson() {
