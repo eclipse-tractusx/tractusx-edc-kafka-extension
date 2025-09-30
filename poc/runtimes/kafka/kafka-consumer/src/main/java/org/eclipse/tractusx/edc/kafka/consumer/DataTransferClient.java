@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
+@Service
 public class DataTransferClient {
 
     // API Endpoints

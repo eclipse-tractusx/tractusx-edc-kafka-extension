@@ -17,6 +17,8 @@ lombok = "1.18.38"
 slf4j = "1.7.36"
 logback = "1.5.18"
 java-jwt = "4.5.0"
+spring-boot = "3.2.0"
+spring-dependency-management = "1.1.4"
 
 [libraries]
 # Tractus-X EDC - Runtimes
@@ -91,5 +93,12 @@ slf4j-api = {module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
 logback-classic = {module = "ch.qos.logback:logback-classic", version.ref = "logback"}
 java-jwt = {module = "com.auth0:java-jwt", version.ref = "java-jwt"}
 
+# Spring Boot
+spring-boot-starter-web = {module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot"}
+spring-boot-starter-actuator = {module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot"}
+spring-boot-starter-validation = {module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "spring-boot"}
+
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

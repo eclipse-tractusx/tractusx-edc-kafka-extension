@@ -42,7 +42,7 @@ public class KafkaConsumerApp {
     }
 
     public KafkaConsumerApp() {
-        this(new DataTransferClient(), new KafkaTopicConsumptionService(new KafkaConsumerFactory()));
+        this(new DataTransferClient(), new KafkaTopicConsumptionService(new KafkaConsumerFactory(), new DefaultMessageHandler()));
     }
 
     public static void main(final String[] args) {
