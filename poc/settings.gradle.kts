@@ -19,8 +19,9 @@
  */
 
 rootProject.name = "tractusx-edc-kafka-extension"
-include(":controlplane-local")
-include(":dataplane-local")
+include(":edc-controlplane-kafka-local")
+include(":edc-controlplane-kafka")
+include(":edc-dataplane-kafka-local")
 include(":seed-vault")
 include(":local-services")
 include(":kafka-consumer")
@@ -29,8 +30,9 @@ include(":kafka-broker-extension")
 include(":data-address-kafka")
 include(":validator-data-address-kafka")
 
-project(":controlplane-local").projectDir = file("runtimes/edc/controlplane-local")
-project(":dataplane-local").projectDir = file("runtimes/edc/dataplane-local")
+project(":edc-controlplane-kafka-local").projectDir = file("runtimes/edc/edc-controlplane-kafka-local")
+project(":edc-controlplane-kafka").projectDir = file("runtimes/edc/edc-controlplane-kafka")
+project(":edc-dataplane-kafka-local").projectDir = file("runtimes/edc/edc-dataplane-kafka-local")
 project(":seed-vault").projectDir = file("runtimes/edc/seed-in-memory-vault")
 project(":local-services").projectDir = file("runtimes/edc/local-services")
 project(":kafka-consumer").projectDir = file("runtimes/kafka/kafka-consumer")
@@ -38,3 +40,11 @@ project(":kafka-producer").projectDir = file("runtimes/kafka/kafka-producer")
 project(":kafka-broker-extension").projectDir = file("kafka-pull/kafka-broker-extension")
 project(":data-address-kafka").projectDir = file("kafka-pull/data-address-kafka")
 project(":validator-data-address-kafka").projectDir = file("kafka-pull/validator-data-address-kafka")
+
+dependencyResolutionManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        mavenLocal()
+    }
+}
