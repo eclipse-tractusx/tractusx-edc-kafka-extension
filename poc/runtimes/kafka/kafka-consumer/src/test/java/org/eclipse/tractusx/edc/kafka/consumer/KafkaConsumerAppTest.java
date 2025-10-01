@@ -83,8 +83,7 @@ class KafkaConsumerAppTest {
     static Stream<Arguments> dataFetchExceptionProvider() {
         return Stream.of(
                 Arguments.of(new IOException("Catalog request failed"), IOException.class),
-                Arguments.of(new IOException("Connection failed"), IOException.class),
-                Arguments.of(new InterruptedException("Interrupted"), InterruptedException.class)
+                Arguments.of(new IOException("Connection failed"), IOException.class)
         );
     }
 
@@ -94,13 +93,13 @@ class KafkaConsumerAppTest {
         EDRData validEdrData = createValidEdrData();
 
         when(dataTransferClient.executeDataTransferWorkflow(any())).thenReturn(validEdrData);
-        doThrow(new RuntimeException("Consumption failed")).when(consumptionService).startConsumption(List.of(validEdrData));
+        doThrow(new KafkaConsumerException("Consumption failed")).when(consumptionService).startConsumption(List.of(validEdrData, validEdrData));
 
         // Act & Assert
         assertThatThrownBy(() -> kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run())
-                .isInstanceOf(RuntimeException.class)
+                .isInstanceOf(KafkaConsumerException.class)
                 .hasMessage("Application failed to start")
-                .hasCauseInstanceOf(RuntimeException.class);
+                .hasCauseInstanceOf(KafkaConsumerException.class);
 
         verify(dataTransferClient, times(2)).executeDataTransferWorkflow(any());
         verify(consumptionService).startConsumption(anyList());

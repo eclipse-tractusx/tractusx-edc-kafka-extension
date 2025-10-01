@@ -74,7 +74,7 @@ public class KafkaConsumerApplication {
 
             log.info("Starting Kafka topic consumption with {} EDR data entries", edrDataList.size());
             consumptionService.startConsumption(edrDataList);
-        } catch (IOException e) {
+        } catch (IOException | KafkaConsumerException e) {
             throw new KafkaConsumerException("Application failed to start", e);
         }
     }
