@@ -18,7 +18,9 @@
  */
 package org.eclipse.tractusx.edc.kafka.producer;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.tractusx.edc.kafka.producer.config.ProducerProperties;
 
 import java.io.IOException;
 import java.net.URI;
@@ -26,36 +28,33 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import static org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp.*;
-
 /**
  * This class is responsible for setting up an EDC (Eclipse Dataspace Connector) offer.
  * It facilitates the creation of assets, policy definitions, and contract definitions
  * necessary for the operation of the EDC.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class EdcSetup {
     static final String ASSETS_PATH = "/v3/assets";
     static final String POLICY_DEFINITIONS_PATH = "/v3/policydefinitions";
     static final String CONTRACT_DEFINITIONS_PATH = "/v3/contractdefinitions";
     static final String CONTENT_TYPE_JSON = "application/json";
+    private static final String POLICY_ID = "no-constraint-policy";
+    private static final String CONTRACT_DEFINITION_ID = "contract-definition";
 
-    private final HttpClient client;
-
-    public EdcSetup(final HttpClient client) {
-        this.client = client;
-    }
+    private final HttpClient httpClient;
+    private final ProducerProperties config;
 
     /**
-     * Sets up the EDC offer by creating asset, policy and contract definitions
+     * Sets up the EDC offer by creating asset, policy, and contract definitions
      */
-    void setupEdcOffer() {
+    public void setupEdcOffer() {
         log.info("Setting up EDC offer...");
         try {
-            createAsset(FORECAST_ASSET_ID,  KAFKA_PRODUCTION_FORECAST_TOPIC);
-            createAsset(TRACKING_ASSET_ID,  KAFKA_PRODUCTION_TRACKING_TOPIC);
-            // Default AssetID, Default Topic
-            createAsset(ASSET_ID, KAFKA_STREAM_TOPIC);
+            createAsset(config.getForecastAssetId(), config.getProductionForecastTopic());
+            createAsset(config.getTrackingAssetId(), config.getProductionTrackingTopic());
+            createAsset(config.getAssetId(), config.getStreamTopic());
             createPolicyDefinition();
             createContractDefinition();
         } catch (final IOException e) {
@@ -69,99 +68,86 @@ public class EdcSetup {
     }
 
     private void createAsset(final String assetId, final String topic) throws IOException, InterruptedException {
-        final String assetJson = EdcConfig.getAssetJson(assetId, topic);
+        final String assetJson = getAssetJson(assetId, topic);
         final HttpResponse<String> response = sendJsonRequest(ASSETS_PATH, assetJson);
         log.info("Asset creation response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createPolicyDefinition() throws IOException, InterruptedException {
-        final String policyJson = EdcConfig.getPolicyDefinitionJson();
+        final String policyJson = getPolicyDefinitionJson();
         final HttpResponse<String> response = sendJsonRequest(POLICY_DEFINITIONS_PATH, policyJson);
         log.info("Policy definition response: {} - {}", response.statusCode(), response.body());
     }
 
     private void createContractDefinition() throws IOException, InterruptedException {
-        final String contractJson = EdcConfig.getContractDefinitionJson();
+        final String contractJson = getContractDefinitionJson();
         final HttpResponse<String> response = sendJsonRequest(CONTRACT_DEFINITIONS_PATH, contractJson);
         log.info("Contract definition response: {} - {}", response.statusCode(), response.body());
     }
 
     private HttpResponse<String> sendJsonRequest(final String path, final String jsonBody) throws IOException, InterruptedException {
-        final HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(EDC_MANAGEMENT_URL + path))
-                .header("Content-Type", CONTENT_TYPE_JSON)
-                .header("X-API-KEY", EDC_API_AUTH_KEY)
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
+        final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(config.getManagementUrl() + path)).header("Content-Type", CONTENT_TYPE_JSON).header("X-API-KEY", config.getApiAuthKey()).POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build();
         log.info("Sending request: {}", request);
-        return client.send(request, HttpResponse.BodyHandlers.ofString());
+        return httpClient.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    /**
-     * Configuration class providing EDC-specific JSON payloads
-     */
-    private static class EdcConfig {
-        private static final String POLICY_ID = "no-constraint-policy";
-        private static final String CONTRACT_DEFINITION_ID = "contract-definition";
+    private String getAssetJson(final String assetId, final String topic) {
+        return """
+                {
+                  "@context": {
+                    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+                  },
+                  "@id": "%s",
+                  "properties": {
+                    "name": "test asset",
+                    "contenttype": "application/json"
+                  },
+                  "dataAddress": {
+                    "type": "KafkaBroker",
+                    "name": "test asset",
+                    "kafka.bootstrap.servers": "%s",
+                    "topic": "%s",
+                    "kafka.sasl.mechanism": "OAUTHBEARER",
+                    "kafka.security.protocol": "SASL_PLAINTEXT",
+                    "tokenUrl": "%s",
+                    "revokeUrl": "%s",
+                    "clientId": "%s",
+                    "clientSecretKey": "%s"
+                  }
+                }
+                """.formatted(assetId, config.getBootstrapServers(), topic, config.getTokenUrl(), config.getRevokeUrl(), config.getClientId(), config.getVaultClientSecretKey());
+    }
 
-        static String getAssetJson(final String assetId, final String topic) {
-            return """
-                    {
-                      "@context": {
-                        "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
-                      },
-                      "@id": "%s",
-                      "properties": {
-                        "name": "test asset",
-                        "contenttype": "application/json"
-                      },
-                      "dataAddress": {
-                        "type": "KafkaBroker",
-                        "name": "test asset",
-                        "kafka.bootstrap.servers": "%s",
-                        "topic": "%s",
-                        "kafka.sasl.mechanism": "OAUTHBEARER",
-                        "kafka.security.protocol": "SASL_PLAINTEXT",
-                        "tokenUrl": "%s",
-                        "revokeUrl": "%s",
-                        "clientId": "%s",
-                        "clientSecretKey": "%s"
-                      }
-                    }
-                    """.formatted(assetId, KAFKA_BOOTSTRAP_SERVERS, topic, KEYCLOAK_TOKEN_URL, KEYCLOAK_REVOKE_URL, KEYCLOAK_CLIENT_ID, VAULT_CLIENT_SECRET_KEY);
-        }
+    private String getPolicyDefinitionJson() {
+        return """
+                {
+                  "@context": {
+                    "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+                    "odrl": "http://www.w3.org/ns/odrl/2/"
+                  },
+                  "@id": "%s",
+                  "policy": {
+                    "@context": "http://www.w3.org/ns/odrl.jsonld",
+                    "@type": "Set",
+                    "permission": [],
+                    "prohibition": [],
+                    "obligation": []
+                  }
+                }
+                """.formatted(POLICY_ID);
+    }
 
-        static String getPolicyDefinitionJson() {
-            return """
-                    {
-                      "@context": {
-                        "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
-                        "odrl": "http://www.w3.org/ns/odrl/2/"
-                      },
-                      "@id": "%s",
-                      "policy": {
-                        "@context": "http://www.w3.org/ns/odrl.jsonld",
-                        "@type": "Set",
-                        "permission": [],
-                        "prohibition": [],
-                        "obligation": []
-                      }
-                    }
-                    """.formatted(POLICY_ID);
-        }
-
-        static String getContractDefinitionJson() {
-            return """
-                    {
-                      "@context": {
-                        "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
-                      },
-                      "@id": "%s",
-                      "accessPolicyId": "%s",
-                      "contractPolicyId": "%s",
-                      "assetsSelector": []
-                    }
-                    """.formatted(CONTRACT_DEFINITION_ID, POLICY_ID, POLICY_ID);
-        }
+    private String getContractDefinitionJson() {
+        return """
+                {
+                  "@context": {
+                    "@vocab": "https://w3id.org/edc/v0.0.1/ns/"
+                  },
+                  "@id": "%s",
+                  "accessPolicyId": "%s",
+                  "contractPolicyId": "%s",
+                  "assetsSelector": []
+                }
+                """.formatted(CONTRACT_DEFINITION_ID, POLICY_ID, POLICY_ID);
     }
 }

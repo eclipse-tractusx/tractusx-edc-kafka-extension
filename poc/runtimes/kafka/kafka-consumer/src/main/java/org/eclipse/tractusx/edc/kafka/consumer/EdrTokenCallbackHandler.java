@@ -123,8 +123,14 @@ public class EdrTokenCallbackHandler implements AuthenticateCallbackHandler {
             long issuedAt = jwt.getIssuedAtAsInstant().toEpochMilli();
             long expiresAt = jwt.getExpiresAtAsInstant().toEpochMilli();
             String subject = jwt.getSubject();
-            String scopeClaim = jwt.getClaim(scopeClaimName).asString();
-            Set<String> scopes = Set.of(scopeClaim);
+
+            Set<String> scopes = Set.of();
+            if (scopeClaimName != null) {
+                String scopeClaim = jwt.getClaim(scopeClaimName).asString();
+                if (scopeClaim != null && !scopeClaim.trim().isEmpty()) {
+                    scopes = Set.of(scopeClaim.trim().split("\\s+"));
+                }
+            }
 
             return new BasicOAuthBearerToken(accessToken, scopes, expiresAt, subject, issuedAt);
         } catch (JWTDecodeException e) {
