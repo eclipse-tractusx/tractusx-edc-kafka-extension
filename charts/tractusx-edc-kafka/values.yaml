@@ -40,9 +40,9 @@ tractusx-connector:
   controlplane:
     image:
       # override the edc docker image with the kafka extension image
-      repository: "tractusx/edc-controlplane-kafka"
+      repository: "edc-controlplane-kafka"
       pullPolicy: IfNotPresent
-      tag: "test"
+      tag: "latest"
 
     endpoints:
       management:
