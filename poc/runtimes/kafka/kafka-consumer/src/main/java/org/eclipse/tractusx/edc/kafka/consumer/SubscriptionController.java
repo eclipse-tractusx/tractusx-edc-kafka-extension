@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,8 +51,8 @@ public class SubscriptionController {
 
     @PostMapping("/subscribe")
     public ResponseEntity<SubscriptionResponse> subscribe(
-            @RequestParam String assetId) {
-        
+            @RequestParam String assetId) throws InterruptedException {
+
         try {
             log.info("Received subscription request for assetId: {}", assetId);
             EDRData edrData = dataTransferClient.executeDataTransferWorkflow(assetId);
@@ -61,24 +62,20 @@ public class SubscriptionController {
             List<KafkaRecordDto> recordDtos = StreamSupport.stream(records.spliterator(), false)
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
-            
+
             SubscriptionResponse response = SubscriptionResponse.builder()
                 .assetId(assetId)
                 .recordCount(recordDtos.size())
                 .records(recordDtos)
                 .timestamp(Instant.now())
                 .build();
-                
+
             return ResponseEntity.ok(response);
-            
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid assetId: {}", assetId, e);
-            return ResponseEntity.badRequest()
-                .body(SubscriptionResponse.error("Invalid assetId: " + e.getMessage()));
-        } catch (Exception e) {
+
+        } catch (IllegalArgumentException | IOException e) {
             log.error("Error processing subscription request for assetId: {}", assetId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(SubscriptionResponse.error("Internal server error"));
+                    .body(SubscriptionResponse.error("Internal server error"));
         }
     }
 

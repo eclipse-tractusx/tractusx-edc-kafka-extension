@@ -24,6 +24,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.io.IOException;
 import java.util.List;
 
 @SpringBootApplication
@@ -65,7 +66,7 @@ public class KafkaConsumerApplication {
         };
     }
 
-    private void runLegacyMode(DataTransferClient dataTransferClient, KafkaTopicConsumptionService consumptionService) {
+    private void runLegacyMode(DataTransferClient dataTransferClient, KafkaTopicConsumptionService consumptionService) throws InterruptedException {
         try {
             final List<EDRData> edrDataList = List.of(
                     dataTransferClient.executeDataTransferWorkflow(FORECAST_ASSET_ID),
@@ -73,8 +74,7 @@ public class KafkaConsumerApplication {
 
             log.info("Starting Kafka topic consumption with {} EDR data entries", edrDataList.size());
             consumptionService.startConsumption(edrDataList);
-        } catch (final Exception e) {
-            log.error("Fatal error in legacy mode execution", e);
+        } catch (IOException e) {
             throw new KafkaConsumerException("Application failed to start", e);
         }
     }
