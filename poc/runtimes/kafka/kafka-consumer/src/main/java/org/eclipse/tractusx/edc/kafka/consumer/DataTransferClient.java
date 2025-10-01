@@ -40,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication.*;
+
 @Slf4j
 @Service
 public class DataTransferClient {
@@ -77,7 +79,7 @@ public class DataTransferClient {
      * Constructs a new instance of {@code DataTransferClient}.
      */
     public DataTransferClient() {
-        this(KafkaConsumerApp.EDC_MANAGEMENT_URL, KafkaConsumerApp.PROVIDER_ID, KafkaConsumerApp.PROVIDER_PROTOCOL_URL, HttpClient.newBuilder()
+        this(EDC_MANAGEMENT_URL, PROVIDER_ID, PROVIDER_PROTOCOL_URL, HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build());
     }
@@ -319,7 +321,7 @@ public class DataTransferClient {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", CONTENT_TYPE_JSON)
-                .header(API_KEY_HEADER, KafkaConsumerApp.EDC_API_KEY)
+                .header(API_KEY_HEADER, EDC_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
                 .build();
 
@@ -338,7 +340,7 @@ public class DataTransferClient {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", CONTENT_TYPE_JSON)
-                .header(API_KEY_HEADER, KafkaConsumerApp.EDC_API_KEY)
+                .header(API_KEY_HEADER, EDC_API_KEY)
                 .GET()
                 .build();
 

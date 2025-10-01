@@ -43,11 +43,11 @@ class KafkaConsumerAppTest {
     @Mock
     private KafkaTopicConsumptionService consumptionService;
 
-    private KafkaConsumerApp kafkaConsumerApp;
+    private KafkaConsumerApplication kafkaConsumerApp;
 
     @BeforeEach
     void setUp() {
-        kafkaConsumerApp = new KafkaConsumerApp(dataTransferClient, consumptionService);
+        kafkaConsumerApp = new KafkaConsumerApplication();
     }
 
     @Test
@@ -57,7 +57,7 @@ class KafkaConsumerAppTest {
         when(dataTransferClient.executeDataTransferWorkflow(any())).thenReturn(validEdrData);
 
         // Act
-        kafkaConsumerApp.run();
+        kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run();
 
         // Assert
         verify(dataTransferClient, times(2)).executeDataTransferWorkflow(any());
@@ -71,7 +71,7 @@ class KafkaConsumerAppTest {
         when(dataTransferClient.executeDataTransferWorkflow(any())).thenThrow(exception);
 
         // Act & Assert
-        assertThatThrownBy(() -> kafkaConsumerApp.run())
+        assertThatThrownBy(() -> kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run())
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Application failed to start")
                 .hasCauseInstanceOf(expectedCauseType);
@@ -97,7 +97,7 @@ class KafkaConsumerAppTest {
         doThrow(new RuntimeException("Consumption failed")).when(consumptionService).startConsumption(List.of(validEdrData));
 
         // Act & Assert
-        assertThatThrownBy(() -> kafkaConsumerApp.run())
+        assertThatThrownBy(() -> kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run())
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Application failed to start")
                 .hasCauseInstanceOf(RuntimeException.class);

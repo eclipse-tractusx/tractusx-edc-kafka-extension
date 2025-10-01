@@ -166,3 +166,4 @@ services:
       PROVIDER_PROTOCOL_URL: "http://control-plane-alice:8084/api/v1/dsp"
       EDC_MANAGEMENT_URL:    "http://control-plane-bob:8081/management"
       EDC_API_KEY:           "password"
+      CONSUMER_MODE:         "legacy"

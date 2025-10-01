@@ -39,10 +39,7 @@ dependencies {
 
     implementation(libs.java.jwt)
 
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(libs.assertj)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
@@ -56,9 +53,11 @@ dependencies {
 
 application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication")
-//    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
 }
 
+tasks.test {
+    useJUnitPlatform()
+}
 
 tasks.withType<BootJar>() {
     archiveFileName.set("${project.name}.jar")
