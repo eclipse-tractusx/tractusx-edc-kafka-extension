@@ -18,6 +18,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
 plugins {
     application
     jacoco
@@ -54,10 +57,10 @@ application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp")
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
+tasks.withType<ShadowJar> {
     mergeServiceFiles()
-    archiveFileName.set("kafka-producer.jar")
+    archiveFileName.set("${project.name}.jar")
+    transform(Log4j2PluginsCacheFileTransformer())
 }
 
 tasks.test {

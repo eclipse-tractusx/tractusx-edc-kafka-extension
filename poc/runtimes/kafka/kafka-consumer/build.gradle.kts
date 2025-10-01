@@ -18,6 +18,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     application
     jacoco
@@ -55,6 +57,11 @@ dependencies {
 application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication")
 //    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
+}
+
+
+tasks.withType<BootJar>() {
+    archiveFileName.set("${project.name}.jar")
 }
 
 description = "kafka-consumer"
