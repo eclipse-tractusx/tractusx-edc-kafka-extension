@@ -36,6 +36,7 @@ fullnameOverride: ""
 
 # Application configuration organized by logical groups
 application:
+  mode: "spring"
   # EDC Configuration
   edc:
     managementUrl: "http://{{ .Release.Name }}-edc:8081/management"

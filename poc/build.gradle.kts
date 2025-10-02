@@ -85,7 +85,7 @@ subprojects {
             }
 
             val copyLegalDocs = tasks.create("copyLegalDocs", Copy::class) {
-                from(project.rootProject.projectDir)
+                from(project.rootProject.projectDir.parentFile)
                 into("build/legal")
                 include("SECURITY.md", "NOTICE.md", "DEPENDENCIES", "LICENSE")
             }

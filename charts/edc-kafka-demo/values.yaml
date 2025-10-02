@@ -120,6 +120,9 @@ keycloak:
 
 consumer-app:
   enabled: true
+  service:
+    enabled: true
+    port: 8080
   secrets:
     edcApiKey: "password"
   application:
@@ -167,6 +170,8 @@ producer-app:
 producer-edc:
   enabled: true
   tractusx-connector:
+    install:
+      vault: true
     nameOverride: producer-edc
     postgresql:
       nameOverride: producer-edc-posgresql

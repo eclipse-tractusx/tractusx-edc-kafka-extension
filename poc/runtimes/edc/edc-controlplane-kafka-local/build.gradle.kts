@@ -28,7 +28,8 @@ plugins {
 }
 
 dependencies {
-    runtimeOnly(libs.tx.edc.controlplane.base) {
+    runtimeOnly(libs.tx.edc.controlplane.postgresql.hashicorp) {
+
         // DID / DCP extensions
         exclude(group = "org.eclipse.edc", module = "identity-did-core")
         exclude(group = "org.eclipse.edc", module = "identity-did-web")
@@ -45,7 +46,6 @@ dependencies {
     runtimeOnly(libs.edc.iam.mock)
     runtimeOnly(project(":kafka-broker-extension"))
     runtimeOnly(project(":local-services"))
-    runtimeOnly(project(":seed-vault"))
 }
 
 tasks.withType<ShadowJar> {
