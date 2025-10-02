@@ -16,15 +16,20 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
-public class KafkaConsumerException extends RuntimeException {
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-    public KafkaConsumerException(String message, Exception e) {
-        super(message, e);
-    }
-    public KafkaConsumerException(String message) {
-        super(message);
-    }
+/**
+ * Interface for handling Kafka consumer messages.
+ * Implementations of this interface can be autowired using Spring dependency injection.
+ */
+public interface MessageHandler {
+
+    /**
+     * Handles a Kafka consumer record.
+     *
+     * @param consumerRecord the Kafka consumer record to handle
+     */
+    void handleMessage(ConsumerRecord<String, String> consumerRecord);
 }

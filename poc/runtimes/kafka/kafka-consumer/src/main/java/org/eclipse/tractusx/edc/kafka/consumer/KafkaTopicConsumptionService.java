@@ -22,32 +22,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /**
  * Service responsible for consuming messages from Kafka topics.
  * This class provides testable topic consumption functionality with controllable lifecycle.
  */
 @Slf4j
+@Service
 public class KafkaTopicConsumptionService {
-    
+
     private final KafkaConsumerFactory consumerFactory;
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Consumer<ConsumerRecord<String, String>> messageHandler;
-    
-    public KafkaTopicConsumptionService(KafkaConsumerFactory consumerFactory, Consumer<ConsumerRecord<String, String>> messageHandler) {
+    private final MessageHandler messageHandler;
+
+    @Autowired
+    public KafkaTopicConsumptionService(KafkaConsumerFactory consumerFactory, MessageHandler messageHandler) {
         this.consumerFactory = consumerFactory;
-        this.messageHandler = messageHandler != null ? messageHandler : this::defaultMessageHandler;
+        this.messageHandler = messageHandler;
     }
-    
-    public KafkaTopicConsumptionService(KafkaConsumerFactory consumerFactory) {
-        this(consumerFactory, null);
-    }
-    
+
     /**
      * Starts consuming messages from the specified topics.
      * This method is controllable and can be stopped by calling stop().
@@ -56,21 +55,21 @@ public class KafkaTopicConsumptionService {
         if (edrDataList == null || edrDataList.isEmpty()) {
             throw new IllegalArgumentException("EDR data list cannot be null or empty");
         }
-        
+
         running.set(true);
         EDRData primaryEdrData = edrDataList.getFirst();
-        
+
         try (KafkaConsumer<String, String> consumer = consumerFactory.createConsumer(primaryEdrData)) {
             List<String> topics = extractValidTopics(edrDataList);
             if (topics.isEmpty()) {
                 log.warn("No valid topics found in EDR data list");
                 return;
             }
-            
+
             consumer.subscribe(topics);
-            log.info("Consumer started with {} authentication. Waiting for messages...", 
+            log.info("Consumer started with {} authentication. Waiting for messages...",
                     primaryEdrData.getKafkaSaslMechanism());
-            
+
             while (running.get()) {
                 consumeMessages(primaryEdrData, consumer);
             }
@@ -91,12 +90,31 @@ public class KafkaTopicConsumptionService {
                 if (!running.get()) {
                     break;
                 }
-                messageHandler.accept(consumerRecord);
+                messageHandler.handleMessage(consumerRecord);
             }
         } catch (Exception e) {
             if (running.get()) {
                 log.error("Error during message consumption", e);
             }
+        }
+    }
+
+    public ConsumerRecords<String, String> consumeOnce(final EDRData edrData) {
+        if (edrData == null) {
+            throw new IllegalArgumentException("EDR data list cannot be null");
+        }
+
+        try (KafkaConsumer<String, String> consumer = consumerFactory.createConsumer(edrData)) {
+            List<String> topics = extractValidTopics(List.of(edrData));
+            if (topics.isEmpty()) {
+                throw new KafkaConsumerException("No valid topics found in EDR data list");
+            }
+            consumer.subscribe(topics);
+            log.info("Consumer subscribed with {} authentication. Polling for messages...",
+                    edrData.getKafkaSaslMechanism());
+            Duration pollDuration = parsePollDuration(edrData.getKafkaPollDuration());
+
+            return consumer.poll(pollDuration);
         }
     }
 
@@ -107,21 +125,21 @@ public class KafkaTopicConsumptionService {
         log.info("Stopping Kafka topic consumption...");
         running.set(false);
     }
-    
+
     /**
      * Checks if the consumption service is currently running.
      */
     public boolean isRunning() {
         return running.get();
     }
-    
+
     private List<String> extractValidTopics(List<EDRData> edrDataList) {
         return edrDataList.stream()
                 .map(EDRData::getTopic)
                 .filter(topic -> topic != null && !topic.isBlank())
                 .toList();
     }
-    
+
     private Duration parsePollDuration(String pollDurationStr) {
         try {
             return Duration.parse(pollDurationStr);
@@ -130,9 +148,5 @@ public class KafkaTopicConsumptionService {
             return Duration.parse("PT10S");
         }
     }
-    
-    private void defaultMessageHandler(ConsumerRecord<String, String> consumerRecord) {
-        log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",
-                consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), consumerRecord.partition(), consumerRecord.offset());
-    }
+
 }

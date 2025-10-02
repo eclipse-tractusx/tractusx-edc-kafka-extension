@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +56,7 @@ class KafkaTopicConsumptionServiceTest {
     private KafkaConsumer<String, String> kafkaConsumer;
 
     @Mock
-    private Consumer<ConsumerRecord<String, String>> messageHandler;
+    private MessageHandler messageHandler;
 
     private KafkaTopicConsumptionService consumptionService;
 
@@ -106,7 +105,7 @@ class KafkaTopicConsumptionServiceTest {
         // Assert
         verify(kafkaConsumer).subscribe(List.of("topic1", "topic2"));
         verify(kafkaConsumer, atLeastOnce()).poll(any(Duration.class));
-        verify(messageHandler).accept(consumerRecord);
+        verify(messageHandler).handleMessage(consumerRecord);
         verify(kafkaConsumer).close();
     }
 
@@ -151,31 +150,6 @@ class KafkaTopicConsumptionServiceTest {
         assertThat(consumptionService.isRunning()).isFalse();
     }
 
-    @Test
-    void shouldUseDefaultMessageHandlerWhenNoneProvided() throws Exception {
-        // Arrange
-        when(consumerFactory.createConsumer(any())).thenReturn(kafkaConsumer);
-        consumptionService = new KafkaTopicConsumptionService(consumerFactory);
-        EDRData edrData = createEdrData("test-topic");
-        List<EDRData> edrDataList = List.of(edrData);
-
-        ConsumerRecord<String, String> consumerRecord = new ConsumerRecord<>("test-topic", 0, 0L, "key", "value");
-        ConsumerRecords<String, String> records = createConsumerRecords(consumerRecord);
-
-        when(kafkaConsumer.poll(any(Duration.class))).thenReturn(records, new ConsumerRecords<>(Collections.emptyMap()));
-
-        // Act
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> consumptionService.startConsumption(edrDataList));
-
-        wait(100);
-        consumptionService.stop();
-
-        future.get(1, TimeUnit.SECONDS);
-
-        // Assert - should not throw exception and should process the record
-        verify(kafkaConsumer).subscribe(List.of("test-topic"));
-        verify(kafkaConsumer, atLeastOnce()).poll(any(Duration.class));
-    }
 
     private EDRData createEdrData(String topic) {
         return EDRData.builder()

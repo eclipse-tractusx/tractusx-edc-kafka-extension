@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.apache.kafka.common.config.SaslConfigs.SASL_OAUTHBEARER_SCOPE_CLAIM_NAME;
-import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.ASSET_ID;
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication.ASSET_ID;
 
 /**
  * Callback handler that retrieves an OAuth bearer token from EDRData and converts it to

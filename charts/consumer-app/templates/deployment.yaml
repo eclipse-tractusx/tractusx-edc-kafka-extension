@@ -75,6 +75,8 @@ spec:
               value: {{ .Values.application.provider.id | quote }}
             - name: PROVIDER_PROTOCOL_URL
               value: {{ tpl .Values.application.provider.protocolUrl . | quote }}
+            - name: CONSUMER_MODE
+              value: {{ tpl .Values.application.mode . | quote }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -87,12 +89,16 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
+            - name: tmp-volume
+              mountPath: "/tmp"
+          {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
       volumes:
+        - name: tmp-volume
+          emptyDir: {}
+      {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}

@@ -17,6 +17,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
 plugins {
     `java-library`
     id("application")
@@ -29,19 +32,18 @@ dependencies {
         exclude(group = "org.eclipse.tractusx.edc", module = "tx-dcp-sts-dim")
     }
 
-    implementation(libs.edc.iam.mock)
-    implementation(project(":local-services"))
-    implementation(project(":seed-vault"))
+    runtimeOnly(libs.edc.iam.mock)
+    runtimeOnly(project(":local-services"))
+    runtimeOnly(project(":seed-vault"))
+}
+
+tasks.withType<ShadowJar> {
+    mergeServiceFiles()
+    archiveFileName.set("${project.name}.jar")
+    transform(Log4j2PluginsCacheFileTransformer())
 }
 
 application {
     mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
-    mergeServiceFiles()
-    archiveFileName.set("dataplane-local.jar")
-}
-
-description = "dataplane-local"

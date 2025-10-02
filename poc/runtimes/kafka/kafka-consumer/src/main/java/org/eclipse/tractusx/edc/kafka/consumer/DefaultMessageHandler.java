@@ -16,15 +16,24 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
-public class KafkaConsumerException extends RuntimeException {
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.stereotype.Component;
 
-    public KafkaConsumerException(String message, Exception e) {
-        super(message, e);
-    }
-    public KafkaConsumerException(String message) {
-        super(message);
+/**
+ * Default implementation of MessageHandler that logs received Kafka messages.
+ * This class can be autowired using Spring dependency injection.
+ */
+@Slf4j
+@Component
+public class DefaultMessageHandler implements MessageHandler {
+
+    @Override
+    public void handleMessage(ConsumerRecord<String, String> consumerRecord) {
+        log.info("Received record(topic={} key={}, value={}) meta(partition={}, offset={})",
+                consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), 
+                consumerRecord.partition(), consumerRecord.offset());
     }
 }

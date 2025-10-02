@@ -16,15 +16,29 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
 package org.eclipse.tractusx.edc.kafka.consumer;
 
-public class KafkaConsumerException extends RuntimeException {
+import lombok.*;
 
-    public KafkaConsumerException(String message, Exception e) {
-        super(message, e);
-    }
-    public KafkaConsumerException(String message) {
-        super(message);
+import java.time.Instant;
+import java.util.List;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class SubscriptionResponse {
+    private String assetId;
+    private Integer recordCount;
+    private List<KafkaRecordDto> records;
+    private Instant timestamp;
+    private String error;
+    
+    public static SubscriptionResponse error(String message) {
+        return SubscriptionResponse.builder()
+            .error(message)
+            .timestamp(Instant.now())
+            .build();
     }
 }
