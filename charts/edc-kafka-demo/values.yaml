@@ -16,6 +16,10 @@
 #
 #  SPDX-License-Identifier: Apache-2.0
 #################################################################################
+global:
+  security:
+    # required to use bitnamilegacy images
+    allowInsecureImages: true
 
 customCaCerts:
   test.pem: &cert |
@@ -111,6 +115,8 @@ kafka:
         -Dorg.apache.kafka.sasl.oauthbearer.allowed.urls=http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/certs,http://{{ .Release.Name }}-keycloak:80/realms/kafka/protocol/openid-connect/token
 
 keycloak:
+  image:
+    repository: bitnamilegacy/keycloak
   enabled: true
   auth:
     adminUser: admin

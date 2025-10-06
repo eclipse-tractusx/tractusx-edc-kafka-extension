@@ -30,23 +30,31 @@ dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
-    implementation("com.auth0:java-jwt:4.5.0")
-    // SLF4J API
-    implementation("org.slf4j:slf4j-api:1.7.36")
-    // Logback Classic provides a concrete implementation for SLF4J
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
+    implementation(libs.java.jwt)
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.classic)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.junit.jupiter.engine)
     testImplementation(libs.junit.jupiter.params)
     testImplementation(libs.assertj)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }
 
 application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

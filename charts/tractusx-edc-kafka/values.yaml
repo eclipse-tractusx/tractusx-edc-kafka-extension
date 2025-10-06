@@ -37,10 +37,10 @@ tractusx-connector:
       dim:
         url:
       oauth:
-        token_url: test
+        token_url:
         client:
-          id: test
-          secret_alias: test
+          id:
+          secret_alias:
 
   controlplane:
     image:
@@ -59,7 +59,7 @@ tractusx-connector:
         path: /api/v1/dsp
     bdrs:
       server:
-        url: test
+        url:
 
     # -- Extra environment variables that will be pass onto deployment pods
     env: {}
@@ -99,9 +99,9 @@ tractusx-connector:
         expiry_tolerance_seconds: 10
         refresh_endpoint:
       signer:
-        privatekey_alias: test
+        privatekey_alias:
       verifier:
-        publickey_alias: test
+        publickey_alias:
 
     ingresses:
       - enabled: false
