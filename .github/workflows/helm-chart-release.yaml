@@ -1,0 +1,40 @@
+name: helm-chart-release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
+
+      - name: Prepare charts subset
+        run: |
+          mkdir -p .cr-release-packages
+          mkdir -p .charts-to-release
+          cp -R charts/edc-kafka-demo .charts-to-release/
+          cp -R charts/tractusx-edc-kafka .charts-to-release/
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          charts_dir: .charts-to-release
+          packages_with_index: true
