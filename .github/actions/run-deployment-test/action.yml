@@ -93,7 +93,24 @@ runs:
     - name: Print logs
       if: failure()
       shell: bash
-      run: kubectl get deployments | tail -n +2 | awk '{print $1}' | sed 's/^/deployment\//' | xargs -n1 kubectl logs
+      run: |-
+        echo "=== Deployments Status ==="
+        kubectl get deployments -n demo
+        
+        echo -e "\n=== Deployment Descriptions (shows failure reasons) ==="
+        kubectl get deployments -n demo | tail -n +2 | awk '{print $1}' | xargs -n1 kubectl describe deployment -n demo
+        
+        echo -e "\n=== Pod Status ==="
+        kubectl get pods -n demo
+        
+        echo -e "\n=== Pod Descriptions (shows failure reasons) ==="
+        kubectl get pods -n demo --no-headers | awk '{print $1}' | xargs -n1 kubectl describe pod -n demo
+        
+        echo -e "\n=== Recent Events ==="
+        kubectl get events -n demo --sort-by='.lastTimestamp'
+        
+        echo -e "\n=== Pod Logs ==="
+        kubectl get deployments -n demo | tail -n +2 | awk '{print $1}' | sed 's/^/deployment\//' | xargs -n1 kubectl logs -n demo --tail=100
 
     #################
     ### Tear Down ###

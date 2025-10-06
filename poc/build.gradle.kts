@@ -96,7 +96,6 @@ subprojects {
             jarTask
                 .dependsOn(copyDockerfile)
                 .dependsOn(copyLegalDocs)
-                .dependsOn(downloadOpentelemetryAgent)
 
             //actually apply the plugin to the (sub-)project
             apply(plugin = libs.plugins.docker.get().pluginId)
