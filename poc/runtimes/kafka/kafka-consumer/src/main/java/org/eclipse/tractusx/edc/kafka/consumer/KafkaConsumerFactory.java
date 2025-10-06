@@ -27,6 +27,8 @@ import java.util.Properties;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
+import static org.apache.kafka.common.config.SslConfigs.*;
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.*;
 
 /**
  * Factory for creating Kafka consumers.
@@ -92,6 +94,11 @@ public class KafkaConsumerFactory {
         props.put(SASL_LOGIN_REFRESH_MIN_PERIOD_SECONDS, "30"); // Don't refresh more than once per 30 seconds
         props.put(SASL_LOGIN_REFRESH_WINDOW_FACTOR, "0.8"); // Refresh at 80% of token lifetime
         props.put(SASL_LOGIN_REFRESH_WINDOW_JITTER, "0.05"); // Add small random jitter
+
+        // SSL configuration for development with self-signed certificates
+        props.put(SSL_TRUSTSTORE_LOCATION_CONFIG, KAFKA_SSL_TRUSTSTORE_LOCATION);
+        props.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM);
+        props.put(SSL_TRUSTSTORE_TYPE_CONFIG, KAFKA_SSL_TRUSTSTORE_TYPE);
 
         return props;
     }

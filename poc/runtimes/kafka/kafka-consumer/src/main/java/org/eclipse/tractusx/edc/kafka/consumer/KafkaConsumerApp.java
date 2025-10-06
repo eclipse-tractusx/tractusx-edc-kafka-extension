@@ -64,9 +64,5 @@ public class KafkaConsumerApp {
             log.error("Fatal error in KafkaConsumerApp", e);
             throw new KafkaConsumerException("Application failed to start", e);
         }
-//        // SSL configuration for development with self-signed certificates
-//        props.put(SSL_TRUSTSTORE_LOCATION_CONFIG, KAFKA_SSL_TRUSTSTORE_LOCATION);
-//        props.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM);
-//        props.put(SSL_TRUSTSTORE_TYPE_CONFIG, KAFKA_SSL_TRUSTSTORE_TYPE);
     }
 }
