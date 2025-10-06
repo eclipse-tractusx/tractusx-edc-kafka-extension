@@ -54,10 +54,10 @@ public class SubscriptionController {
             @RequestParam String assetId) throws InterruptedException {
 
         try {
-            log.info("Received subscription request for assetId: {}", assetId);
+            log.info("Received subscription request for assetId: {}", sanitizeForLog(assetId));
             EDRData edrData = dataTransferClient.executeDataTransferWorkflow(assetId);
             ConsumerRecords<String, String> records = consumptionService.consumeOnce(edrData);
-            log.info("Received {} records for assetId: {}", records.count(), assetId);
+            log.info("Received {} records for assetId: {}", records.count(), sanitizeForLog(assetId));
 
             List<KafkaRecordDto> recordDtos = StreamSupport.stream(records.spliterator(), false)
                 .map(this::mapToDto)
@@ -73,7 +73,7 @@ public class SubscriptionController {
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException | IOException e) {
-            log.error("Error processing subscription request for assetId: {}", assetId, e);
+            log.error("Error processing subscription request for assetId: {}", sanitizeForLog(assetId), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(SubscriptionResponse.error("Internal server error"));
         }
@@ -88,5 +88,12 @@ public class SubscriptionController {
             .value(record.value())
             .timestamp(Instant.ofEpochMilli(record.timestamp()))
             .build();
+    }
+
+    private String sanitizeForLog(String input) {
+        if (input == null) {
+            return null;
+        }
+        return input.replaceAll("[\\r\\n\\t\\f\\x0B]", "_");
     }
 }
