@@ -63,9 +63,8 @@ runs:
     - uses: ./.github/actions/setup-java
     - name: Build Controlplane
       shell: bash
-      working-directory: poc
       run: |-
-        ./gradlew -p ${{ inputs.rootDir }} shadowJar
+        ./poc/gradlew -p ${{ inputs.rootDir }} build
 
     ###############################
     # Set metadata of docker image
@@ -96,7 +95,6 @@ runs:
         file: ${{ inputs.rootDir }}/build/resources/docker/Dockerfile
         build-args: |
           JAR=build/libs/${{ inputs.imagename }}.jar
-          OTEL_JAR=build/resources/otel/opentelemetry-javaagent.jar
           ADDITIONAL_FILES=build/legal/*
         push: false
         tags: ${{ steps.meta.outputs.tags }}
@@ -109,7 +107,7 @@ runs:
     - name: Update Docker Hub description
       uses: peter-evans/dockerhub-description@v3
       with:
-        readme-filepath: ${{ inputs.rootDir }}/notice.md
+        readme-filepath: ${{ inputs.rootDir }}/NOTICE.md
         username: ${{ inputs.docker_user }}
         password: ${{ inputs.docker_token }}
         repository: ${{ inputs.namespace }}/${{ inputs.imagename }}
