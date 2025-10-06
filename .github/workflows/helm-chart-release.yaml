@@ -1,6 +1,9 @@
 name: helm-chart-release
 
 on:
+  push:
+    branches:
+      - "feat/helm-release"
   workflow_dispatch:
 
 jobs:
