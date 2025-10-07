@@ -46,6 +46,9 @@ jobs:
           imagename: edc-controlplane-kafka-local edc-dataplane-kafka-local kafka-consumer kafka-producer
           rootDir: runtimes/edc/edc-controlplane-kafka-local runtimes/edc/edc-dataplane-kafka-local runtimes/kafka/kafka-consumer runtimes/kafka/kafka-producer
           helm_command: |-
+            helm dep up charts/tractusx-edc-kafka
+            helm dep up charts/edc-kafka-demo
+            
             helm install demo charts/edc-kafka-demo -n demo --create-namespace \
             --wait --wait-for-jobs --timeout=600s --dependency-update
             
