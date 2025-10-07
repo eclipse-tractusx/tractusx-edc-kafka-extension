@@ -114,13 +114,13 @@ runs:
         echo -e "\n=== consumer-app ==="
         kubectl logs deployment/demo-consumer-app -n demo
         echo -e "\n=== consumer-edc ==="
-        kubectl logs deployment/demo-consumer-edc-controlplane -n demo
+        kubectl logs deployment/demo-consumer-edc-controlplane -n demo --tail=100
         echo -e "\n=== producer-edc ==="
-        kubectl logs deployment/demo-producer-edc-controlplane -n demo
+        kubectl logs deployment/demo-producer-edc-controlplane -n demo --tail=100
         echo -e "\n=== kafka ==="
-        kubectl logs demo-kafka-controller-0 -n demo
+        kubectl logs demo-kafka-controller-0 -n demo --tail=100
         echo -e "\n=== keycloak ==="
-        kubectl logs demo-keycloak-0 -n demo
+        kubectl logs demo-keycloak-0 -n demo --tail=100
 
     #################
     ### Tear Down ###
