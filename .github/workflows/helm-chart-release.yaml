@@ -50,17 +50,9 @@ jobs:
           helm dependency build charts/edc-kafka-demo || true
           helm dependency build charts/tractusx-edc-kafka || true
 
-      - name: Package only allowed charts
-        run: |
-          mkdir -p .cr-release-packages
-          helm package charts/edc-kafka-demo --destination .cr-release-packages
-          helm package charts/tractusx-edc-kafka --destination .cr-release-packages
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          charts_dir: charts
-          skip_existing: true
-          skip_packaging: true
+          config: ./.github/configs/cr-config.yml

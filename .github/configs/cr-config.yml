@@ -1,0 +1,18 @@
+# Scan charts from this directory
+chart-dirs:
+  - charts
+
+# Do not fail if a version/tag already exists (idempotent runs)
+skip-existing: true
+
+# Recommended for public repos: host .tgz on GitHub Releases and only
+# push index.yaml to gh-pages (simpler & avoids multi-push collisions).
+packages-with-index: false
+
+# The branch used to host index.yaml
+pages-branch: gh-pages
+
+# Exclude charts you do NOT want to release (use the `name:` from Chart.yaml)
+skip-charts:
+  - consumer-app
+  - producer-app
