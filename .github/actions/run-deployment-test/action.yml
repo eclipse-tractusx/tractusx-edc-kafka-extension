@@ -63,6 +63,7 @@ runs:
       with:
         node_image: kindest/node:${{ inputs.k8sversion }}
         version: v0.29.0
+        cloud_provider: true
 
     - name: Build docker images
       shell: bash
