@@ -62,6 +62,5 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           charts_dir: charts
-          packages_with_index: true
           skip_existing: true
           skip_packaging: true
