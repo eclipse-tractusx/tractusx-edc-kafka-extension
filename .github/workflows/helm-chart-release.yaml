@@ -11,6 +11,13 @@ jobs:
     permissions:
       contents: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        chart:
+          - edc-kafka-demo
+          - tractusx-edc-kafka
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,7 +34,6 @@ jobs:
         run: |
           set -euo pipefail
           if ! git ls-remote --exit-code --heads origin gh-pages; then
-            # Create an empty tree commit and push it as gh-pages
             EMPTY_TREE="$(git hash-object -t tree /dev/null)"
             COMMIT="$(printf "Initialize gh-pages branch\n" | git commit-tree "$EMPTY_TREE")"
             git update-ref refs/heads/gh-pages "$COMMIT"
@@ -45,18 +51,15 @@ jobs:
           helm repo add eclipse-tractusx https://eclipse-tractusx.github.io/charts/dev
           helm repo update
 
-      - name: Build chart dependencies
+      - name: Build dependencies (${{ matrix.chart }})
         run: |
-          helm dependency build charts/edc-kafka-demo || true
-          helm dependency build charts/tractusx-edc-kafka || true
+          helm dependency build charts/${{ matrix.chart }} || true
 
-      - name: Remove excluded charts
-        run: |
-          rm -rf charts/consumer-app charts/producer-app
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+      - name: Run chart-releaser (${{ matrix.chart }})
+        id: cr
+        uses: helm/chart-releaser-action@v1.7.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          charts_dir: charts/${{ matrix.chart }}
           config: ./.github/configs/cr-config.yml
