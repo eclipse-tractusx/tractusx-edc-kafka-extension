@@ -22,16 +22,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Ensure gh-pages branch exists
+      - name: Ensure gh-pages branch exists (no checkout)
+        shell: bash
         run: |
+          set -euo pipefail
           if ! git ls-remote --exit-code --heads origin gh-pages; then
-            git switch --orphan gh-pages
-            git reset --hard
-            echo "# Helm chart repo" > README.md
-            git add README.md
-            git commit -m "Initialize gh-pages branch"
-            git push origin gh-pages
-            git switch -
+            # Create an empty tree commit and push it as gh-pages
+            EMPTY_TREE="$(git hash-object -t tree /dev/null)"
+            COMMIT="$(printf "Initialize gh-pages branch\n" | git commit-tree "$EMPTY_TREE")"
+            git update-ref refs/heads/gh-pages "$COMMIT"
+            git push origin refs/heads/gh-pages
           fi
 
       - name: Install Helm
