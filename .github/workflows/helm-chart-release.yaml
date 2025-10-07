@@ -50,17 +50,13 @@ jobs:
           helm dependency build charts/edc-kafka-demo || true
           helm dependency build charts/tractusx-edc-kafka || true
 
-      - name: Stage allowed charts
+      - name: Remove excluded charts
         run: |
-          rm -rf .charts-to-release
-          mkdir -p .charts-to-release
-          cp -R charts/edc-kafka-demo .charts-to-release/
-          cp -R charts/tractusx-edc-kafka .charts-to-release/
+          rm -rf charts/consumer-app charts/producer-app
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          charts_dir: .charts-to-release
           config: ./.github/configs/cr-config.yml
