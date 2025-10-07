@@ -1,7 +1,3 @@
-# Scan charts from this directory
-chart-dirs:
-  - charts
-
 # Do not fail if a version/tag already exists (idempotent runs)
 skip-existing: true
 
@@ -11,8 +7,3 @@ packages-with-index: false
 
 # The branch used to host index.yaml
 pages-branch: gh-pages
-
-# Exclude charts you do NOT want to release (use the `name:` from Chart.yaml)
-skip-charts:
-  - consumer-app
-  - producer-app
