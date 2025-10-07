@@ -50,7 +50,7 @@ jobs:
             helm dep up charts/edc-kafka-demo
             
             helm install demo charts/edc-kafka-demo -n demo --create-namespace \
-            --wait --wait-for-jobs --timeout=600s --dependency-update
+            --wait --timeout=900s --dependency-update
             
             # Get deployment status
             kubectl get deployment -n demo
