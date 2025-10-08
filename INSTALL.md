@@ -7,11 +7,10 @@
 
 ## Building the Project
 
-To build the project, run:
+To build the project, and docker images run:
 
 ```bash
-cd poc/
-./gradlew build
+./poc/gradlew dockerize -p poc/
 ```
 
 ## Running the Example
@@ -21,7 +20,7 @@ cd poc/
 The easiest way to run the complete example is using Docker Compose:
 
 ```bash
-docker compose --project-directory poc/runtimes up --build
+docker compose --project-directory poc/runtimes up
 ```
 
 This will start:

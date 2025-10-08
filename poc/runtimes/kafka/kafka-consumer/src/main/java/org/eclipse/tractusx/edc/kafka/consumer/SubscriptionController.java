@@ -94,6 +94,17 @@ public class SubscriptionController {
         if (input == null) {
             return null;
         }
-        return input.replaceAll("[\\r\\n\\t\\f\\x0B]", "_");
+        String sanitized = input.replaceAll("[\\x00-\\x08\\x0A-\\x1F\\x7F]", "");
+
+        // Replace newline and carriage return with visible markers
+        sanitized = sanitized.replace("\n", "\\n").replace("\r", "\\r");
+
+        // Trim excessive length to avoid log flooding
+        int maxLength = 200;
+        if (sanitized.length() > maxLength) {
+            sanitized = sanitized.substring(0, maxLength) + "...";
+        }
+
+        return sanitized;
     }
 }
