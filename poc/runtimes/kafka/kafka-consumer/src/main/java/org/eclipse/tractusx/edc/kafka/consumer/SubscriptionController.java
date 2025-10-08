@@ -61,7 +61,7 @@ public class SubscriptionController {
 
             List<KafkaRecordDto> recordDtos = StreamSupport.stream(records.spliterator(), false)
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
 
             SubscriptionResponse response = SubscriptionResponse.builder()
                 .assetId(assetId)
@@ -79,14 +79,14 @@ public class SubscriptionController {
         }
     }
 
-    private KafkaRecordDto mapToDto(ConsumerRecord<String, String> record) {
+    private KafkaRecordDto mapToDto(ConsumerRecord<String, String> consumerRecord) {
         return KafkaRecordDto.builder()
-            .topic(record.topic())
-            .partition(record.partition())
-            .offset(record.offset())
-            .key(record.key())
-            .value(record.value())
-            .timestamp(Instant.ofEpochMilli(record.timestamp()))
+            .topic(consumerRecord.topic())
+            .partition(consumerRecord.partition())
+            .offset(consumerRecord.offset())
+            .key(consumerRecord.key())
+            .value(consumerRecord.value())
+            .timestamp(Instant.ofEpochMilli(consumerRecord.timestamp()))
             .build();
     }
 
