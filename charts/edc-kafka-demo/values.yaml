@@ -23,6 +23,8 @@ global:
 
 kafka:
   enabled: true
+  image:
+    repository: bitnamilegacy/kafka
 
   # ─── Single‑pod KRaft cluster ────────────────────────────────────────────
   clusterId: "hNz3ciwPTzig3iL9jqyQ9w"
@@ -99,6 +101,8 @@ keycloak:
         mountPath: /opt/bitnami/keycloak/data/import
         readOnly: true
   postgresql:
+    image:
+      repository: bitnamilegacy/postgresql
     auth:
       postgresPassword: "test"
       username: bn_keycloak

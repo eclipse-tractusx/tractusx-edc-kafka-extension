@@ -55,6 +55,14 @@ tractusx-connector:
     env: {}
     #  ENV_NAME: value
 
+    resources:
+      limits:
+        cpu: 1
+        memory: 1024Mi
+      requests:
+        cpu: 100m
+        memory: 1024Mi
+
   dataplane:
     token:
       refresh:
@@ -66,13 +74,17 @@ tractusx-connector:
 
     resources:
       limits:
-        cpu: 1.5
+        cpu: 1
         memory: 1024Mi
       requests:
-        cpu: 500m
+        cpu: 100m
         memory: 1024Mi
     url:
       public: ""
+
+  postgresql:
+    image:
+      repository: bitnamilegacy/postgresql
 
   vault:
     server:
