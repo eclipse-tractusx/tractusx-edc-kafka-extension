@@ -18,11 +18,16 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
+
 plugins {
     `java-library`
     jacoco
     `jacoco-report-aggregation`
     id ("org.sonarqube") version "6.2.0.5505"
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.docker)
 }
 
 val javaVersion: String by project
@@ -63,4 +68,68 @@ tasks.check {
 
 subprojects {
     tasks.register<DependencyReportTask>("allDependencies") {}
+    afterEvaluate {
+        // the "dockerize" task is added to all projects that use the `shadowJar` plugin or `spring.boot` plugin
+        if (project.plugins.hasPlugin(libs.plugins.shadow.get().pluginId) || 
+            project.plugins.hasPlugin(libs.plugins.spring.boot.get().pluginId)) {
+            val downloadOpentelemetryAgent = tasks.create("downloadOpentelemetryAgent", Copy::class) {
+                val openTelemetry = configurations.create("open-telemetry")
+
+                dependencies {
+                    openTelemetry(libs.opentelemetry.javaagent)
+                }
+
+                from(openTelemetry)
+                into("build/resources/otel")
+                rename { "opentelemetry-javaagent.jar" }
+            }
+
+            val copyLegalDocs = tasks.create("copyLegalDocs", Copy::class) {
+                from(project.rootProject.projectDir.parentFile)
+                into("build/legal")
+                include("SECURITY.md", "NOTICE.md", "DEPENDENCIES", "LICENSE")
+            }
+
+            val copyDockerfile = tasks.create("copyDockerfile", Copy::class) {
+                from(rootProject.projectDir.toPath().resolve("resources"))
+                into(project.layout.buildDirectory.dir("resources").get().dir("docker"))
+                include("Dockerfile")
+            }
+
+            // Determine which jar task to use based on the plugin
+            val jarTask = if (project.plugins.hasPlugin(libs.plugins.shadow.get().pluginId)) {
+                tasks.named(ShadowJavaPlugin.SHADOW_JAR_TASK_NAME).get()
+            } else {
+                // For Spring Boot projects, use bootJar task
+                tasks.named("bootJar").get()
+            }
+
+            jarTask
+                .dependsOn(copyDockerfile)
+                .dependsOn(copyLegalDocs)
+                .dependsOn(downloadOpentelemetryAgent)
+
+            //actually apply the plugin to the (sub-)project
+            apply(plugin = libs.plugins.docker.get().pluginId)
+
+            val dockerTask: DockerBuildImage = tasks.create("dockerize", DockerBuildImage::class) {
+                dockerFile.set(File("build/resources/docker/Dockerfile"))
+
+                val dockerContextDir = project.projectDir
+                images.add("${project.name}:${project.version}")
+                images.add("${project.name}:latest")
+
+                if (System.getProperty("platform") != null) {
+                    platform.set(System.getProperty("platform"))
+                }
+
+                buildArgs.put("JAR", "build/libs/${project.name}.jar")
+                buildArgs.put("OTEL_JAR", "build/resources/otel/opentelemetry-javaagent.jar")
+                buildArgs.put("ADDITIONAL_FILES", "build/legal/*")
+                inputDir.set(file(dockerContextDir))
+            }
+
+            dockerTask.dependsOn(jarTask)
+        }
+    }
 }

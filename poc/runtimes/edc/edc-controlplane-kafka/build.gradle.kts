@@ -22,39 +22,14 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
 
 plugins {
-    application
-    jacoco
+    `java-library`
+    id("application")
     alias(libs.plugins.shadow)
 }
 
 dependencies {
-    implementation(libs.jackson.databind)
-    implementation(libs.kafka.clients)
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
-
-    implementation(libs.slf4j.api)
-    implementation(libs.logback.classic)
-    implementation(libs.jackson.databind)
-    implementation(libs.jackson.datatype.jsr310)
-
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
-    testImplementation(libs.assertj)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.mockito.junit.jupiter)
-    testImplementation(libs.awaitility)
-    testImplementation(libs.testcontainers)
-    testImplementation(libs.testcontainers.junit)
-    testImplementation(libs.testcontainers.kafka)
-    testCompileOnly(libs.lombok)
-    testAnnotationProcessor(libs.lombok)
-}
-
-application {
-    mainClass.set("org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp")
+    runtimeOnly(libs.tx.edc.controlplane.base)
+    runtimeOnly(project(":kafka-broker-extension"))
 }
 
 tasks.withType<ShadowJar> {
@@ -63,8 +38,6 @@ tasks.withType<ShadowJar> {
     transform(Log4j2PluginsCacheFileTransformer())
 }
 
-tasks.test {
-    useJUnitPlatform()
+application {
+    mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
 }
-
-description = "kafka-producer"
