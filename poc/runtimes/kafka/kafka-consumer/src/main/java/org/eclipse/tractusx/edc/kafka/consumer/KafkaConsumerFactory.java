@@ -20,6 +20,7 @@ package org.eclipse.tractusx.edc.kafka.consumer;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -32,6 +33,7 @@ import static org.apache.kafka.common.config.SaslConfigs.*;
  * Factory for creating Kafka consumers.
  * This abstraction allows for better testability by enabling mocking of Kafka consumer creation.
  */
+@Service
 public class KafkaConsumerFactory {
     
     /**

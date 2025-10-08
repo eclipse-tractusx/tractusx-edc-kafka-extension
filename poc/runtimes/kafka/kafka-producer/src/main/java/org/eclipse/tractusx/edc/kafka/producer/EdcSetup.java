@@ -107,6 +107,7 @@ public class EdcSetup {
                     "name": "test asset",
                     "kafka.bootstrap.servers": "%s",
                     "topic": "%s",
+                    "kafka.poll.duration": "PT10S",
                     "kafka.sasl.mechanism": "OAUTHBEARER",
                     "kafka.security.protocol": "SASL_PLAINTEXT",
                     "tokenUrl": "%s",
