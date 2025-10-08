@@ -29,7 +29,7 @@ import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CON
 import static org.apache.kafka.clients.consumer.ConsumerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
 import static org.apache.kafka.common.config.SslConfigs.*;
-import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp.*;
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication.*;
 
 /**
  * Factory for creating Kafka consumers.
