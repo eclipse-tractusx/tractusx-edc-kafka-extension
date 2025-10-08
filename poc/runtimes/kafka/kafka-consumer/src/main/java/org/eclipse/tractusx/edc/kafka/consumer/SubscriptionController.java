@@ -61,7 +61,7 @@ public class SubscriptionController {
 
             List<KafkaRecordDto> recordDtos = StreamSupport.stream(records.spliterator(), false)
                 .map(this::mapToDto)
-                .toList();
+                .collect(Collectors.toList());
 
             SubscriptionResponse response = SubscriptionResponse.builder()
                 .assetId(assetId)
@@ -79,14 +79,14 @@ public class SubscriptionController {
         }
     }
 
-    private KafkaRecordDto mapToDto(ConsumerRecord<String, String> consumerRecord) {
+    private KafkaRecordDto mapToDto(ConsumerRecord<String, String> record) {
         return KafkaRecordDto.builder()
-            .topic(consumerRecord.topic())
-            .partition(consumerRecord.partition())
-            .offset(consumerRecord.offset())
-            .key(consumerRecord.key())
-            .value(consumerRecord.value())
-            .timestamp(Instant.ofEpochMilli(consumerRecord.timestamp()))
+            .topic(record.topic())
+            .partition(record.partition())
+            .offset(record.offset())
+            .key(record.key())
+            .value(record.value())
+            .timestamp(Instant.ofEpochMilli(record.timestamp()))
             .build();
     }
 
@@ -94,17 +94,6 @@ public class SubscriptionController {
         if (input == null) {
             return null;
         }
-        String sanitized = input.replaceAll("[\\x00-\\x08\\x0A-\\x1F\\x7F]", "");
-
-        // Replace newline and carriage return with visible markers
-        sanitized = sanitized.replace("\n", "\\n").replace("\r", "\\r");
-
-        // Trim excessive length to avoid log flooding
-        int maxLength = 200;
-        if (sanitized.length() > maxLength) {
-            sanitized = sanitized.substring(0, maxLength) + "...";
-        }
-
-        return sanitized;
+        return input.replaceAll("[\\r\\n\\t\\f\\x0B]", "_");
     }
 }

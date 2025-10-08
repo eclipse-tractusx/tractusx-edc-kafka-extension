@@ -72,17 +72,6 @@ subprojects {
         // the "dockerize" task is added to all projects that use the `shadowJar` plugin or `spring.boot` plugin
         if (project.plugins.hasPlugin(libs.plugins.shadow.get().pluginId) || 
             project.plugins.hasPlugin(libs.plugins.spring.boot.get().pluginId)) {
-            val downloadOpentelemetryAgent = tasks.create("downloadOpentelemetryAgent", Copy::class) {
-                val openTelemetry = configurations.create("open-telemetry")
-
-                dependencies {
-                    openTelemetry(libs.opentelemetry.javaagent)
-                }
-
-                from(openTelemetry)
-                into("build/resources/otel")
-                rename { "opentelemetry-javaagent.jar" }
-            }
 
             val copyLegalDocs = tasks.create("copyLegalDocs", Copy::class) {
                 from(project.rootProject.projectDir.parentFile)
@@ -107,7 +96,6 @@ subprojects {
             jarTask
                 .dependsOn(copyDockerfile)
                 .dependsOn(copyLegalDocs)
-                .dependsOn(downloadOpentelemetryAgent)
 
             //actually apply the plugin to the (sub-)project
             apply(plugin = libs.plugins.docker.get().pluginId)

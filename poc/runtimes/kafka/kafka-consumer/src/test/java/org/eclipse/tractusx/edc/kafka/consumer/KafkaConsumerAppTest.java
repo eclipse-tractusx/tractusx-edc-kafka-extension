@@ -26,7 +26,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.CommandLineRunner;
 
 import java.io.IOException;
 import java.util.List;
@@ -72,8 +71,7 @@ class KafkaConsumerAppTest {
         when(dataTransferClient.executeDataTransferWorkflow(any())).thenThrow(exception);
 
         // Act & Assert
-        CommandLineRunner runner = kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService);
-        assertThatThrownBy(runner::run)
+        assertThatThrownBy(() -> kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run())
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Application failed to start")
                 .hasCauseInstanceOf(expectedCauseType);
@@ -98,8 +96,7 @@ class KafkaConsumerAppTest {
         doThrow(new KafkaConsumerException("Consumption failed")).when(consumptionService).startConsumption(List.of(validEdrData, validEdrData));
 
         // Act & Assert
-        CommandLineRunner runner = kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService);
-        assertThatThrownBy(runner::run)
+        assertThatThrownBy(() -> kafkaConsumerApp.legacyModeRunner(dataTransferClient, consumptionService).run())
                 .isInstanceOf(KafkaConsumerException.class)
                 .hasMessage("Application failed to start")
                 .hasCauseInstanceOf(KafkaConsumerException.class);
