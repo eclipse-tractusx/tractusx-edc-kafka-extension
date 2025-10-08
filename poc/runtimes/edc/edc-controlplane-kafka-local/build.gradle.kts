@@ -18,6 +18,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
 plugins {
     `java-library`
     id("application")
@@ -25,7 +28,8 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.tx.edc.controlplane.base) {
+    runtimeOnly(libs.tx.edc.controlplane.postgresql.hashicorp) {
+
         // DID / DCP extensions
         exclude(group = "org.eclipse.edc", module = "identity-did-core")
         exclude(group = "org.eclipse.edc", module = "identity-did-web")
@@ -39,20 +43,17 @@ dependencies {
         exclude(group = "org.eclipse.tractusx.edc", module = "bdrs-client")
     }
 
-    implementation(libs.edc.iam.mock)
-    implementation(project(":kafka-broker-extension"))
-    implementation(project(":local-services"))
-    implementation(project(":seed-vault"))
+    runtimeOnly(libs.edc.iam.mock)
+    runtimeOnly(project(":kafka-broker-extension"))
+    runtimeOnly(project(":local-services"))
+}
+
+tasks.withType<ShadowJar> {
+    mergeServiceFiles()
+    archiveFileName.set("${project.name}.jar")
+    transform(Log4j2PluginsCacheFileTransformer())
 }
 
 application {
     mainClass.set("org.eclipse.edc.boot.system.runtime.BaseRuntime")
 }
-
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
-    mergeServiceFiles()
-    archiveFileName.set("controlplane-local.jar")
-}
-
-description = "controlplane-local"

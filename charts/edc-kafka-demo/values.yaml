@@ -46,6 +46,8 @@ customCaCerts:
 
 kafka:
   enabled: true
+  image:
+    repository: bitnamilegacy/kafka
 
   # ─── Single‑pod KRaft cluster ────────────────────────────────────────────
   clusterId: "hNz3ciwPTzig3iL9jqyQ9w"
@@ -133,6 +135,8 @@ keycloak:
       mountPath: /opt/bitnami/keycloak/data/import
       readOnly: true
   postgresql:
+    image:
+      repository: bitnamilegacy/postgresql
     auth:
       postgresPassword: "test"
       username: bn_keycloak
@@ -154,6 +158,9 @@ keycloak:
 
 consumer-app:
   enabled: true
+  service:
+    enabled: true
+    port: 8080
   customCACerts:
     enabled: true
     secretName: kafka-pem
@@ -212,6 +219,8 @@ producer-app:
 producer-edc:
   enabled: true
   tractusx-connector:
+    install:
+      vault: true
     nameOverride: producer-edc
     postgresql:
       nameOverride: producer-edc-posgresql
@@ -220,7 +229,7 @@ producer-edc:
       id: "BPNL000000000B02"
     iatp:
       id: "did:web:changeme"
-      trustedIssuers: [ ]
+      trustedIssuers: []
       sts:
         dim:
           url: http://test.local
@@ -232,9 +241,9 @@ producer-edc:
     controlplane:
       image:
         # override the edc docker image with the kafka extension image
-        repository: "tractusx/edc-controlplane-kafka"
+        repository: "edc-controlplane-kafka-local"
         pullPolicy: IfNotPresent
-        tag: "test"
+        tag: "latest"
       endpoints:
         management:
           authKey: "password"
@@ -255,9 +264,9 @@ producer-edc:
     dataplane:
       image:
         # override the edc docker image with the kafka extension image
-        repository: "tractusx/edc-dataplane-kafka"
+        repository: "edc-dataplane-kafka-local"
         pullPolicy: IfNotPresent
-        tag: "test"
+        tag: "latest"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey
@@ -279,7 +288,7 @@ consumer-edc:
       id: "BPNL000000000A01"
     iatp:
       id: "did:web:changeme"
-      trustedIssuers: [ ]
+      trustedIssuers: []
       sts:
         dim:
           url: http://test.local
@@ -291,9 +300,9 @@ consumer-edc:
     controlplane:
       image:
         # override the edc docker image with the kafka extension image
-        repository: "tractusx/edc-controlplane-kafka"
+        repository: "edc-controlplane-kafka-local"
         pullPolicy: IfNotPresent
-        tag: "test"
+        tag: "latest"
       endpoints:
         management:
           authKey: "password"
@@ -314,9 +323,9 @@ consumer-edc:
     dataplane:
       image:
         # override the edc docker image with the kafka extension image
-        repository: "tractusx/edc-dataplane-kafka"
+        repository: "edc-dataplane-kafka-local"
         pullPolicy: IfNotPresent
-        tag: "test"
+        tag: "latest"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey

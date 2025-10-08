@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2025 Contributors to the Eclipse Foundation
- * Copyright (c) 2025 Cofinity-X GmbH
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -20,11 +19,18 @@
 package org.eclipse.tractusx.edc.kafka.consumer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
+import java.io.IOException;
 import java.util.List;
 
+@SpringBootApplication
 @Slf4j
-public class KafkaConsumerApp {
+public class KafkaConsumerApplication {
+
     public static final String FORECAST_ASSET_ID = System.getenv().getOrDefault("FORECAST_ASSET_ID", "kafka-forecast-asset");
     public static final String TRACKING_ASSET_ID = System.getenv().getOrDefault("TRACKING_ASSET_ID", "kafka-tracking-asset");
     static final String ASSET_ID = System.getenv().getOrDefault("ASSET_ID", "kafka-stream-asset");
@@ -32,27 +38,38 @@ public class KafkaConsumerApp {
     static final String PROVIDER_PROTOCOL_URL = System.getenv().getOrDefault("PROVIDER_PROTOCOL_URL", "http://control-plane-alice:8084/api/v1/dsp");
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
+    static final String CONSUMER_MODE = System.getenv().getOrDefault("CONSUMER_MODE", "legacy");
     static final String KAFKA_SSL_TRUSTSTORE_LOCATION = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_LOCATION", "");
     static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = System.getenv().getOrDefault("KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM", "");
     static final String KAFKA_SSL_TRUSTSTORE_TYPE = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_TYPE", "");
 
-    private final DataTransferClient dataTransferClient;
-    private final KafkaTopicConsumptionService consumptionService;
-
-    public KafkaConsumerApp(DataTransferClient dataTransferClient, KafkaTopicConsumptionService consumptionService) {
-        this.dataTransferClient = dataTransferClient;
-        this.consumptionService = consumptionService;
+    public static void main(String[] args) {
+        SpringApplication.run(KafkaConsumerApplication.class, args);
     }
 
-    public KafkaConsumerApp() {
-        this(new DataTransferClient(), new KafkaTopicConsumptionService(new KafkaConsumerFactory()));
+    @Bean
+    public DataTransferClient dataTransferClient() {
+        return new DataTransferClient();
     }
 
-    public static void main(final String[] args) {
-        new KafkaConsumerApp().run();
+    @Bean
+    public KafkaTopicConsumptionService kafkaTopicConsumptionService() {
+        return new KafkaTopicConsumptionService(new KafkaConsumerFactory(), new DefaultMessageHandler());
     }
 
-    public void run() {
+    @Bean
+    public CommandLineRunner legacyModeRunner(DataTransferClient dataTransferClient, KafkaTopicConsumptionService consumptionService) {
+        return args -> {
+            if ("legacy".equalsIgnoreCase(CONSUMER_MODE)) {
+                log.info("Starting in legacy mode - executing immediate data transfer");
+                runLegacyMode(dataTransferClient, consumptionService);
+            } else {
+                log.info("Starting in Spring Boot API mode - waiting for API calls");
+            }
+        };
+    }
+
+    private void runLegacyMode(DataTransferClient dataTransferClient, KafkaTopicConsumptionService consumptionService) throws InterruptedException {
         try {
             final List<EDRData> edrDataList = List.of(
                     dataTransferClient.executeDataTransferWorkflow(FORECAST_ASSET_ID),
@@ -60,8 +77,7 @@ public class KafkaConsumerApp {
 
             log.info("Starting Kafka topic consumption with {} EDR data entries", edrDataList.size());
             consumptionService.startConsumption(edrDataList);
-        } catch (final Exception e) {
-            log.error("Fatal error in KafkaConsumerApp", e);
+        } catch (IOException | KafkaConsumerException e) {
             throw new KafkaConsumerException("Application failed to start", e);
         }
     }

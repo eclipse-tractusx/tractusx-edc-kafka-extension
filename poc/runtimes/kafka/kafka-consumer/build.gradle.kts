@@ -18,26 +18,28 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     application
-    alias(libs.plugins.shadow)
     jacoco
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 dependencies {
-    implementation(libs.jackson.databind)
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
-    implementation(libs.java.jwt)
-    implementation(libs.slf4j.api)
-    implementation(libs.logback.classic)
+    // Spring Boot dependencies
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.validation)
 
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
+    implementation(libs.java.jwt)
+
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(libs.assertj)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
@@ -50,17 +52,15 @@ dependencies {
 }
 
 application {
-    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
+    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
-    mergeServiceFiles()
-    archiveFileName.set("kafka-consumer.jar")
+tasks.withType<BootJar>() {
+    archiveFileName.set("${project.name}.jar")
 }
 
 description = "kafka-consumer"

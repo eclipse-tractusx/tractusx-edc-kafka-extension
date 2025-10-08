@@ -71,14 +71,7 @@ jobs:
           # Use +security-extended,security-and-quality for wider security and better code quality
           queries: +security-extended,security-and-quality
 
-
-      # build only production code, no test sources
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-          cache: gradle
+      - uses: ./.github/actions/setup-java
 
       - name: Build Production Code
         run: |
