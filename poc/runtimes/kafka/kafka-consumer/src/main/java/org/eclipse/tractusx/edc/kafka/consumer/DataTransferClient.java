@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -39,7 +40,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication.*;
+
 @Slf4j
+@Service
 public class DataTransferClient {
 
     // API Endpoints
@@ -73,30 +77,29 @@ public class DataTransferClient {
 
     /**
      * Constructs a new instance of {@code DataTransferClient}.
+     */
+    public DataTransferClient() {
+        this(EDC_MANAGEMENT_URL, PROVIDER_ID, PROVIDER_PROTOCOL_URL, HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build());
+    }
+
+    /**
+     * Constructs a new instance of {@code DataTransferClient} with a custom HttpClient.
+     * This constructor is primarily intended for testing purposes.
      *
      * @param consumerManagementUrl The URL of the Consumer Management API.
      * @param providerId            The ID of the provider with which interactions will occur.
      * @param providerProtocolUrl   The URL of the provider's protocol endpoint.
+     * @param httpClient            The HttpClient to use for HTTP requests.
      */
-    public DataTransferClient(final String consumerManagementUrl, final String providerId, final String providerProtocolUrl) {
+    public DataTransferClient(final String consumerManagementUrl, final String providerId, final String providerProtocolUrl, final HttpClient httpClient) {
         this.consumerManagementUrl = consumerManagementUrl;
         this.providerId = providerId;
         this.providerProtocolUrl = providerProtocolUrl;
-        this.client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build();
+        this.client = httpClient;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    /**
-     * Default constructor for the {@code DataTransferClient} class.
-     * <p>
-     * Initializes an instance of {@code DataTransferClient} using default values for
-     * the consumer management URL, provider ID, and provider protocol URL.
-     */
-    public DataTransferClient() {
-        this(KafkaConsumerApp.EDC_MANAGEMENT_URL, KafkaConsumerApp.PROVIDER_ID, KafkaConsumerApp.PROVIDER_PROTOCOL_URL);
     }
 
     /**
@@ -318,7 +321,7 @@ public class DataTransferClient {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", CONTENT_TYPE_JSON)
-                .header(API_KEY_HEADER, KafkaConsumerApp.EDC_API_KEY)
+                .header(API_KEY_HEADER, EDC_API_KEY)
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))
                 .build();
 
@@ -337,7 +340,7 @@ public class DataTransferClient {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", CONTENT_TYPE_JSON)
-                .header(API_KEY_HEADER, KafkaConsumerApp.EDC_API_KEY)
+                .header(API_KEY_HEADER, EDC_API_KEY)
                 .GET()
                 .build();
 

@@ -7,15 +7,20 @@ edc = "0.10.1"
 junit = "5.11.3"
 assertj = "3.26.3"
 mockito = "5.18.0"
+awaitility = "4.2.0"
 testcontainers = "1.21.3"
 failsafe = "3.3.2"
 shadow = "8.3.8"
 kafka = "3.7.0"
-jackson = "2.15.2"
+jackson = "2.17.1"
 lombok = "1.18.38"
 slf4j = "1.7.36"
 logback = "1.5.18"
 java-jwt = "4.5.0"
+spring-boot = "3.2.0"
+spring-dependency-management = "1.1.4"
+opentelemetry = "2.20.0"
+docker = "9.4.0"
 
 [libraries]
 # Tractus-X EDC - Runtimes
@@ -74,6 +79,8 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-kafka = { module = "org.testcontainers:kafka", version.ref = "testcontainers" }
@@ -83,10 +90,20 @@ testcontainers-vault = { module = "org.testcontainers:vault", version.ref = "tes
 failsafe = { module = "dev.failsafe:failsafe", version.ref = "failsafe" }
 kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 lombok = {module = "org.projectlombok:lombok", version.ref = "lombok"}
 slf4j-api = {module = "org.slf4j:slf4j-api", version.ref = "slf4j"}
 logback-classic = {module = "ch.qos.logback:logback-classic", version.ref = "logback"}
 java-jwt = {module = "com.auth0:java-jwt", version.ref = "java-jwt"}
+opentelemetry-javaagent = { module = "io.opentelemetry.javaagent:opentelemetry-javaagent", version.ref = "opentelemetry" }
+
+# Spring Boot
+spring-boot-starter-web = {module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring-boot"}
+spring-boot-starter-actuator = {module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot"}
+spring-boot-starter-validation = {module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "spring-boot"}
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+docker = { id = "com.bmuschko.docker-remote-api", version.ref = "docker" }

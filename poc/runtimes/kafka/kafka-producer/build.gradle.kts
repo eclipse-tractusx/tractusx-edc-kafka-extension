@@ -18,6 +18,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer
+
 plugins {
     application
     jacoco
@@ -29,13 +32,23 @@ dependencies {
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
-    // SLF4J API
-    implementation("org.slf4j:slf4j-api:1.7.36")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
-    // Logback Classic provides a concrete implementation for SLF4J
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
 
+    implementation(libs.slf4j.api)
+    implementation(libs.logback.classic)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.datatype.jsr310)
+
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.params)
+    testImplementation(libs.assertj)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }
@@ -44,10 +57,14 @@ application {
     mainClass.set("org.eclipse.tractusx.edc.kafka.producer.KafkaProducerApp")
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
+tasks.withType<ShadowJar> {
     mergeServiceFiles()
-    archiveFileName.set("kafka-producer.jar")
+    archiveFileName.set("${project.name}.jar")
+    transform(Log4j2PluginsCacheFileTransformer())
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 description = "kafka-producer"

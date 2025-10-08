@@ -18,41 +18,49 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
     application
-    alias(libs.plugins.shadow)
     jacoco
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 dependencies {
-    implementation(libs.jackson.databind)
     implementation(libs.kafka.clients)
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
-    implementation("com.auth0:java-jwt:4.5.0")
-    // SLF4J API
-    implementation("org.slf4j:slf4j-api:1.7.36")
-    // Logback Classic provides a concrete implementation for SLF4J
-    runtimeOnly("ch.qos.logback:logback-classic:1.5.18")
+    // Spring Boot dependencies
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.validation)
 
-    testImplementation(libs.junit.jupiter)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
-    testImplementation(libs.junit.jupiter.params)
+    implementation(libs.java.jwt)
+
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation(libs.assertj)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
+    testImplementation(libs.awaitility)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }
 
 application {
-    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApp")
+    mainClass.set("org.eclipse.tractusx.edc.kafka.consumer.KafkaConsumerApplication")
 }
 
-tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    dependsOn("distTar", "distZip")
-    mergeServiceFiles()
-    archiveFileName.set("kafka-consumer.jar")
+tasks.test {
+    useJUnitPlatform()
+}
+
+tasks.withType<BootJar>() {
+    archiveFileName.set("${project.name}.jar")
 }
 
 description = "kafka-consumer"

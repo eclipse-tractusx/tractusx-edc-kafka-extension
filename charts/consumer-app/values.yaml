@@ -1,0 +1,177 @@
+#################################################################################
+#  Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+#  See the NOTICE file(s) distributed with this work for additional
+#  information regarding copyright ownership.
+#
+#  This program and the accompanying materials are made available under the
+#  terms of the Apache License, Version 2.0 which is available at
+#  https://www.apache.org/licenses/LICENSE-2.0.
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations
+#  under the License.
+#
+#  SPDX-License-Identifier: Apache-2.0
+#################################################################################
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: kafka-consumer
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "latest"
+# This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# Application configuration organized by logical groups
+application:
+  mode: "spring"
+  # EDC Configuration
+  edc:
+    managementUrl: "http://{{ .Release.Name }}-edc:8081/management"
+    assets:
+      stream: "kafka-stream-asset"
+      forecast: "kafka-forecast-asset"
+      tracking: "kafka-tracking-asset"
+  
+  # Provider Configuration
+  provider:
+    id: "BPNL00000003AZQP"
+    protocolUrl: "http://{{ .Release.Name }}-control-plane-alice:8084/api/v1/dsp"
+
+# Secrets configuration for sensitive data
+# When secrets.create is true, sensitive values will be stored in Kubernetes secrets
+# and referenced via secretKeyRef in the deployment
+secrets:
+  # Specifies whether secrets should be created by this chart
+  create: true
+
+  # External secret name - defaults to chart-created name but can be overridden
+  # Empty = use default: {{ include "consumer-app.fullname" . }}-secrets
+  # For external secrets: specify the external secret name and set create: false
+  # 
+  # Examples:
+  # Internal secrets (managed by this chart):
+  #   secretName: ""
+  #   create: true
+  #
+  # External secrets (managed outside this chart):
+  #   secretName: "my-external-secret"
+  #   create: false
+  #   Note: External secret must contain key: edc-api-key
+  secretName: ""
+
+  # Sensitive configuration values (will be base64 encoded in the secret)
+  # Only used when create: true
+  edcApiKey: "password"
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  # Set to false for security hardening as consumer-app doesn't need K8s API access
+  automount: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+# Security hardening - Pod security context
+podSecurityContext:
+  # Run as non-root group
+  fsGroup: 10100
+  # Ensure the filesystem group is applied to all volumes
+  fsGroupChangePolicy: "OnRootMismatch"
+  # Drop all capabilities at pod level
+  seccompProfile:
+    type: RuntimeDefault
+
+# Security hardening - Container security context
+securityContext:
+  # Drop all Linux capabilities
+  capabilities:
+    drop:
+      - ALL
+  # Make root filesystem read-only
+  readOnlyRootFilesystem: true
+  # Run as non-root user
+  runAsNonRoot: true
+  runAsUser: 10100
+  runAsGroup: 10100
+  # Prevent privilege escalation
+  allowPrivilegeEscalation: false
+  # Use runtime default seccomp profile
+  seccompProfile:
+    type: RuntimeDefault
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+# Note: consumer-app doesn't expose HTTP endpoints, so service is disabled by default
+service:
+  enabled: false
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 8080
+
+# Resource limits and requests for security and performance
+resources:
+  limits:
+    cpu: 200m
+    memory: 768Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+# Health checks are disabled since consumer-app doesn't expose HTTP endpoints
+# The application runs continuously and consumes messages from Kafka
+# Container will be restarted if it exits unexpectedly
+livenessProbe:
+  enabled: false
+
+readinessProbe:
+  enabled: false
+
+# Node selection constraints
+nodeSelector: {}
+
+# Tolerations for pod assignment
+tolerations: []
+
+# Affinity rules for pod assignment
+affinity: {}
+
+# Restart policy for the deployment
+restartPolicy: Always
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
