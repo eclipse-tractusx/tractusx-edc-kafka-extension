@@ -1,5 +1,5 @@
 #################################################################################
-#  Copyright (c) 2021,2023,2025 Contributors to the Eclipse Foundation
+#  Copyright (c) 2021,2025 Contributors to the Eclipse Foundation
 #
 #  See the NOTICE file(s) distributed with this work for additional
 #  information regarding copyright ownership.
@@ -48,19 +48,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-          cache: gradle
+      - uses: ./.github/actions/setup-java
 
       - name: Build fat-JAR
         working-directory: poc
         run: ./gradlew shadowJar --no-daemon
 
       - name: Build docker image
-        working-directory: poc/runtimes/edc/controlplane-local
+        working-directory: poc/runtimes/edc/edc-controlplane-kafka-local
         run: |
           docker build \
           -t local-image:${{ github.sha }} \

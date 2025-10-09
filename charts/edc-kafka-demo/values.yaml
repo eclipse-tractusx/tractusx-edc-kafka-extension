@@ -21,8 +21,33 @@ global:
     # required to use bitnamilegacy images
     allowInsecureImages: true
 
+customCaCerts:
+  test.pem: &cert |
+    -----BEGIN CERTIFICATE-----
+    MIIDLjCCAhagAwIBAgIUZR4sZEpdrLHdS5yT/aPYGzJ6TtkwDQYJKoZIhvcNAQEL
+    BQAwFDESMBAGA1UEAwwJa2Fma2EtZGV2MB4XDTI1MDkxOTA5MjQwM1oXDTM1MDkx
+    NzA5MjQwM1owFDESMBAGA1UEAwwJa2Fma2EtZGV2MIIBIjANBgkqhkiG9w0BAQEF
+    AAOCAQ8AMIIBCgKCAQEA53h9KxP27v8D3EQMSbQxvIT7t3bceJU7+BydiYhw2kcm
+    KptunDzBtBjiEVvBN5yLh5US2R4Zt+sOX1oHc2GufLZIFhp3Xg0WvNQWCCUUkszm
+    eoAw8BFvLe6VypTrAQN+wyjVuro472CFDEpVJKCS42HF5oM/xIDGR5EnaQn4i9jw
+    s4Zu55jD1EjAxqZD8qOIWWRDEDMHeTChy8bCppLtQqQGmIaStBuFNHOhDNBpNoV+
+    hs08IM62MhgzZzah4utpCHis8uLztEIGTAJY4qoeYCxHMs2SyWS+6XEn8CnKl4mj
+    UFBr83eGEWUIp5gYwbaR7WJb7u5qJxAxhkR8/ZMzLQIDAQABo3gwdjAdBgNVHQ4E
+    FgQUT0oo3n3qdmdrtAd81gE3gWgUd3YwHwYDVR0jBBgwFoAUT0oo3n3qdmdrtAd8
+    1gE3gWgUd3YwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCBaAwEwYDVR0l
+    BAwwCgYIKwYBBQUHAwEwDQYJKoZIhvcNAQELBQADggEBAHK17lXEN+pKNety/a72
+    uUQ59pdsgxH/xU/aDBz8EzejJ2oOyFTRlcAMdbJ/bhpYUBWRYG7/oPtx7/kZAcyI
+    OAFjbElTXDR6XGtn1b4eEXI0jQUPtMDRRT8L+ESuS5oNhoMeyOQ2hpT39wOI+vqM
+    jdzpIdX2Voi3ZIQ9ryFHS8zMq0oZ5eaCkoCKL5wwA4Qg42qI3Hy0Hl9j3r6yyE49
+    BguIxjh2Bfd3WAQBDobOl9zA1L0N0i5pBa87LFTkVEuOdAaWFDRnkd1lRIJzaP7+
+    BRW7bkqKRMTLzrMGdByT7srDRanJ7PWUkhsy2NTxL4alqGuqdhvHifXZEYFejYV2
+    BUE=
+    -----END CERTIFICATE-----
+
 kafka:
   enabled: true
+  image:
+    repository: bitnamilegacy/kafka
 
   # ─── Single‑pod KRaft cluster ────────────────────────────────────────────
   clusterId: "hNz3ciwPTzig3iL9jqyQ9w"
@@ -31,6 +56,15 @@ kafka:
     replicaCount: 1
     persistence:
       enabled: false
+
+  # ─── SSL Configuration ────────────────────────────────────────────────────
+  tls:
+    enabled: true
+    type: PEM
+    pemChainIncluded: true
+    existingSecret: kafka-pem
+    endpointIdentificationAlgorithm: ""
+    sslClientAuth: "none"
 
   # ─── Listener matrix ─────────────────────────────────────────────────────
   listeners:
@@ -41,7 +75,7 @@ kafka:
     controller:
       protocol: PLAINTEXT
     external:
-      protocol: SASL_PLAINTEXT
+      protocol: SASL_SSL
       containerPort: 9095
 
   externalAccess:
@@ -74,6 +108,8 @@ kafka:
     offsets.topic.replication.factor: "1"
     transaction.state.log.replication.factor: "1"
     transaction.state.log.min.isr: "1"
+    authorizer.class.name: "org.apache.kafka.metadata.authorizer.StandardAuthorizer"
+    allow.everyone.if.no.acl.found: "true"
 
   extraEnvVars:
     - name: KAFKA_OPTS
@@ -95,10 +131,12 @@ keycloak:
       configMap:
         name: "{{ .Release.Name }}-keycloak-realm-config"
   extraVolumeMounts:
-      - name: realm
-        mountPath: /opt/bitnami/keycloak/data/import
-        readOnly: true
+    - name: realm
+      mountPath: /opt/bitnami/keycloak/data/import
+      readOnly: true
   postgresql:
+    image:
+      repository: bitnamilegacy/postgresql
     auth:
       postgresPassword: "test"
       username: bn_keycloak
@@ -108,10 +146,10 @@ keycloak:
       persistence:
         enabled: false
   livenessProbe:
-    initialDelaySeconds: 120
+    initialDelaySeconds: 60
     periodSeconds: 1
     timeoutSeconds: 5
-    failureThreshold: 10
+    failureThreshold: 20
   readinessProbe:
     initialDelaySeconds: 30
     periodSeconds: 5
@@ -123,6 +161,9 @@ consumer-app:
   service:
     enabled: true
     port: 8080
+  customCACerts:
+    enabled: true
+    secretName: kafka-pem
   secrets:
     edcApiKey: "password"
   application:
@@ -141,13 +182,21 @@ consumer-app:
 
 producer-app:
   enabled: true
+  customCACerts:
+    enabled: true
+    secretName: kafka-pem
   application:
     kafka:
       bootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
+      securityProtocol: "SASL_SSL"
       topics:
         productionForecast: "kafka-production-forecast-topic"
         productionTracking: "kafka-production-tracking-topic"
         stream: "kafka-stream-topic"
+      ssl:
+        truststoreLocation: "/opt/java/openjdk/lib/security/cacerts"
+        truststorePassword: "changeit"
+        endpointIdentificationAlgorithm: ""
 
     authentication:
       oauth2:
@@ -198,6 +247,17 @@ producer-edc:
       endpoints:
         management:
           authKey: "password"
+      # Add SSL configuration
+      env:
+        EDC_KAFKA_SSL_TRUSTSTORE_LOCATION: "/opt/java/openjdk/lib/security/cacerts"
+        EDC_KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+        EDC_KAFKA_BOOTSTRAP_SERVERS: "demo-kafka-controller-0-external:9095"
+        EDC_KAFKA_SECURITY_PROTOCOL: "SASL_SSL"
+        EDC_KAFKA_SASL_MECHANISM: "OAUTHBEARER"
+        EDC_KAFKA_ADMIN_TOKEN_URL: "http://demo-keycloak:80/realms/kafka/protocol/openid-connect/token"
+        EDC_KAFKA_ADMIN_CLIENT_ID: "myclient"
+        EDC_KAFKA_ADMIN_CLIENT_SECRET_KEY: "adminKey"
+        EDC_KAFKA_ACL_ENABLED: "false"
       bdrs:
         server:
           url: http://test.local
@@ -212,6 +272,8 @@ producer-edc:
           privatekey_alias: tokenSignerPrivateKey
         verifier:
           publickey_alias: tokenSignerPublicKey
+    customCaCerts:
+      test.pem: *cert
 
 consumer-edc:
   enabled: true
@@ -244,6 +306,16 @@ consumer-edc:
       endpoints:
         management:
           authKey: "password"
+      # Add SSL configuration
+      env:
+        EDC_KAFKA_SSL_TRUSTSTORE_LOCATION: "/opt/java/openjdk/lib/security/cacerts"
+        EDC_KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
+        EDC_KAFKA_BOOTSTRAP_SERVERS: "demo-kafka.demo.svc.cluster.local:9095"
+        EDC_KAFKA_SECURITY_PROTOCOL: "SASL_SSL"
+        EDC_KAFKA_SASL_MECHANISM: "OAUTHBEARER"
+        EDC_KAFKA_ADMIN_TOKEN_URL: "http://kafka-keycloak:80/realms/kafka/protocol/openid-connect/token"
+        EDC_KAFKA_ADMIN_CLIENT_ID: "myclient"
+        EDC_KAFKA_ADMIN_CLIENT_SECRET_KEY: "adminKey"
       bdrs:
         server:
           url: http://test.local
@@ -258,3 +330,5 @@ consumer-edc:
           privatekey_alias: tokenSignerPrivateKey
         verifier:
           publickey_alias: tokenSignerPublicKey
+    customCaCerts:
+      test.pem: *cert

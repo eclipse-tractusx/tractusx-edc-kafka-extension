@@ -39,10 +39,13 @@ import org.eclipse.edc.spi.types.domain.transfer.DataFlowResponseMessage;
 import org.eclipse.edc.spi.types.domain.transfer.DataFlowStartMessage;
 import org.eclipse.edc.spi.types.domain.transfer.FlowType;
 import org.eclipse.edc.spi.types.domain.transfer.TransferType;
+import org.eclipse.tractusx.edc.extensions.kafka.acl.KafkaAclService;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,6 +61,7 @@ class KafkaBrokerDataFlowControllerTest {
     public static final String SECRET_KEY = "secret-key";
     private final Vault vault = mock();
     private final KafkaOAuthService oauthService = mock();
+    private final KafkaAclService aclService = mock();
     private final DataPlaneClient dataPlaneClient = mock();
     private final DataPlaneClientFactory dataPlaneClientFactory = mock();
     private final DataPlaneSelectorService selectorService = mock();
@@ -67,6 +71,7 @@ class KafkaBrokerDataFlowControllerTest {
     private DataAddress contentDataAddress;
     private TransferProcess transferProcess;
     private Policy policy;
+    private String testToken;
 
     @BeforeEach
     void setUp() {
@@ -92,7 +97,8 @@ class KafkaBrokerDataFlowControllerTest {
                 .id("transferProcessId").build();
         policy = Policy.Builder.newInstance().assignee("test-group").build();
 
-        when(oauthService.getAccessToken(any())).thenReturn(TokenRepresentation.Builder.newInstance().token("token").expiresIn(500L).build());
+        testToken = createValidJwtToken();
+        when(oauthService.getAccessToken(any())).thenReturn(TokenRepresentation.Builder.newInstance().token(testToken).expiresIn(500L).build());
 
         when(transferTypeParser.parse(any())).thenReturn(Result.success(new TransferType("Kafka", FlowType.PULL)));
 
@@ -110,8 +116,10 @@ class KafkaBrokerDataFlowControllerTest {
         when(response.getDataAddress()).thenReturn(contentDataAddress);
         when(dataPlaneClient.start(any(DataFlowStartMessage.class))).thenReturn(StatusResult.success(response));
 
-        controller = new KafkaBrokerDataFlowController(vault, oauthService, transferTypeParser, propertiesProvider
-        );
+        when(aclService.createAclsForSubject(any(), any(), any())).thenReturn(Result.success());
+        when(aclService.revokeAclsForTransferProcess(any())).thenReturn(Result.success());
+
+        controller = new KafkaBrokerDataFlowController(vault, oauthService, aclService, transferTypeParser, propertiesProvider, true);
     }
 
     @Test
@@ -150,7 +158,7 @@ class KafkaBrokerDataFlowControllerTest {
             assertThat(kafkaDataAddress.getStringProperty(GROUP_PREFIX)).isEqualTo("test-group");
             assertThat(kafkaDataAddress.getStringProperty(MECHANISM)).isEqualTo("mechanism");
             assertThat(kafkaDataAddress.getStringProperty(PROTOCOL)).isEqualTo("protocol");
-            assertThat(kafkaDataAddress.getStringProperty(TOKEN)).isEqualTo("token");
+            assertThat(kafkaDataAddress.getStringProperty(TOKEN)).isEqualTo(testToken);
         });
     }
 
@@ -173,6 +181,27 @@ class KafkaBrokerDataFlowControllerTest {
         when(vault.resolveSecret(any())).thenReturn(SECRET_KEY);
         StatusResult<?> result = controller.terminate(transferProcess);
         assertThat(result.succeeded()).isTrue();
+    }
+
+    private String createValidJwtToken() {
+        long now = Instant.now().getEpochSecond();
+        long exp = now + 300; // 5 minutes from now
+
+        String header = Base64.getUrlEncoder().withoutPadding().encodeToString(
+                """
+                {"alg":"HS256","typ":"JWT"}
+                """.getBytes()
+        );
+
+        String payload = Base64.getUrlEncoder().withoutPadding().encodeToString(
+                String.format("""
+                {"sub":"test-subject","iat":%d,"exp":%d,"scope":"read write"}
+                """, now, exp).getBytes()
+        );
+
+        String signature = Base64.getUrlEncoder().withoutPadding().encodeToString("a-signature".getBytes());
+
+        return header + "." + payload + "." + signature;
     }
 }
 

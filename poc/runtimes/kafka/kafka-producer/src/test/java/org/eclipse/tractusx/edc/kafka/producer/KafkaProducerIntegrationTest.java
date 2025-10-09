@@ -88,6 +88,10 @@ class KafkaProducerIntegrationTest {
         when(config.getTokenUrl()).thenReturn("tokenUrl");
         when(config.getClientId()).thenReturn("clientId");
         when(config.getClientSecret()).thenReturn("clientSecret");
+        when(config.getSecurityProtocol()).thenReturn("SASL_PLAINTEXT");
+        when(config.getSslTruststoreLocation()).thenReturn("/opt/java/openjdk/lib/security/cacerts");
+        when(config.getSslEndpointIdentificationAlgorithm()).thenReturn("");
+        when(config.getSslTruststoreType()).thenReturn("JKS");
         kafkaConfig = new KafkaConfig(config);
 
         try (AdminClient adminClient = AdminClient.create(basicKafkaProperties())) {

@@ -31,6 +31,8 @@ import java.util.Properties;
 import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
 import static org.apache.kafka.clients.producer.ProducerConfig.*;
 import static org.apache.kafka.common.config.SaslConfigs.*;
+import static org.apache.kafka.common.config.SslConfigs.*;
+
 /**
  * Configuration for Kafka producer setup.
  */
@@ -53,7 +55,7 @@ public class KafkaConfig {
         configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
         // Security settings for SASL/OAUTHBEARER
-        configProps.put(SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        configProps.put(SECURITY_PROTOCOL_CONFIG, config.getSecurityProtocol());
         configProps.put(SASL_MECHANISM, "OAUTHBEARER");
 
         // OAuth properties
@@ -67,6 +69,11 @@ public class KafkaConfig {
                 "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
                         "clientId=\"" + config.getClientId() + "\" " +
                         "clientSecret=\"" + config.getClientSecret() + "\";");
+
+        // SSL configuration for development with self-signed certificates
+        configProps.put(SSL_TRUSTSTORE_LOCATION_CONFIG, config.getSslTruststoreLocation());
+        configProps.put(SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, config.getSslEndpointIdentificationAlgorithm());
+        configProps.put(SSL_TRUSTSTORE_TYPE_CONFIG, config.getSslTruststoreType());
         return configProps;
     }
 
