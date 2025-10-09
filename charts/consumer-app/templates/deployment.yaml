@@ -47,6 +47,30 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.customCACerts.enabled }}
+      initContainers:
+        - name: custom-cacerts
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cp /opt/java/openjdk/lib/security/cacerts /workdir/
+              find /cacerts -type f \( -iname \*.crt -o -iname \*.pem \) -exec echo "{}" \; | while read PEM_FILE_PATH; do
+                PEM_FILE=${PEM_FILE_PATH##*/}
+                ALIAS=${PEM_FILE%.*}
+                echo "adding ${PEM_FILE} with alias ${ALIAS} to cacerts ..."
+                keytool -import -noprompt -trustcacerts -alias ${ALIAS} -file ${PEM_FILE_PATH} -keystore /workdir/cacerts -storepass changeit
+              done
+          securityContext:
+                {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - name: custom-cacertificates
+              mountPath: /cacerts
+            - name: custom-cacerts
+              mountPath: /workdir
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -77,6 +101,12 @@ spec:
               value: {{ tpl .Values.application.provider.protocolUrl . | quote }}
             - name: CONSUMER_MODE
               value: {{ tpl .Values.application.mode . | quote }}
+            - name: KAFKA_SSL_TRUSTSTORE_LOCATION
+              value: {{ .Values.application.kafka.ssl.truststoreLocation | quote }}
+            - name: KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM
+              value: {{ .Values.application.kafka.ssl.endpointIdentificationAlgorithm | quote }}
+            - name: KAFKA_SSL_TRUSTSTORE_TYPE
+              value: {{ .Values.application.kafka.ssl.truststoreType | quote }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -95,11 +125,25 @@ spec:
           {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if .Values.customCACerts.enabled }}
+            - name: custom-cacerts
+              mountPath: /opt/java/openjdk/lib/security/cacerts
+              subPath: cacerts
+          {{- end }}
       volumes:
         - name: tmp-volume
           emptyDir: {}
       {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.customCACerts.enabled }}
+        - name: custom-cacertificates
+          secret:
+            secretName: {{ tpl (required "customCACerts.secretName must be set" .Values.customCACerts.secretName) . | quote }}
+            defaultMode: 0400
+        - name: custom-cacerts
+          emptyDir:
+            sizeLimit: {{ .Values.customCACerts.emptyDirSize | default "1Mi" }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

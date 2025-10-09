@@ -49,5 +49,4 @@ public class KafkaProducerApp {
         log.info("Starting producer...");
         kafkaProducerAppService.runProducer();
     }
-
 }

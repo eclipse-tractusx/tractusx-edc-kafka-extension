@@ -29,6 +29,22 @@ public class ProducerProperties {
         return Long.parseLong(getOrDefault("MESSAGE_SEND_INTERVAL_MS", "2000"));
     }
 
+    public String getSslTruststoreLocation() {
+        return getOrDefault("SSL_TRUSTSTORE_LOCATION", "/opt/java/openjdk/lib/security/cacerts");
+    }
+
+    public String getSslEndpointIdentificationAlgorithm() {
+        return getOrDefault("SSL_ENDPOINT_IDENTIFICATION_ALGORITHM", "");
+    }
+
+    public String getSslTruststoreType() {
+        return getOrDefault("SSL_TRUSTSTORE_TYPE", "JKS");
+    }
+
+    public String getSecurityProtocol() {
+        return getOrDefault("SECURITY_PROTOCOL", "SASL_PLAINTEXT");
+    }
+
     public String getProductionForecastTopic() {
         return getOrDefault("KAFKA_PRODUCTION_FORECAST_TOPIC", "kafka-production-forecast-topic");
     }

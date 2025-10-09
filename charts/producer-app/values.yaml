@@ -39,11 +39,17 @@ application:
   # Kafka Configuration
   kafka:
     bootstrapServers: "{{ .Release.Name }}-kafka-controller-0-external:9095"
+    securityProtocol: "SASL_SSL"
     topics:
       productionForecast: "kafka-production-forecast-topic"
       productionTracking: "kafka-production-tracking-topic"
       stream: "kafka-stream-topic"
-  
+    ssl:
+      truststoreLocation: "/certs/kafka.server.truststore.jks"
+      truststorePassword: "kafka123"
+      endpointIdentificationAlgorithm: ""
+      truststoreType: "JKS"
+
   # Authentication Configuration
   authentication:
     oauth2:
@@ -166,3 +172,8 @@ volumeMounts: []
 # - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
+
+customCACerts:
+  enabled: false
+  secretName: kafka-pem
+  emptyDirSize: 1Mi

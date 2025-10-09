@@ -67,15 +67,17 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     private final KafkaAclService aclService;
     private final TransferTypeParser transferTypeParser;
     private final DataFlowPropertiesProvider propertiesProvider;
+    private final boolean aclEnabled;
 
     public KafkaBrokerDataFlowController(final Vault vault, final KafkaOAuthService oauthService,
                                          final KafkaAclService aclService, TransferTypeParser transferTypeParser,
-                                         DataFlowPropertiesProvider propertiesProvider) {
+                                         DataFlowPropertiesProvider propertiesProvider, final boolean aclEnabled) {
         this.vault = vault;
         this.oauthService = oauthService;
         this.aclService = aclService;
         this.transferTypeParser = transferTypeParser;
         this.propertiesProvider = propertiesProvider;
+        this.aclEnabled = aclEnabled;
     }
 
     @Override
@@ -108,11 +110,13 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         vault.storeSecret(transferProcess.getId(), token.getToken());
 
         // Create ACLs for the OAuth subject
-        String oauthSubject = extractOAuthSubject(token);
-        String topicName = contentDataAddress.getStringProperty(TOPIC);
-        var aclResult = aclService.createAclsForSubject(oauthSubject, topicName, transferProcess.getId());
-        if (aclResult.failed()) {
-            return StatusResult.failure(FATAL_ERROR, START_FAILED + "Failed to create ACLs: " + aclResult.getFailureDetail());
+        if (aclEnabled) {
+            String oauthSubject = extractOAuthSubject(token);
+            String topicName = contentDataAddress.getStringProperty(TOPIC);
+            var aclResult = aclService.createAclsForSubject(oauthSubject, topicName, transferProcess.getId());
+            if (aclResult.failed()) {
+                return StatusResult.failure(FATAL_ERROR, START_FAILED + "Failed to create ACLs: " + aclResult.getFailureDetail());
+            }
         }
 
         var pollDuration = Optional.ofNullable(contentDataAddress.getStringProperty(POLL_DURATION)).orElse(DEFAULT_POLL_DURATION);
@@ -207,10 +211,12 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         try {
             var transferProcessId = transferProcess.getId();
 
-            // Revoke ACLs for this transfer process
-            var aclResult = aclService.revokeAclsForTransferProcess(transferProcessId);
-            if (aclResult.failed()) {
-                return StatusResult.failure(FATAL_ERROR, error + "Failed to revoke ACLs: " + aclResult.getFailureDetail());
+            if (aclEnabled) {
+                // Revoke ACLs for this transfer process
+                var aclResult = aclService.revokeAclsForTransferProcess(transferProcessId);
+                if (aclResult.failed()) {
+                    return StatusResult.failure(FATAL_ERROR, error + "Failed to revoke ACLs: " + aclResult.getFailureDetail());
+                }
             }
 
             vault.deleteSecret(transferProcessId);

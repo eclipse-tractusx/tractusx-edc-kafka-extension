@@ -118,7 +118,7 @@ class KafkaBrokerDataFlowControllerIntegrationTest {
         aclProperties.put(KAFKA_BOOTSTRAP_SERVERS_PROPERTY,  kafka.getBootstrapServers());
         KafkaAclService aclService = new KafkaAclServiceImpl(aclProperties, new ConsoleMonitor());
 
-        controller = new KafkaBrokerDataFlowController(vault, oauthService, aclService, transferTypeParser, propertiesProvider);
+        controller = new KafkaBrokerDataFlowController(vault, oauthService, aclService, transferTypeParser, propertiesProvider, true);
     }
 
     @Test
