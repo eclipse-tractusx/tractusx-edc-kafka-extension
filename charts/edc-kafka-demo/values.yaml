@@ -146,10 +146,10 @@ keycloak:
       persistence:
         enabled: false
   livenessProbe:
-    initialDelaySeconds: 120
+    initialDelaySeconds: 60
     periodSeconds: 1
     timeoutSeconds: 5
-    failureThreshold: 10
+    failureThreshold: 20
   readinessProbe:
     initialDelaySeconds: 30
     periodSeconds: 5
@@ -158,12 +158,12 @@ keycloak:
 
 consumer-app:
   enabled: true
-  customCACerts:
-    enabled: true
-    secretName: kafka-pem
   service:
     enabled: true
     port: 8080
+  customCACerts:
+    enabled: true
+    secretName: kafka-pem
   secrets:
     edcApiKey: "password"
   application:
@@ -229,7 +229,7 @@ producer-edc:
       id: "BPNL000000000B02"
     iatp:
       id: "did:web:changeme"
-      trustedIssuers: [ ]
+      trustedIssuers: []
       sts:
         dim:
           url: http://test.local
@@ -251,13 +251,13 @@ producer-edc:
       env:
         EDC_KAFKA_SSL_TRUSTSTORE_LOCATION: "/opt/java/openjdk/lib/security/cacerts"
         EDC_KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: ""
-        EDC_KAFKA_BOOTSTRAP_SERVERS: "demo-kafka.demo.svc.cluster.local:9095"
+        EDC_KAFKA_BOOTSTRAP_SERVERS: "demo-kafka-controller-0-external:9095"
         EDC_KAFKA_SECURITY_PROTOCOL: "SASL_SSL"
         EDC_KAFKA_SASL_MECHANISM: "OAUTHBEARER"
-        EDC_KAFKA_ADMIN_TOKEN_URL: "http://kafka-keycloak:80/realms/kafka/protocol/openid-connect/token"
+        EDC_KAFKA_ADMIN_TOKEN_URL: "http://demo-keycloak:80/realms/kafka/protocol/openid-connect/token"
         EDC_KAFKA_ADMIN_CLIENT_ID: "myclient"
         EDC_KAFKA_ADMIN_CLIENT_SECRET_KEY: "adminKey"
-        EDC_KAFKA_ADMIN_SCOPE: "profile email"
+        EDC_KAFKA_ACL_ENABLED: "false"
       bdrs:
         server:
           url: http://test.local
@@ -288,7 +288,7 @@ consumer-edc:
       id: "BPNL000000000A01"
     iatp:
       id: "did:web:changeme"
-      trustedIssuers: [ ]
+      trustedIssuers: []
       sts:
         dim:
           url: http://test.local
@@ -316,7 +316,6 @@ consumer-edc:
         EDC_KAFKA_ADMIN_TOKEN_URL: "http://kafka-keycloak:80/realms/kafka/protocol/openid-connect/token"
         EDC_KAFKA_ADMIN_CLIENT_ID: "myclient"
         EDC_KAFKA_ADMIN_CLIENT_SECRET_KEY: "adminKey"
-        EDC_KAFKA_ADMIN_SCOPE: "profile email"
       bdrs:
         server:
           url: http://test.local

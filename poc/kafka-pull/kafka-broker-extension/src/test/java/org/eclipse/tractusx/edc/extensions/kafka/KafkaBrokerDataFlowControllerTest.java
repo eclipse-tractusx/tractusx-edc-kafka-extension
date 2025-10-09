@@ -119,7 +119,7 @@ class KafkaBrokerDataFlowControllerTest {
         when(aclService.createAclsForSubject(any(), any(), any())).thenReturn(Result.success());
         when(aclService.revokeAclsForTransferProcess(any())).thenReturn(Result.success());
 
-        controller = new KafkaBrokerDataFlowController(vault, oauthService, aclService, transferTypeParser, propertiesProvider);
+        controller = new KafkaBrokerDataFlowController(vault, oauthService, aclService, transferTypeParser, propertiesProvider, true);
     }
 
     @Test

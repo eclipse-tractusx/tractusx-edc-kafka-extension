@@ -39,6 +39,9 @@ public class KafkaConsumerApplication {
     static final String EDC_MANAGEMENT_URL = System.getenv().getOrDefault("EDC_MANAGEMENT_URL", "http://localhost:8081/management");
     static final String EDC_API_KEY = System.getenv().getOrDefault("EDC_API_KEY", "password");
     static final String CONSUMER_MODE = System.getenv().getOrDefault("CONSUMER_MODE", "legacy");
+    static final String KAFKA_SSL_TRUSTSTORE_LOCATION = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_LOCATION", "");
+    static final String KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM = System.getenv().getOrDefault("KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM", "");
+    static final String KAFKA_SSL_TRUSTSTORE_TYPE = System.getenv().getOrDefault("KAFKA_SSL_TRUSTSTORE_TYPE", "");
 
     public static void main(String[] args) {
         SpringApplication.run(KafkaConsumerApplication.class, args);

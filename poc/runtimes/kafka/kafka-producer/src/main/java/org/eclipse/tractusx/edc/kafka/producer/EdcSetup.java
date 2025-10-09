@@ -116,7 +116,7 @@ public class EdcSetup {
                     "clientSecretKey": "%s"
                   }
                 }
-                """.formatted(assetId, config.getBootstrapServers(), topic, KAFKA_SECURITY_PROTOCOL, config.getTokenUrl(), config.getRevokeUrl(), config.getClientId(), config.getVaultClientSecretKey());
+                """.formatted(assetId, config.getBootstrapServers(), topic, config.getSecurityProtocol(), config.getTokenUrl(), config.getRevokeUrl(), config.getClientId(), config.getVaultClientSecretKey());
     }
 
     private String getPolicyDefinitionJson() {

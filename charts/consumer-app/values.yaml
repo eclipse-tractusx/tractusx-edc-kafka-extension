@@ -52,7 +52,7 @@ application:
       # Kafka SSL endpoint identification algorithm (set to "" to disable host name verification in dev)
       endpointIdentificationAlgorithm: ""
       # Truststore type (e.g., JKS or PKCS12). Leave empty to use JVM default.
-      truststoreType: "JSK"
+      truststoreType: "JKS"
 
   # Provider Configuration
   provider:

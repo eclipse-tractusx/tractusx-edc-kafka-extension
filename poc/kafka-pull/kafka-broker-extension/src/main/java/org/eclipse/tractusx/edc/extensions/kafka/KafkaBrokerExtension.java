@@ -31,13 +31,15 @@ import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.system.ServiceExtension;
 import org.eclipse.edc.spi.system.ServiceExtensionContext;
-import org.eclipse.tractusx.edc.dataaddress.kafka.spi.KafkaBrokerDataAddressSchema;
 import org.eclipse.tractusx.edc.extensions.kafka.acl.KafkaAclServiceImpl;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthServiceImpl;
 
 import java.util.Map;
 import java.util.Properties;
 
+import static org.apache.kafka.clients.CommonClientConfigs.SECURITY_PROTOCOL_CONFIG;
+import static org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG;
+import static org.apache.kafka.common.config.SaslConfigs.*;
 import static org.apache.kafka.common.config.SslConfigs.*;
 import static org.eclipse.tractusx.edc.core.utils.ConfigUtil.missingMandatoryProperty;
 
@@ -71,10 +73,6 @@ public class KafkaBrokerExtension implements ServiceExtension {
     @Setting(value = "Vault key for OAuth client secret for Kafka AdminClient authentication", required = true)
     public static final String KAFKA_ADMIN_CLIENT_SECRET_KEY = "edc.kafka.admin.client.secret.key";
 
-    public static final String DEFAULT_KAFKA_ADMIN_SCOPE = "kafka-admin";
-    @Setting(value = "OAuth scope for Kafka AdminClient authentication", defaultValue = DEFAULT_KAFKA_ADMIN_SCOPE)
-    public static final String KAFKA_ADMIN_SCOPE = "edc.kafka.admin.scope";
-
     // SSL Configuration properties for AdminClient
     @Setting(value = "SSL truststore location for Kafka AdminClient")
     public static final String KAFKA_SSL_TRUSTSTORE_LOCATION = "edc.kafka.ssl.truststore.location";
@@ -87,6 +85,9 @@ public class KafkaBrokerExtension implements ServiceExtension {
 
     @Setting(value = "The file format of the trust store file for Kafka AdminClient")
     public static final String KAFKA_SSL_TRUSTSTORE_TYPE_CONFIG = "edc.kafka.ssl.truststore.type";
+
+    @Setting(value = "Flag to enable or disable Kafka ACL management.")
+    public static final String KAFKA_ACL_ENABLED = "edc.kafka.acl.enabled";
 
     @Inject
     private DataFlowManager dataFlowManager;
@@ -110,49 +111,43 @@ public class KafkaBrokerExtension implements ServiceExtension {
     public void initialize(final ServiceExtensionContext context) {
         Properties kafkaProperties = createKafkaAdminProperties(context);
 
+        boolean aclEnabled = context.getSetting(KAFKA_ACL_ENABLED, true);
         var kafkaAclService = new KafkaAclServiceImpl(kafkaProperties, monitor);
 
         var kafkaOAuthService = new KafkaOAuthServiceImpl(oauth2Client);
-        var controller = new KafkaBrokerDataFlowController(vault, kafkaOAuthService, kafkaAclService, transferTypeParser, getPropertiesProvider());
+        var controller = new KafkaBrokerDataFlowController(vault, kafkaOAuthService, kafkaAclService, transferTypeParser, getPropertiesProvider(), aclEnabled);
         dataFlowManager.register(controller);
     }
 
     private Properties createKafkaAdminProperties(ServiceExtensionContext context) {
         Properties properties = new Properties();
-
         // Basic connection properties
         String bootstrapServers = context.getSetting(KAFKA_BOOTSTRAP_SERVERS, null);
         if (bootstrapServers == null) {
             missingMandatoryProperty(monitor, KAFKA_BOOTSTRAP_SERVERS);
         }
-        properties.put(KafkaBrokerDataAddressSchema.KAFKA_BOOTSTRAP_SERVERS_PROPERTY, bootstrapServers);
-        properties.put(KafkaBrokerDataAddressSchema.KAFKA_SECURITY_PROTOCOL_PROPERTY, context.getSetting(KAFKA_SECURITY_PROTOCOL, DEFAULT_SECURITY_PROTOCOL));
-        properties.put(KafkaBrokerDataAddressSchema.KAFKA_SASL_MECHANISM_PROPERTY, context.getSetting(KAFKA_SASL_MECHANISM, DEFAULT_SASL_MECHANISM));
+        properties.put(BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(SECURITY_PROTOCOL_CONFIG, context.getSetting(KAFKA_SECURITY_PROTOCOL, DEFAULT_SECURITY_PROTOCOL));
+        properties.put(SASL_MECHANISM, context.getSetting(KAFKA_SASL_MECHANISM, DEFAULT_SASL_MECHANISM));
 
 
         // Authentication configuration
         String tokenUrl = context.getSetting(KAFKA_ADMIN_TOKEN_URL, null);
         String clientId = context.getSetting(KAFKA_ADMIN_CLIENT_ID, null);
         String clientSecretKey = context.getSetting(KAFKA_ADMIN_CLIENT_SECRET_KEY, null);
-        String scope = context.getSetting(KAFKA_ADMIN_SCOPE, DEFAULT_KAFKA_ADMIN_SCOPE);
 
         if (tokenUrl != null && clientId != null && clientSecretKey != null) {
             // Get client secret from vault
             String clientSecret = vault.resolveSecret(clientSecretKey);
             if (clientSecret != null) {
                 // Configure SASL/OAUTHBEARER authentication
-                String jaasConfig = String.format(
+                String jaasConfig =
                         "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required " +
-                                "clientId='%s' " +
-                                "clientSecret='%s' " +
-                                "scope='%s';",
-                        clientId, clientSecret, scope
-                );
-
-                properties.put("sasl.jaas.config", jaasConfig);
-                properties.put("sasl.login.callback.handler.class",
-                        "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler");
-                properties.put("sasl.oauthbearer.token.endpoint.url", tokenUrl);
+                                "clientId=\"" + clientId + "\" " +
+                                "clientSecret=\"" + clientSecret + "\";";
+                properties.put(SASL_JAAS_CONFIG, jaasConfig);
+                properties.put(SASL_LOGIN_CALLBACK_HANDLER_CLASS, "org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginCallbackHandler");
+                properties.put(SASL_OAUTHBEARER_TOKEN_ENDPOINT_URL, tokenUrl);
 
                 monitor.info("Configured Kafka AdminClient with OAuth authentication");
             } else {
