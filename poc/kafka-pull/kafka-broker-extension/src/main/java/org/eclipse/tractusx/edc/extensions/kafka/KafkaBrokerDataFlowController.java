@@ -32,13 +32,17 @@ import org.eclipse.edc.spi.response.ResponseStatus;
 import org.eclipse.edc.spi.response.StatusResult;
 import org.eclipse.edc.spi.security.Vault;
 import org.eclipse.edc.spi.types.domain.DataAddress;
+import org.eclipse.tractusx.edc.extensions.kafka.acl.KafkaAclService;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.KafkaOAuthService;
 import org.eclipse.tractusx.edc.extensions.kafka.auth.OAuthCredentials;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.eclipse.edc.spi.constants.CoreConstants.EDC_NAMESPACE;
 import static org.eclipse.edc.spi.response.ResponseStatus.FATAL_ERROR;
@@ -60,13 +64,16 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     private static final String TRANSFER_TYPE = "KafkaBroker-PULL";
     private final Vault vault;
     private final KafkaOAuthService oauthService;
+    private final KafkaAclService aclService;
     private final TransferTypeParser transferTypeParser;
     private final DataFlowPropertiesProvider propertiesProvider;
 
     public KafkaBrokerDataFlowController(final Vault vault, final KafkaOAuthService oauthService,
-                                         TransferTypeParser transferTypeParser, DataFlowPropertiesProvider propertiesProvider) {
+                                         final KafkaAclService aclService, TransferTypeParser transferTypeParser,
+                                         DataFlowPropertiesProvider propertiesProvider) {
         this.vault = vault;
         this.oauthService = oauthService;
+        this.aclService = aclService;
         this.transferTypeParser = transferTypeParser;
         this.propertiesProvider = propertiesProvider;
     }
@@ -99,6 +106,14 @@ class KafkaBrokerDataFlowController implements DataFlowController {
             return StatusResult.failure(ResponseStatus.FATAL_ERROR, START_FAILED + e.getMessage());
         }
         vault.storeSecret(transferProcess.getId(), token.getToken());
+
+        // Create ACLs for the OAuth subject
+        String oauthSubject = extractOAuthSubject(token);
+        String topicName = contentDataAddress.getStringProperty(TOPIC);
+        var aclResult = aclService.createAclsForSubject(oauthSubject, topicName, transferProcess.getId());
+        if (aclResult.failed()) {
+            return StatusResult.failure(FATAL_ERROR, START_FAILED + "Failed to create ACLs: " + aclResult.getFailureDetail());
+        }
 
         var pollDuration = Optional.ofNullable(contentDataAddress.getStringProperty(POLL_DURATION)).orElse(DEFAULT_POLL_DURATION);
 
@@ -135,6 +150,40 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         return new OAuthCredentials(tokenUrl, clientId, clientSecret);
     }
 
+    /**
+     * Extracts the OAuth subject (sub claim) from the JWT token.
+     * This subject is used as the principal for Kafka ACL creation.
+     */
+    private String extractOAuthSubject(TokenRepresentation token) {
+        try {
+            String jwtToken = token.getToken();
+
+            // JWT tokens have three parts separated by dots: header.payload.signature
+            String[] parts = jwtToken.split("\\.");
+            if (parts.length != 3) {
+                throw new EdcException("Invalid JWT token format");
+            }
+
+            // Decode the payload (second part)
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+
+            // Parse the JSON payload
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode payloadNode = objectMapper.readTree(payload);
+
+            // Extract the subject claim
+            JsonNode subNode = payloadNode.get("sub");
+            if (subNode == null || subNode.isNull()) {
+                throw new EdcException("No 'sub' claim found in JWT token");
+            }
+
+            return subNode.asText();
+
+        } catch (Exception e) {
+            throw new EdcException("Failed to extract OAuth subject from token: " + e.getMessage(), e);
+        }
+    }
+
     @Override
     public StatusResult<Void> suspend(final TransferProcess transferProcess) {
         return deleteCredentialsAndRevokeAccess(transferProcess, SUSPEND_FAILED);
@@ -158,6 +207,11 @@ class KafkaBrokerDataFlowController implements DataFlowController {
         try {
             var transferProcessId = transferProcess.getId();
 
+            // Revoke ACLs for this transfer process
+            var aclResult = aclService.revokeAclsForTransferProcess(transferProcessId);
+            if (aclResult.failed()) {
+                return StatusResult.failure(FATAL_ERROR, error + "Failed to revoke ACLs: " + aclResult.getFailureDetail());
+            }
 
             vault.deleteSecret(transferProcessId);
 
