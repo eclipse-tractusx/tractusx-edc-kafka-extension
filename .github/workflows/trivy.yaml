@@ -55,11 +55,10 @@ jobs:
         run: ./gradlew shadowJar --no-daemon
 
       - name: Build docker image
-        working-directory: poc/runtimes/edc/edc-controlplane-kafka-local
+        working-directory: poc
         run: |
-          docker build \
-          -t local-image:${{ github.sha }} \
-          .
+          cp resources/Dockerfile runtimes/edc/edc-controlplane-kafka
+          docker build -t local-image:${{ github.sha }} runtimes/edc/edc-controlplane-kafka
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.32.0
