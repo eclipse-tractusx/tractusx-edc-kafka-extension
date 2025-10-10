@@ -43,7 +43,7 @@ inputs:
   k8sversion:
     required: false
     description: "Version of Kubernetes to use"
-    default: "v1.30.0"
+    default: "v1.34.0"
 
 runs:
   using: "composite"
