@@ -61,7 +61,7 @@ jobs:
           docker build -t local-image:${{ github.sha }} runtimes/edc/edc-controlplane-kafka
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.32.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: local-image:${{ github.sha }}
           format: sarif
