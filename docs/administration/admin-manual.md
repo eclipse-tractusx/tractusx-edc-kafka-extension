@@ -28,9 +28,57 @@ dependencies {
 }
 ```
 
-### Docker Deployment
+### Kubernetes Deployment with Helm
 
-For containerized deployment, use the provided Docker Compose file as a reference: [poc/runtimes/docker-compose.yml](/poc/runtimes/docker-compose.yml)
+For Kubernetes deployment, use the provided Helm charts. The `edc-kafka-demo` chart deploys a complete demo environment including:
+
+- **Kafka broker** with OAuth authentication
+- **Keycloak** for identity and access management
+- **EDC connectors** (provider and consumer) with Kafka extension
+- **Producer and Consumer applications** for testing
+
+#### Prerequisites
+
+- Kubernetes cluster (e.g., Minikube, Kind, or cloud provider)
+- Helm 3.x installed
+- kubectl configured to access your cluster
+
+#### Installation Steps
+
+1. **Build the EDC runtimes**:
+
+   ```bash
+   ./poc/gradlew -p poc dockerize
+   ```
+
+2. **Update chart dependencies**:
+
+   ```bash
+   helm dependency update charts/tractusx-edc-kafka
+   helm dependency update charts/edc-kafka-demo
+   ```
+
+3. **Install the Helm chart**:
+
+   ```bash
+   helm install demo charts/edc-kafka-demo -n demo --create-namespace
+   ```
+
+4. **Verify the installation**:
+
+   It takes approximately 3 minutes for all components to be ready. Once all pods are started, run the helm test:
+
+   ```bash
+   helm test demo -n demo
+   ```
+
+5. **Uninstall** (when needed):
+
+   ```bash
+   helm uninstall demo -n demo
+   ```
+
+For more details and configuration options, see the chart documentation: [charts/edc-kafka-demo](/charts/edc-kafka-demo)
 
 ## Configuration
 

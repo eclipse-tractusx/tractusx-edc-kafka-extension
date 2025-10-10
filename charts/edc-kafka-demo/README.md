@@ -23,11 +23,11 @@ helm install demo charts/edc-kafka-demo -n demo --create-namespace
 
 ### Verify the installation
 
-It takes approx. 3 Minutes (may vary depending on your machine's resources) for all components to be ready. 
-Once all pods are started, inspect the consumer-app logs to see the dataflow in action: 
+It takes approximately 3 minutes (may vary depending on your machine's resources) for all components to be ready. 
+Once all pods are started, run the helm test:
 
 ```bash
-kubectl logs deployment/demo-consumer-app -n demo --max-log-requests=1 -f
+helm test demo -n demo
 ```
 
 ### Uninstall

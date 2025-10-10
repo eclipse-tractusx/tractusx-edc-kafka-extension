@@ -11,6 +11,8 @@ The documentation is organized into the following sections:
 ### Administration Documentation
 
 - [Admin Manual](administration/admin-manual.md): Comprehensive guide for administrators on how to install, configure, and maintain the Kafka extension, including security considerations and troubleshooting.
+- [Helm Test Documentation](administration/helm-test-documentation.md): Documents the automated Helm tests for the EDC Kafka Demo chart, including three test cases that verify consumer application functionality for subscribing to Kafka assets, handling different asset types, and error scenarios.
+- [Kafka Consumer and Producer Applications](administration/kafka-consumer-producer-apps.md): Provides comprehensive documentation for example Kafka producer and consumer applications that demonstrate the Tractus-X EDC Kafka extension, including detailed configuration options, runtime workflows, security considerations, and EDC integration patterns for data exchange scenarios.
 
 ### Technical Documentation
 

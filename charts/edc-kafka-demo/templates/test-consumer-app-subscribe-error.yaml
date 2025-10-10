@@ -1,0 +1,85 @@
+#################################################################################
+#  Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+#  See the NOTICE file(s) distributed with this work for additional
+#  information regarding copyright ownership.
+#
+#  This program and the accompanying materials are made available under the
+#  terms of the Apache License, Version 2.0 which is available at
+#  https://www.apache.org/licenses/LICENSE-2.0.
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations
+#  under the License.
+#
+#  SPDX-License-Identifier: Apache-2.0
+#################################################################################
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "edc-kafka-demo.fullname" . }}-test-consumer-subscribe-error"
+  labels:
+    {{- include "edc-kafka-demo.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "7"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  restartPolicy: Never
+  containers:
+    - name: consumer-subscribe-error-test
+      image: curlimages/curl:8.4.0
+      command:
+        - /bin/sh
+        - -c
+        - |
+          set -e
+          echo "Testing consumer-app /api/subscribe endpoint for non-existing asset..."
+          
+          # Wait for consumer-app service to be ready
+          echo "Waiting for consumer-app service to be available..."
+          until nc -z {{ .Release.Name }}-consumer-app 8080; do
+            echo "Waiting for {{ .Release.Name }}-consumer-app:8080..."
+            sleep 5
+          done
+          
+          echo "Making POST request to /api/subscribe with assetId=not-existing..."
+          
+          # Make POST request to the subscribe endpoint with non-existing asset
+          RESPONSE=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -X POST \
+            "http://{{ .Release.Name }}-consumer-app:8080/api/subscribe?assetId=not-existing" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json")
+          
+          # Extract HTTP code and response body
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1 | cut -d: -f2)
+          RESPONSE_BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status Code: $HTTP_CODE"
+          echo "Response Body: $RESPONSE_BODY"
+          
+          # Check if HTTP status is BAD_GATEWAY (502)
+          if [ "$HTTP_CODE" -ne 502 ]; then
+            echo "ERROR: Expected HTTP status code 502 (BAD_GATEWAY), but got $HTTP_CODE"
+            exit 1
+          fi
+          
+          # Check if response contains error message with "EDC request failed"
+          if ! echo "$RESPONSE_BODY" | grep -q "EDC request failed"; then
+            echo "ERROR: Response does not contain expected error message 'EDC request failed'"
+            echo "Response: $RESPONSE_BODY"
+            exit 1
+          fi
+          
+          echo "SUCCESS: Error handling test passed - received BAD_GATEWAY with correct error message"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL

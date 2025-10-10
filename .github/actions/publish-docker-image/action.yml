@@ -96,7 +96,7 @@ runs:
         build-args: |
           JAR=build/libs/${{ inputs.imagename }}.jar
           ADDITIONAL_FILES=build/legal/*
-        push: false
+        push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
