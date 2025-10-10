@@ -21,6 +21,7 @@ package org.eclipse.tractusx.edc.kafka.consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.KafkaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -72,10 +72,14 @@ public class SubscriptionController {
 
             return ResponseEntity.ok(response);
 
-        } catch (IllegalArgumentException | IOException e) {
-            log.error("Error processing subscription request for assetId: {}", sanitizeForLog(assetId), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(SubscriptionResponse.error("Internal server error"));
+        } catch (IOException e) {
+            log.error("EDC request failed for assetId: {}", sanitizeForLog(assetId), e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(SubscriptionResponse.error("EDC request failed: " + e.getMessage()));
+        } catch (KafkaException | IllegalArgumentException e) {
+            log.error("Kafka connection failed for assetId: {}", sanitizeForLog(assetId), e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(SubscriptionResponse.error("Kafka connection failed for assetId: " + e.getMessage()));
         }
     }
 

@@ -2,8 +2,10 @@
 ## Prerequisites
 
 - Java 21 or higher
-- Docker and Docker Compose
 - Gradle
+- Kubernetes cluster (e.g., Minikube, Kind, or cloud provider)
+- Helm 3.x installed
+- kubectl configured to access your cluster
 
 ## Building the Project
 
@@ -15,18 +17,18 @@ To build the project, and docker images run:
 
 ## Running the Example
 
-### Using Docker Compose
+### Using Helm Charts
 
-The easiest way to run the complete example is using Docker Compose:
+The easiest way to run the complete example is using the Helm Charts:
 
 ```bash
-docker compose --project-directory poc/runtimes up
+ helm upgrade --install demo charts/edc-kafka-demo -n demo --create-namespace --wait
 ```
 
 This will start:
 
-- EDC Control Plane and Data Plane for Alice (provider)
-- EDC Control Plane and Data Plane for Bob (consumer)
+- Provider EDC Control Plane and Data Plane 
+- Consumer EDC Control Plane and Data Plane
 - Keycloak for OAuth authentication
 - Kafka broker (with KRaft mode see: [KRaft vs ZooKeeper](https://kafka.apache.org/documentation/#zk2kraft-summary)) 
 - Example Kafka producer and consumer applications
@@ -66,8 +68,9 @@ Once the transfer is established:
 To understand the technical implementation:
 
 - See the [Kafka Broker Extension README](poc/kafka-pull/README.md) for details on the extension components
-- Examine the configuration files in the `runtimes/edc` directory to understand the setup
-- Review the Docker Compose file to see how the components are connected
+- Review the [Helm Chart](charts/edc-kafka-demo) to see how the components are connected and configured
+- Look at the [kafka-consumer](poc/runtimes/kafka/kafka-consumer) and [kafka-producer](poc/runtimes/kafka/kafka-producer) applications to understand how apps can
+  publish and consume data from kafka using the kafka extension
 
 ## Next Steps
 
