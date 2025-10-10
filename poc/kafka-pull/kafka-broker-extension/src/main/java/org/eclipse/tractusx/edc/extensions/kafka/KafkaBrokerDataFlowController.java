@@ -87,6 +87,11 @@ class KafkaBrokerDataFlowController implements DataFlowController {
     }
 
     @Override
+    public StatusResult<DataFlowResponse> provision(TransferProcess transferProcess, Policy policy) {
+        return start(transferProcess, policy);
+    }
+
+    @Override
     public @NotNull StatusResult<DataFlowResponse> start(final TransferProcess transferProcess, final Policy policy) {
         var transferTypeParse = transferTypeParser.parse(transferProcess.getTransferType());
         if (transferTypeParse.failed()) {

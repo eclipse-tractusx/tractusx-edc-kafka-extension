@@ -29,8 +29,8 @@ dependencies {
     implementation(project(":data-address-kafka"))
 
     testImplementation(libs.junit.jupiter)
-    testImplementation(libs.assertj)
     testImplementation(libs.edc.junit)
+    testImplementation(libs.assertj)
     testImplementation(libs.mockito.core)
 }
 

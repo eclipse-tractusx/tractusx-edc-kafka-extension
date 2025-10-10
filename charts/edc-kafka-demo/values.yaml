@@ -264,8 +264,6 @@ producer-edc:
         server:
           url: http://test.local
     dataplane:
-      image:
-        tag: "latest"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey
@@ -317,8 +315,6 @@ consumer-edc:
         server:
           url: http://test.local
     dataplane:
-      image:
-        tag: "latest"
       token:
         signer:
           privatekey_alias: tokenSignerPrivateKey

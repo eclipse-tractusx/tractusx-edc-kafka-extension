@@ -10,12 +10,12 @@ dependencies:
   version: 0.1.0
 - name: tractusx-edc-kafka
   repository: file://../tractusx-edc-kafka
-  version: 0.1.0
+  version: 0.2.0
 - name: consumer-app
   repository: file://../consumer-app
   version: 0.1.0
 - name: tractusx-edc-kafka
   repository: file://../tractusx-edc-kafka
-  version: 0.1.0
-digest: sha256:b99cc5bceb2c8b272495d663e4568980029b9c3000ec4665108669fc873d8a4f
-generated: "2025-10-08T13:13:52.3880558+02:00"
+  version: 0.2.0
+digest: sha256:dcab312e97f5a41d000005761659677094184c560ab07e3de4089071808cd998
+generated: "2025-10-10T11:44:17.2915358+02:00"
