@@ -23,7 +23,6 @@ name: "Deployment Tests"
 
 on:
   # Allows you to run this workflow manually from the Actions tab
-  push:
   workflow_dispatch:
     inputs:
       k8sversion:
