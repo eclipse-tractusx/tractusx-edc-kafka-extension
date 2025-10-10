@@ -244,6 +244,7 @@ producer-edc:
             secret_alias: clientSecretAlias
     controlplane:
       image:
+        repository: "tractusx/edc-controlplane-kafka-local"
         tag: "latest"
       endpoints:
         management:
@@ -297,6 +298,7 @@ consumer-edc:
             secret_alias: clientSecretAlias
     controlplane:
       image:
+        repository: "tractusx/edc-controlplane-kafka-local"
         tag: "latest"
       endpoints:
         management:
