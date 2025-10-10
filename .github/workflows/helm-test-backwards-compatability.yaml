@@ -36,7 +36,6 @@ on:
         default: 'v1.32.8'
         required: false
         type: string
-  push:
 
 jobs:
   test-latest:
