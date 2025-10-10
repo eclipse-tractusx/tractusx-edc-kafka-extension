@@ -20,12 +20,9 @@
 
 plugins {
     jacoco
+    `java-library`
 }
 
 dependencies {
     implementation(libs.edc.spi.core)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

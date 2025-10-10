@@ -19,31 +19,32 @@
  */
 
 plugins {
-   jacoco
+    jacoco
+    `java-library`
 }
 
 dependencies {
-   implementation(libs.tx.edc.core.utils)
-   implementation(libs.edc.spi.transfer)
-   implementation(libs.edc.spi.validator)
-   implementation(libs.kafka.clients)
-   implementation(libs.edc.lib.util)
-   implementation(project(":data-address-kafka"))
-   implementation(project(":validator-data-address-kafka"))
-   implementation(libs.edc.spi.http)
-   implementation(libs.edc.transfer.data.plane.signaling)
-   implementation(libs.edc.auth.oauth2.client)
+    implementation(libs.tx.edc.core.utils)
+    implementation(libs.edc.spi.transfer)
+    implementation(libs.edc.spi.validator)
+    implementation(libs.kafka.clients)
+    implementation(libs.edc.lib.util)
+    implementation(project(":data-address-kafka"))
+    implementation(project(":validator-data-address-kafka"))
+    implementation(libs.edc.spi.http)
+    implementation(libs.edc.transfer.data.plane.signaling)
+    implementation(libs.edc.auth.oauth2.client)
 
-   testImplementation(libs.junit.jupiter)
-   testImplementation(libs.assertj)
-   testImplementation(libs.edc.junit)
-   testImplementation(libs.mockito.core)
-   testImplementation(libs.testcontainers)
-   testImplementation(libs.testcontainers.junit)
-   testImplementation(libs.testcontainers.kafka)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.assertj)
+    testImplementation(libs.edc.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.testcontainers)
+    testImplementation(libs.testcontainers.junit)
+    testImplementation(libs.testcontainers.kafka)
 }
 
 tasks.test {
-   useJUnitPlatform()
-   systemProperty("testcontainers.enabled", "true")
+    useJUnitPlatform()
+    systemProperty("testcontainers.enabled", "true")
 }
