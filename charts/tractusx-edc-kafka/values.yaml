@@ -21,7 +21,7 @@ tractusx-connector:
   install:
     postgresql: true
     vault: true
-#  customCaCerts:
+  customCaCerts: {}
 #    test.pem: |
 #      -----BEGIN CERTIFICATE-----
 #      MIICuzCCAaMCAQAwMzELMAkGA1UEBhMCREUxEDAOBgNVBAgMB0JhdmFyaWExEjAQ
@@ -45,7 +45,7 @@ tractusx-connector:
   controlplane:
     image:
       # override the edc docker image with the kafka extension image
-      repository: "edc-controlplane-kafka"
+      repository: "tractusx/edc-controlplane-kafka"
       pullPolicy: IfNotPresent
       tag: "latest"
 

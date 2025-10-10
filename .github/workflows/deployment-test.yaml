@@ -23,7 +23,21 @@ name: "Deployment Tests"
 
 on:
   # Allows you to run this workflow manually from the Actions tab
+  push:
   workflow_dispatch:
+    inputs:
+      k8sversion:
+        description: 'k8s version for the kind cluster'
+        default: 'v1.34.0'
+        required: false
+        type: string
+  workflow_call: # Trigger by another workflow
+    inputs:
+      k8sversion:
+        description: 'k8s version for the kind cluster'
+        default: 'v1.34.0'
+        required: false
+        type: string
 
 jobs:
   test-prepare:
@@ -43,8 +57,9 @@ jobs:
       - uses: ./.github/actions/run-deployment-test
         name: "Run deployment test using KinD and Helm"
         with:
-          imagename: edc-controlplane-kafka-local edc-dataplane-kafka-local kafka-consumer kafka-producer
+          imagename: tractusx/edc-controlplane-kafka-local tractusx/edc-dataplane-kafka-local tractusx/kafka-consumer tractusx/kafka-producer
           rootDir: runtimes/edc/edc-controlplane-kafka-local runtimes/edc/edc-dataplane-kafka-local runtimes/kafka/kafka-consumer runtimes/kafka/kafka-producer
+          k8sversion: ${{ github.event.inputs.k8sversion || 'v1.34.0' }}
           helm_command: |-
             helm dep up charts/tractusx-edc-kafka
             helm dep up charts/edc-kafka-demo

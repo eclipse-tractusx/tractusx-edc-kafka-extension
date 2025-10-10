@@ -158,6 +158,8 @@ keycloak:
 
 consumer-app:
   enabled: true
+  image:
+    tag: latest
   service:
     enabled: true
     port: 8080
@@ -182,6 +184,8 @@ consumer-app:
 
 producer-app:
   enabled: true
+  image:
+    tag: latest
   customCACerts:
     enabled: true
     secretName: kafka-pem
@@ -240,9 +244,6 @@ producer-edc:
             secret_alias: clientSecretAlias
     controlplane:
       image:
-        # override the edc docker image with the kafka extension image
-        repository: "edc-controlplane-kafka-local"
-        pullPolicy: IfNotPresent
         tag: "latest"
       endpoints:
         management:
@@ -263,9 +264,6 @@ producer-edc:
           url: http://test.local
     dataplane:
       image:
-        # override the edc docker image with the kafka extension image
-        repository: "edc-dataplane-kafka-local"
-        pullPolicy: IfNotPresent
         tag: "latest"
       token:
         signer:
@@ -299,9 +297,6 @@ consumer-edc:
             secret_alias: clientSecretAlias
     controlplane:
       image:
-        # override the edc docker image with the kafka extension image
-        repository: "edc-controlplane-kafka-local"
-        pullPolicy: IfNotPresent
         tag: "latest"
       endpoints:
         management:
@@ -321,9 +316,6 @@ consumer-edc:
           url: http://test.local
     dataplane:
       image:
-        # override the edc docker image with the kafka extension image
-        repository: "edc-dataplane-kafka-local"
-        pullPolicy: IfNotPresent
         tag: "latest"
       token:
         signer:
