@@ -64,10 +64,21 @@ jobs:
             helm dep up charts/edc-kafka-demo
             
             helm install demo charts/edc-kafka-demo -n demo --create-namespace \
-            --wait --timeout=300s --dependency-update
+            --wait --dependency-update
+            
+            # Wait for deployments to be ready
+            kubectl rollout status deployment demo-consumer-edc-controlplane -n demo
+            kubectl rollout status deployment demo-producer-edc-dataplane -n demo
+            kubectl rollout status deployment demo-producer-edc-controlplane -n demo
+            kubectl rollout status deployment demo-consumer-edc-dataplane -n demo
+            kubectl rollout status deployment demo-consumer-app -n demo
+            kubectl rollout status deployment demo-producer-app -n demo
             
             # Get deployment status
             kubectl get deployment -n demo
+            
+            # Wait for the producer to publish the first messages
+            sleep 5
             
             # execute the helm test
             helm test demo -n demo
