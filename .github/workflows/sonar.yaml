@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - uses: ./.github/actions/setup-java
 
@@ -58,7 +58,7 @@ jobs:
       - name: check_sonar_configured
         run: |
           echo "Checking if sonar is configured: ${{ env.SONAR_CONFIGURED }}"
-    env:
+    env: 
       SONAR_CONFIGURED: ${{ secrets.SONAR_TOKEN != '' && vars.SONAR_PROJECT_KEY != '' && vars.SONAR_ORGANIZATION != '' }}
     outputs:
       sonar_configured: ${{ env.SONAR_CONFIGURED }}
@@ -72,14 +72,14 @@ jobs:
       && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of sonar analysis
 
       - uses: ./.github/actions/setup-java
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+        uses: actions/cache@0ad4b8fadaa221f089640989f66085a8647ba35e # v4.2.2
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
