@@ -30,7 +30,7 @@ jobs:
   check-dependencies:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: ./.github/actions/setup-java
 
       - name: Generate dependencies list
@@ -41,7 +41,7 @@ jobs:
 
       - name: Run dash
         id: run-dash
-        uses: eclipse-tractusx/sig-infra/.github/actions/run-dash@main
+        uses: eclipse-tractusx/sig-infra/.github/actions/run-dash@1a2be9d3b599c081a4a307d8124f33d209f7c54e # main
         with:
           dash_input: poc/dependency-list
           dependencies_file: DEPENDENCIES

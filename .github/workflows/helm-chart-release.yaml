@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
 
@@ -50,7 +50,7 @@ jobs:
           fi
 
       - name: Install Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           version: v3.14.4
 
@@ -73,7 +73,7 @@ jobs:
           helm package charts/tractusx-edc-kafka --destination .cr-release-packages
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.5.0 # using 1.5.0 version because of https://github.com/helm/chart-releaser-action/issues/171
+        uses: helm/chart-releaser-action@be16258da8010256c6e82849661221415f031968 # v1.5.0, using 1.5.0 version because of https://github.com/helm/chart-releaser-action/issues/171
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
