@@ -48,13 +48,13 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
     - uses: ./.github/actions/setup-java
 
-    - uses: azure/setup-helm@v4
+    - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
       with:
         version: v3.16.1
-    - uses: azure/setup-kubectl@v4
+    - uses: azure/setup-kubectl@776406bce94f63e41d621b960d78ee25c8b76ede # v4.0.1
       with:
         version: v1.31.1
 
